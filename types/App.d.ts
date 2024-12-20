@@ -1,0 +1,71 @@
+interface SkinShopItem extends ValorantSkin {
+  contentTier: ValorantContentTier;
+  price: number;
+}
+
+interface BattlePassItem {
+  uuid: string;
+  displayIcon?: string;
+  displayName: string;
+  largeArt?: string;
+  fullIcon?: String;
+}
+
+interface BattlePassLevelsItem extends BattlePassItem {
+  xp: string;
+}
+
+interface BattlePass {
+  freeRewards: {
+    uuid: string;
+    displayIcon?: string;
+    displayName: string;
+    largeArt?: string;
+    fullIcon?: String;
+  }[];
+  levels: {
+    uuid: string;
+    displayIcon?: string;
+    displayName: string;
+    largeArt?: string;
+    fullIcon?: String;
+    xp: int;
+  }[];
+}
+
+interface AccessoryShopItem {
+  uuid: string;
+  displayName: string;
+  displayIcon?: string;
+  fullIcon?: string;
+  fullTransparentIcon?: string;
+  wideArt?: string;
+  largeArt?: string;
+  titleText?: string;
+  price: number;
+}
+
+interface GalleryItem extends ValorantSkin {
+  onWishlist: boolean;
+}
+
+interface NightMarketItem extends SkinShopItem {
+  discountedPrice: number;
+  discountPercent: number;
+}
+
+interface BundleShopItem extends ValorantBundle {
+  price: number;
+  items: SkinShopItem[];
+}
+
+interface Balance {
+  vp: number;
+  rad: number;
+  fag: number;
+}
+
+interface Progress {
+  level: number;
+  xp: number;
+}
