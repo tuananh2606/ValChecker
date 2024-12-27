@@ -12,6 +12,8 @@ import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { PaperProvider } from "react-native-paper";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { WebviewProvider } from "@/utils/context";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -33,20 +35,29 @@ export default function RootLayout() {
   }
 
   return (
-    <PaperProvider>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen
-            name="(authenticated)"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-          <Stack.Screen name="(login)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
-    </PaperProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <WebviewProvider>
+        <PaperProvider>
+          <ThemeProvider
+            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+          >
+            <Stack>
+              <Stack.Screen
+                name="(authenticated)"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="onboarding"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen name="(login)" options={{ headerShown: false }} />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+            <StatusBar style="auto" />
+          </ThemeProvider>
+        </PaperProvider>
+      </WebviewProvider>
+    </GestureHandlerRootView>
   );
 }

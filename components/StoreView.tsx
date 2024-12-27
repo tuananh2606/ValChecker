@@ -1,4 +1,4 @@
-import { FlatList, RefreshControl, View, Image, Text } from "react-native";
+import { FlatList, RefreshControl, View } from "react-native";
 import { useCallback, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import TimerAction from "./TimerAction";

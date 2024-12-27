@@ -2,7 +2,8 @@ import { Colors } from "@/constants/Colors";
 import { StyleSheet, Image, View, Text, useColorScheme } from "react-native";
 import { Card } from "react-native-paper";
 import React, { useState } from "react";
-import SkinModal from "../modal/SkinModal";
+import SkinModal from "../modal/BattlePassModal";
+import { Link, router } from "expo-router";
 
 interface Props {
   data: SkinShopItem;
@@ -12,17 +13,19 @@ const SkinItem = ({ data }: Props) => {
   const colorScheme = useColorScheme();
   const [isModalVisible, setModalVisible] = useState(false);
 
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-  };
   return (
-    <>
+    <Link
+      href={{
+        pathname: "/details/[id]",
+        params: { id: data.uuid },
+      }}
+      asChild
+    >
       <Card
         style={{
           marginVertical: 4,
           marginHorizontal: 16,
         }}
-        onPressIn={toggleModal}
       >
         <Card.Content
           style={[
@@ -64,13 +67,7 @@ const SkinItem = ({ data }: Props) => {
           </View>
         </Card.Content>
       </Card>
-
-      <SkinModal
-        isModalVisible={isModalVisible}
-        setModalVisible={setModalVisible}
-        data={{ levels: data.levels, chromas: data.chromas }}
-      />
-    </>
+    </Link>
   );
 };
 export default SkinItem;
@@ -79,14 +76,12 @@ const styles = StyleSheet.create({
   container: {
     height: 150,
     borderRadius: 12,
-    display: "flex",
     justifyContent: "center",
   },
   priceContainer: {
     position: "absolute",
     right: 10,
     top: 10,
-    display: "flex",
     flexDirection: "row",
     alignItems: "center",
   },
@@ -96,7 +91,6 @@ const styles = StyleSheet.create({
     bottom: 10,
   },
   imageContainer: {
-    display: "flex",
     alignItems: "center",
     height: 75,
   },

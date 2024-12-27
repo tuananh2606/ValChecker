@@ -296,22 +296,7 @@ type ContractsResponse = {
   Version: number;
   /** Player UUID */
   Subject: string;
-  Contracts: {
-    /** UUID */
-    ContractDefinitionID: string;
-    ContractProgression: {
-      TotalProgressionEarned: number;
-      TotalProgressionEarnedVersion: number;
-      HighestRewardedLevel: {
-        [x: string]: {
-          Amount: number;
-          Version: number;
-        };
-      };
-    };
-    ProgressionLevelReached: number;
-    ProgressionTowardsNextLevel: number;
-  }[];
+  Contracts: Contract[];
   ProcessedMatches: {
     /** Match ID */
     ID: string;
@@ -381,4 +366,21 @@ type ContractsResponse = {
     /** Date in ISO 8601 format */
     WeeklyRefillTime: string;
   };
+};
+
+type Contract = {
+  /** UUID */
+  ContractDefinitionID: string;
+  ContractProgression: {
+    TotalProgressionEarned: number;
+    TotalProgressionEarnedVersion: number;
+    HighestRewardedLevel: {
+      [x: string]: {
+        Amount: number;
+        Version: number;
+      };
+    };
+  };
+  ProgressionLevelReached: number;
+  ProgressionTowardsNextLevel: number;
 };

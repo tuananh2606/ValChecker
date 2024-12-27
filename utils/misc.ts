@@ -1,5 +1,7 @@
 import { Dimensions, Platform } from "react-native";
 
+export const TypeBattlePass = "Season";
+
 export const VCurrencies = {
   VP: "85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741", // VP
   RAD: "e59aa87c-4cbf-517a-5983-6e81511be9b7", // Radianite Points
@@ -16,6 +18,21 @@ export const VItemTypes = {
   Spray: "d5f120f8-ff8c-4aac-92ea-f2b5acbe9475",
   PlayerCard: "3f296c07-64c3-494c-923b-fe692a4fa1bd",
   PlayerTitle: "de7caa6b-adf7-4588-bbd1-143831e786c6",
+};
+
+export const VMissions = {
+  "2374d513-4508-aab4-cf0c-d7b166fb46d7": {
+    title: "Kill enemies",
+    target: 100,
+  },
+  "f2294642-4c5c-b89e-fdc3-a68bb46ec1a1": {
+    title: "Deal damage",
+    target: 18000,
+  },
+  "d6c42ee5-4a94-61ce-8a72-43bac02f51c9": {
+    title: "Purchase items from the armory",
+    target: 200,
+  },
 };
 
 export const regions = ["eu", "na", "ap", "kr"];
@@ -38,11 +55,16 @@ export const convertSecstoHhMmSs = (remainingTime: number) => {
     .toString()
     .padStart(2, "0")}`;
 };
+
+export const convertDatetoSeconds = (date: string) => {
+  const newDate = new Date(date);
+  const now = Date.now();
+
+  return Math.floor((newDate.getTime() - now) / 1000);
+};
 export const getDeviceWidth = () => {
   return Dimensions.get("window").width;
 };
 export const getDeviceHeight = () => {
-  return  Dimensions.get("window").height
-   
+  return Dimensions.get("window").height;
 };
-

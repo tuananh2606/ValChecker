@@ -1,7 +1,18 @@
+import TabButtons, { TabButtonType } from "@/components/TabButtons";
+import { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 export default function InventoryScreen() {
-  return <View style={styles.container}></View>;
+  return (
+    <View>
+      <View>
+        <Text>Card</Text>
+      </View>
+      <View>
+        <Text>Spray</Text>
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

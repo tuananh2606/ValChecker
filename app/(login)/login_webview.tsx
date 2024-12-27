@@ -2,7 +2,7 @@ import { StyleSheet, View } from "react-native";
 import WebView from "react-native-webview";
 import { getAccessTokenFromUri } from "@/utils/misc";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import * as SecureStore from "expo-secure-store";
 import { loadAssets } from "@/utils/valorant-assets";
@@ -16,10 +16,15 @@ import {
   parseShop,
 } from "@/utils/valorant-api";
 import useUserStore from "@/hooks/useUserStore";
+import Loading from "@/components/Loading";
+import { useWebviewContext } from "@/utils/context";
 
 export default function LoginScreen() {
   const params = useLocalSearchParams();
   const { setUser } = useUserStore();
+  const { setRef } = useWebviewContext();
+  const webView = useRef<WebView>(null);
+
   const [loading, setLoading] = useState<string | null>(null);
   const { t } = useTranslation();
   const { region } = params;
@@ -34,12 +39,12 @@ export default function LoginScreen() {
     canGoForward?: boolean;
   }) => {
     if (!newNavState.url) return;
+    console.log(webView);
 
     if (newNavState.url.includes("access_token=")) {
       const accessToken = getAccessTokenFromUri(newNavState.url);
       await SecureStore.setItemAsync("access_token", accessToken);
       try {
-        //FileSystem.deleteAsync(FILE_LOCATION);
         setLoading(t("fetching.assets"));
         await loadAssets();
         setLoading(t("fetching.entitlements_token"));
@@ -85,10 +90,9 @@ export default function LoginScreen() {
           progress,
           balances,
         });
-        router.replace("/store");
+        router.replace("/(authenticated)/(store)");
       } catch (e) {
         console.log(e);
-
         // if (!__DEV__) {
         //   await CookieManager.clearAll(true);
         //   router.replace("/login"); // Fallback to setup, so user doesn't get stuck
@@ -96,13 +100,20 @@ export default function LoginScreen() {
       }
     }
   };
+  if (loading) {
+    return <Loading msg={loading} />;
+  }
 
   return (
     <View style={styles.container} renderToHardwareTextureAndroid>
       <WebView
+        ref={webView}
         userAgent="Mozilla/5.0 (Linux; Android) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.125 Mobile Safari/537.36"
         source={{
           uri: LOGIN_URL,
+        }}
+        onLoadStart={() => {
+          setRef(webView);
         }}
         onNavigationStateChange={handleWebViewChange}
         injectedJavaScriptBeforeContentLoaded={`(function() {
@@ -120,44 +131,5 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  dropdown: {
-    width: 200,
-    height: 50,
-    borderColor: "gray",
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 8,
-  },
-  icon: {
-    marginRight: 5,
-  },
-  placeholderStyle: {
-    fontSize: 16,
-  },
-  selectedTextStyle: {
-    fontSize: 16,
-  },
-  iconStyle: {
-    width: 20,
-    height: 20,
-  },
-  inputSearchStyle: {
-    height: 40,
-    fontSize: 16,
-  },
-  buttonContainer: {
-    width: 100,
-    height: 40,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 24,
-    borderRadius: 8,
-    backgroundColor: "#ff4654",
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
   },
 });

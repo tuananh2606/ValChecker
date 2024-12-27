@@ -1,4 +1,4 @@
-import { useWindowDimensions } from "react-native";
+import { StatusBar, useWindowDimensions } from "react-native";
 import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 import { useState } from "react";
 
@@ -25,7 +25,10 @@ export default function StoreScreen() {
     <TabBar
       {...props}
       indicatorStyle={{ backgroundColor: "white" }}
-      style={{ backgroundColor: "transparent" }}
+      style={{
+        backgroundColor: "transparent",
+        marginTop: StatusBar.currentHeight,
+      }}
     />
   );
 
@@ -35,7 +38,7 @@ export default function StoreScreen() {
       renderScene={renderScene}
       renderTabBar={renderTabBar}
       onIndexChange={setIndex}
-      initialLayout={{ width: layout.width }}
+      initialLayout={{ height: 0, width: layout.width }}
     />
   );
 }

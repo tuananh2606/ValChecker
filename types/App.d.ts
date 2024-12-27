@@ -9,6 +9,8 @@ interface BattlePassItem {
   displayName: string;
   largeArt?: string;
   fullIcon?: String;
+  fullTransparentIcon?: string;
+  type?: string;
 }
 
 interface BattlePassLevelsItem extends BattlePassItem {
@@ -22,6 +24,7 @@ interface BattlePass {
     displayName: string;
     largeArt?: string;
     fullIcon?: String;
+    type?: string;
   }[];
   levels: {
     uuid: string;
@@ -30,6 +33,7 @@ interface BattlePass {
     largeArt?: string;
     fullIcon?: String;
     xp: int;
+    type?: string;
   }[];
 }
 

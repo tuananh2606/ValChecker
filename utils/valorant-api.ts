@@ -305,22 +305,42 @@ export async function getProgress(
   };
 }
 
+export async function getMissions(
+  accessToken: string,
+  entitlementsToken: string,
+  region: string,
+  userId: string
+) {
+  const res = await axios.request<ContractsResponse>({
+    url: getUrl("contracts", region, userId),
+    method: "GET",
+    headers: {
+      ...extraHeaders(),
+      Authorization: `Bearer ${accessToken}`,
+      "X-Riot-Entitlements-JWT": entitlementsToken,
+    },
+  });
+
+  return {
+    MissionMetadata: res.data.MissionMetadata,
+    Missions: res.data.Missions,
+  };
+}
+
 const detectType = (type: string, uuid: string): BattlePassItem | undefined => {
   const { skins, buddies, cards, sprays, titles, currencies } = getAssets();
 
   switch (type) {
     case "PlayerCard":
       const card = cards.find((_card) => _card.uuid === uuid);
-      return card as BattlePassItem;
+      return { ...card, type: type } as BattlePassItem;
     case "Title":
       const title = titles.find((_title) => _title.uuid === uuid);
-      return title as BattlePassItem;
+      return { ...title, type: type } as BattlePassItem;
     case "EquippableSkinLevel":
       const skin = skins.find((_skin) => _skin.levels[0].uuid === uuid);
       return skin as BattlePassItem;
     case "EquippableCharmLevel":
-      console.log(uuid);
-
       const weaponCharm = buddies.find(
         (_weaponCharm) => _weaponCharm.levels[0].uuid === uuid
       );
@@ -329,14 +349,14 @@ const detectType = (type: string, uuid: string): BattlePassItem | undefined => {
       const currency = currencies.find(
         (_currencies) => _currencies.uuid === uuid
       );
-      return currency;
+      return { ...currency, type: type } as BattlePassItem;
     case "Spray":
       const spray = sprays.find((_spray) => _spray.uuid === uuid);
-      return spray as BattlePassItem;
+      return { ...spray, type: type } as BattlePassItem;
   }
 };
 
-export async function parseBattlePass(contract: ValorantContracts) {
+export async function parseBattlePass(contract: ValorantContract) {
   /* Battle Pass */
   let chapters = contract.content.chapters;
   let battlePass: BattlePass[] = [];
@@ -370,6 +390,24 @@ export async function parseBattlePass(contract: ValorantContracts) {
     }
   }
   return battlePass;
+}
+export async function fetchContractsByPID(
+  accessToken: string,
+  entitlementsToken: string,
+  region: string,
+  userId: string
+) {
+  const res = await axios.request<ContractsResponse>({
+    url: getUrl("contracts", region, userId),
+    method: "GET",
+    headers: {
+      ...extraHeaders(),
+      Authorization: `Bearer ${accessToken}`,
+      "X-Riot-Entitlements-JWT": entitlementsToken,
+    },
+  });
+
+  return res.data.Contracts as Contract[];
 }
 
 export const reAuth = (version: string) =>
@@ -408,10 +446,10 @@ function getUrl(name: string, region?: string, userId?: string) {
     storefront: `https://pd.${region}.a.pvp.net/store/v3/storefront/${userId}`,
     wallet: `https://pd.${region}.a.pvp.net/store/v1/wallet/${userId}`,
     playerxp: `https://pd.${region}.a.pvp.net/account-xp/v1/players/${userId}`,
+    contracts: `https://pd.${region}.a.pvp.net/contracts/v1/contracts/${userId}`,
     weapons: "https://valorant-api.com/v1/weapons/",
     offers: `https://pd.${region}.a.pvp.net/store/v1/offers/`,
     name: `https://pd.${region}.a.pvp.net/name-service/v2/players`,
-    contracts: "https://valorant-api.com/v1/contracts",
   };
 
   return URLS[name];

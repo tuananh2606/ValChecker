@@ -161,7 +161,7 @@ export async function fetchContentTierById(
   return res.data.data;
 }
 export async function fetchContracts(language?: string) {
-  const res = await axios.request<{ data: ValorantContracts[] }>({
+  const res = await axios.request<{ data: ValorantContract[] }>({
     url: `https://valorant-api.com/v1/contracts?language=${
       language ?? getVAPILang()
     }`,
@@ -171,18 +171,6 @@ export async function fetchContracts(language?: string) {
   return res.data.data;
 }
 
-export async function fetchContractsByID(
-  contractId: string,
-  language?: string
-) {
-  const res = await axios.request<{ data: ValorantContracts }>({
-    url: `https://valorant-api.com/v1/contracts/${contractId}?language=${
-      language ?? getVAPILang()
-    }`,
-    method: "GET",
-  });
-  return res.data.data;
-}
 export async function fetchCurrencies(language?: string) {
   const res = await axios.request<{ data: ValorantCurrencies[] }>({
     url: `https://valorant-api.com/v1/currencies?language=${

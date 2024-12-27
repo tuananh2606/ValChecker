@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import React from "react";
-import { Platform } from "react-native";
+import { Platform, StatusBar } from "react-native";
 
 import { HapticTab } from "@/components/HapticTab";
 import TabBarBackground from "@/components/ui/TabBarBackground";
@@ -14,12 +14,11 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerTitleAlign: "center",
-        headerStyle: Platform.select({
-          default: {
-            backgroundColor: "black",
-          },
-        }),
+        headerShown: false,
+        headerStyle: {
+          marginTop: StatusBar.currentHeight,
+          backgroundColor: "black",
+        },
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
@@ -33,7 +32,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="store"
+        name="(store)"
         options={{
           title: "Store",
 
@@ -43,7 +42,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="mission"
+        name="(mission)"
         options={{
           title: "Mission",
           tabBarIcon: ({ color }) => (

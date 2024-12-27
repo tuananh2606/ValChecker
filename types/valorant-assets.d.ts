@@ -10,6 +10,23 @@ interface ValorantSkin {
   levels: ISkinLevel[];
 }
 
+interface ISkinLevel {
+  uuid: string;
+  displayName: string;
+  displayIcon: string;
+  streamedVideo: string | null;
+  assetPath: string;
+}
+
+interface ISkinChroma {
+  uuid: string;
+  displayName: string;
+  displayIcon: string | null;
+  fullRender: string;
+  streamedVideo: string | null;
+  assetPath: string;
+}
+
 interface ValorantBuddyAccessory {
   uuid: string;
   displayName: string;
@@ -131,7 +148,7 @@ interface ValorantContentTier {
   displayIcon: string;
   assetPath: string;
 }
-interface ValorantContracts {
+interface ValorantContract {
   uuid: string;
   displayName: string;
   displayIcon: string | null;

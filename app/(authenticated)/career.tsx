@@ -1,15 +1,41 @@
-import { View, Text, StyleSheet } from "react-native";
+import { StatusBar, useWindowDimensions } from "react-native";
+import { SceneMap, TabBar, TabView } from "react-native-tab-view";
+import { useState } from "react";
+
+import MineView from "@/components/screens/career/MineView";
+import LeaderboardsView from "@/components/screens/career/LeaderboardsView";
+
+const renderScene = SceneMap({
+  mine: MineView,
+  leaderboards: LeaderboardsView,
+});
+
+const routes = [
+  { key: "mine", title: "Mine" },
+  { key: "leaderboards", title: "Leaderboards" },
+];
 
 export default function CareerScreen() {
+  const layout = useWindowDimensions();
+  const [index, setIndex] = useState(0);
+  const renderTabBar = (props: any) => (
+    <TabBar
+      {...props}
+      indicatorStyle={{ backgroundColor: "white" }}
+      style={{
+        backgroundColor: "transparent",
+        marginTop: StatusBar.currentHeight,
+      }}
+    />
+  );
+
   return (
-    <View style={styles.container}>
-      <Text>Career screen</Text>
-    </View>
+    <TabView
+      navigationState={{ index, routes }}
+      renderScene={renderScene}
+      renderTabBar={renderTabBar}
+      onIndexChange={setIndex}
+      initialLayout={{ height: 0, width: layout.width }}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
