@@ -5,14 +5,12 @@ import useUserStore from "@/hooks/useUserStore";
 import { defaultUser } from "@/utils/valorant-api";
 import { router } from "expo-router";
 import { useWebviewContext } from "@/utils/context";
+import CookieManager from "@react-native-cookies/cookies";
 
-const RCTNetworking =
-  require("react-native/Libraries/Network/RCTNetworking").default;
 export default function SettingScreen() {
   const { user, setUser } = useUserStore();
   const handleLogout = async () => {
-    await RCTNetworking.clearCookies();
-    //await CookieManager.clearAll(true);
+    await CookieManager.clearAll(true);
     await AsyncStorage.removeItem("region");
     setUser(defaultUser);
     router.replace("/login");
