@@ -49,14 +49,12 @@ export default function LoginScreen() {
         setLoading(t("fetching.user_id"));
         const userId = getUserId(accessToken);
         setLoading(t("fetching.username"));
-
         const username = await getUsername(
           accessToken,
           entitlementsToken,
           userId,
           region as string
         );
-
         setLoading(t("fetching.storefront"));
         const shop = await getShop(
           accessToken,
