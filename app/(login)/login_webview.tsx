@@ -2,7 +2,7 @@ import { StyleSheet, View } from "react-native";
 import WebView from "react-native-webview";
 import { getAccessTokenFromUri } from "@/utils/misc";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import * as SecureStore from "expo-secure-store";
 import { loadAssets } from "@/utils/valorant-assets";
@@ -18,6 +18,7 @@ import {
 import useUserStore from "@/hooks/useUserStore";
 import Loading from "@/components/Loading";
 import { useWebviewContext } from "@/utils/context";
+import CookieManager from "@react-native-cookies/cookies";
 
 export default function LoginScreen() {
   const params = useLocalSearchParams();
@@ -93,10 +94,10 @@ export default function LoginScreen() {
         router.replace("/(authenticated)/(store)");
       } catch (e) {
         console.log(e);
-        // if (!__DEV__) {
-        //   await CookieManager.clearAll(true);
-        //   router.replace("/login"); // Fallback to setup, so user doesn't get stuck
-        // }
+        if (!__DEV__) {
+          await CookieManager.clearAll(true);
+          router.replace("/login"); // Fallback to setup, so user doesn't get stuck
+        }
       }
     }
   };
