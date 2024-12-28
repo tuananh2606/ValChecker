@@ -17,14 +17,11 @@ import {
 } from "@/utils/valorant-api";
 import useUserStore from "@/hooks/useUserStore";
 import Loading from "@/components/Loading";
-import { useWebviewContext } from "@/utils/context";
 import CookieManager from "@react-native-cookies/cookies";
 
 export default function LoginScreen() {
   const params = useLocalSearchParams();
   const { setUser } = useUserStore();
-  const { setRef } = useWebviewContext();
-  const webView = useRef<WebView>(null);
 
   const [loading, setLoading] = useState<string | null>(null);
   const { t } = useTranslation();
@@ -40,8 +37,6 @@ export default function LoginScreen() {
     canGoForward?: boolean;
   }) => {
     if (!newNavState.url) return;
-    console.log(webView);
-
     if (newNavState.url.includes("access_token=")) {
       const accessToken = getAccessTokenFromUri(newNavState.url);
       await SecureStore.setItemAsync("access_token", accessToken);
@@ -96,7 +91,7 @@ export default function LoginScreen() {
         console.log(e);
         if (!__DEV__) {
           await CookieManager.clearAll(true);
-          router.replace("/login"); // Fallback to setup, so user doesn't get stuck
+          router.replace("/"); // Fallback to setup, so user doesn't get stuck
         }
       }
     }
@@ -108,13 +103,9 @@ export default function LoginScreen() {
   return (
     <View style={styles.container} renderToHardwareTextureAndroid>
       <WebView
-        ref={webView}
         userAgent="Mozilla/5.0 (Linux; Android) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.125 Mobile Safari/537.36"
         source={{
           uri: LOGIN_URL,
-        }}
-        onLoadStart={() => {
-          setRef(webView);
         }}
         onNavigationStateChange={handleWebViewChange}
         injectedJavaScriptBeforeContentLoaded={`(function() {
