@@ -40,7 +40,7 @@ export default function RootLayout() {
         >
           <Stack>
             <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="login_webview" options={{ title: "" }} />
+            <Stack.Screen name="login-webview" options={{ title: "" }} />
             <Stack.Screen
               name="(authenticated)"
               options={{ headerShown: false }}

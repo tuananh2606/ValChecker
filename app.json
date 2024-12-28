@@ -36,7 +36,8 @@
       ],
       "expo-secure-store",
       "expo-localization",
-      "expo-video"
+      "expo-video",
+      "expo-build-properties"
     ],
     "experiments": {
       "typedRoutes": true

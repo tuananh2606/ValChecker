@@ -50,7 +50,7 @@ export default function RegionScreen() {
         style={styles.buttonContainer}
         onPress={() => {
           router.push({
-            pathname: "/login_webview",
+            pathname: "/login-webview",
             params: { region: value },
           });
         }}
