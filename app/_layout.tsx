@@ -15,6 +15,11 @@ import { PaperProvider } from "react-native-paper";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { WebviewProvider } from "@/utils/context";
 
+// export const unstable_settings = {
+//   // Ensure any route can link back to `/`
+//   initialRouteName: "(login)",
+// };
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
@@ -44,11 +49,6 @@ export default function RootLayout() {
             <Stack>
               <Stack.Screen
                 name="(authenticated)"
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen name="index" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="onboarding"
                 options={{ headerShown: false }}
               />
               <Stack.Screen name="(login)" options={{ headerShown: false }} />

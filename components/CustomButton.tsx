@@ -88,7 +88,7 @@ const CustomButton = ({ flatListRef, flatListIndex, dataLength, x }: Props) => {
             index: flatListIndex.value + 1,
           });
         } else {
-          await AsyncStorage.setItem("onboarded", '1');
+          await AsyncStorage.setItem("HAS_LAUNCHED", "true");
           router.navigate("/login");
         }
       }}
