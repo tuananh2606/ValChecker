@@ -12,7 +12,7 @@ export default function SettingScreen() {
     await CookieManager.clearAll(true);
     await AsyncStorage.removeItem("region");
     setUser(defaultUser);
-    router.replace("/");
+    router.replace("/(login)");
   };
 
   return (

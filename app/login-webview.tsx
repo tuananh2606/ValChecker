@@ -22,7 +22,6 @@ import CookieManager from "@react-native-cookies/cookies";
 export default function LoginScreen() {
   const params = useLocalSearchParams();
   const { setUser } = useUserStore();
-
   const [loading, setLoading] = useState<string | null>(null);
   const { t } = useTranslation();
   const { region } = params;
@@ -80,7 +79,7 @@ export default function LoginScreen() {
         setLoading(t("fetching.donator"));
         setUser({
           id: userId,
-          name: username,
+          ...username,
           region: region as string,
           shops,
           progress,
@@ -88,11 +87,9 @@ export default function LoginScreen() {
         });
         router.replace("/(authenticated)/(store)");
       } catch (e) {
-        console.log(e);
         if (!__DEV__) {
-          console.log("vao");
           await CookieManager.clearAll(true);
-          router.replace("/"); // Fallback to setup, so user doesn't get stuck
+          router.replace("/(login)"); // Fallback to setup, so user doesn't get stuck
         }
       }
     }

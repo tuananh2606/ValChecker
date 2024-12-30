@@ -1,7 +1,6 @@
 import { StatusBar, useWindowDimensions } from "react-native";
 import { SceneMap, TabBar, TabView } from "react-native-tab-view";
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
 import MineView from "@/components/screens/career/MineView";
 import LeaderboardsView from "@/components/screens/career/LeaderboardsView";
 
@@ -18,10 +17,12 @@ const routes = [
 export default function CareerScreen() {
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
+
   const renderTabBar = (props: any) => (
     <TabBar
       {...props}
-      indicatorStyle={{ backgroundColor: "white" }}
+      activeColor="red"
+      indicatorStyle={{ backgroundColor: "red" }}
       style={{
         backgroundColor: "transparent",
         marginTop: StatusBar.currentHeight,
