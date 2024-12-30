@@ -2,7 +2,7 @@ import { StyleSheet, View } from "react-native";
 import WebView from "react-native-webview";
 import { getAccessTokenFromUri } from "@/utils/misc";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import * as SecureStore from "expo-secure-store";
 import { loadAssets } from "@/utils/valorant-assets";
@@ -17,7 +17,6 @@ import {
 } from "@/utils/valorant-api";
 import useUserStore from "@/hooks/useUserStore";
 import Loading from "@/components/Loading";
-import { useWebviewContext } from "@/utils/context";
 import CookieManager from "@react-native-cookies/cookies";
 
 export default function LoginScreen() {

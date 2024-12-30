@@ -4,7 +4,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import useUserStore from "@/hooks/useUserStore";
 import { defaultUser } from "@/utils/valorant-api";
 import { router } from "expo-router";
-import { useWebviewContext } from "@/utils/context";
 import CookieManager from "@react-native-cookies/cookies";
 
 export default function SettingScreen() {
