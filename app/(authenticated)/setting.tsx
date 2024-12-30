@@ -13,10 +13,8 @@ export default function SettingScreen() {
     await CookieManager.clearAll(true);
     await AsyncStorage.removeItem("region");
     setUser(defaultUser);
-    router.replace("/login");
+    router.replace("/(login)");
   };
-  const { ref } = useWebviewContext();
-  console.log(ref);
 
   return (
     <View style={styles.container}>

@@ -17,6 +17,7 @@ axios.interceptors.request.use(
 export let defaultUser = {
   id: "",
   name: "",
+  tagLine: "",
   region: "",
   shops: {
     main: [] as SkinShopItem[],
@@ -88,7 +89,9 @@ export async function getUsername(
     data: [userId],
   });
 
-  return res.data[0].GameName !== "" ? res.data[0].GameName : "?";
+  return res.data[0].GameName !== ""
+    ? { name: res.data[0].GameName, tagLine: res.data[0].TagLine }
+    : { name: "?", tagLine: "?" };
 }
 
 export async function getShop(
@@ -410,6 +413,25 @@ export async function fetchContractsByPID(
   return res.data.Contracts as Contract[];
 }
 
+export async function fetchPlayerLoadout(
+  accessToken: string,
+  entitlementsToken: string,
+  region: string,
+  userId: string
+) {
+  const res = await axios.request<PlayerLoadoutResponse>({
+    url: getUrl("player", region, userId),
+    method: "GET",
+    headers: {
+      ...extraHeaders(),
+      Authorization: `Bearer ${accessToken}`,
+      "X-Riot-Entitlements-JWT": entitlementsToken,
+    },
+  });
+
+  return res.data;
+}
+
 export const reAuth = (version: string) =>
   axios.request({
     url: "https://auth.riotgames.com/api/v1/authorization",
@@ -450,6 +472,7 @@ function getUrl(name: string, region?: string, userId?: string) {
     weapons: "https://valorant-api.com/v1/weapons/",
     offers: `https://pd.${region}.a.pvp.net/store/v1/offers/`,
     name: `https://pd.${region}.a.pvp.net/name-service/v2/players`,
+    player: `https://pd.${region}.a.pvp.net/personalization/v2/players/${userId}/playerloadout`,
   };
 
   return URLS[name];
