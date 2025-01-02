@@ -17,19 +17,51 @@ export default function SettingScreen() {
 
   return (
     <View style={styles.container}>
-      <Title>Settings</Title>
+      <Title
+        style={{
+          fontSize: 24,
+          fontWeight: 900,
+          color: "white",
+        }}
+      >
+        Settings
+      </Title>
       <List.Section style={{ flex: 1 }}>
         <List.Subheader>FAQ</List.Subheader>
-        <List.Item title="FAQ" left={() => <List.Icon icon="folder" />} />
+        <List.Item
+          style={{
+            padding: 10,
+            borderRadius: 10,
+            backgroundColor: "#2E2E2E",
+          }}
+          title="FAQ"
+          right={() => (
+            <List.Icon color={MD3Colors.tertiary70} icon="chevron-right" />
+          )}
+        />
         <List.Subheader>General</List.Subheader>
         <List.Item
+          style={{
+            padding: 10,
+            borderRadius: 10,
+            backgroundColor: "#2E2E2E",
+          }}
           title="Second Item"
-          left={() => <List.Icon color={MD3Colors.tertiary70} icon="folder" />}
+          right={() => (
+            <List.Icon color={MD3Colors.tertiary70} icon="chevron-right" />
+          )}
         />
         <List.Subheader>NOTIFICATION</List.Subheader>
         <List.Item
+          style={{
+            padding: 10,
+            borderRadius: 10,
+            backgroundColor: "#2E2E2E",
+          }}
           title="Store Reset Notification"
-          left={() => <List.Icon color={MD3Colors.tertiary70} icon="folder" />}
+          right={() => (
+            <List.Icon color={MD3Colors.tertiary70} icon="chevron-right" />
+          )}
         />
       </List.Section>
       <Button
@@ -50,5 +82,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: StatusBar.currentHeight,
     paddingHorizontal: 8,
+    paddingBottom: 20,
   },
 });
