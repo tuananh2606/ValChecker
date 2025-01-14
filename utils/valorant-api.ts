@@ -432,6 +432,26 @@ export async function fetchPlayerLoadout(
   return res.data;
 }
 
+export async function fetchPlayerOwnedItems(
+  accessToken: string,
+  entitlementsToken: string,
+  region: string,
+  userId: string,
+  ownedItemType: string
+) {
+  const res = await axios.request<OwnedItemsResponse>({
+    url: getUrl("ownedItem", region, userId, ownedItemType),
+    method: "GET",
+    headers: {
+      ...extraHeaders(),
+      Authorization: `Bearer ${accessToken}`,
+      "X-Riot-Entitlements-JWT": entitlementsToken,
+    },
+  });
+
+  return res.data;
+}
+
 export const reAuth = (version: string) =>
   axios.request({
     url: "https://auth.riotgames.com/api/v1/authorization",
@@ -461,7 +481,12 @@ export const reAuth = (version: string) =>
     withCredentials: true,
   });
 
-function getUrl(name: string, region?: string, userId?: string) {
+function getUrl(
+  name: string,
+  region?: string,
+  userId?: string,
+  itemTypeID?: string
+) {
   const URLS: any = {
     auth: "https://auth.riotgames.com/api/v1/authorization/",
     entitlements: "https://entitlements.auth.riotgames.com/api/token/v1/",
@@ -473,6 +498,7 @@ function getUrl(name: string, region?: string, userId?: string) {
     offers: `https://pd.${region}.a.pvp.net/store/v1/offers/`,
     name: `https://pd.${region}.a.pvp.net/name-service/v2/players`,
     player: `https://pd.${region}.a.pvp.net/personalization/v2/players/${userId}/playerloadout`,
+    ownedItem: `https://pd.${region}.a.pvp.net/store/v1/entitlements/${userId}/${itemTypeID}`,
   };
 
   return URLS[name];

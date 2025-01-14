@@ -3,6 +3,10 @@ interface SkinShopItem extends ValorantSkin {
   price: number;
 }
 
+interface SkinInventoryItem extends ValorantSkin {
+  contentTier: ValorantContentTier;
+}
+
 interface BattlePassItem {
   uuid: string;
   displayIcon?: string;

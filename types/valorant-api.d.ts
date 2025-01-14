@@ -425,3 +425,15 @@ type PlayerLoadoutResponse = {
   };
   Incognito: boolean;
 };
+
+type OwnedItemsResponse = {
+  ItemTypeID: string;
+  Entitlements: {
+    /** UUID */
+    TypeID: string;
+    /** Item ID */
+    ItemID: string;
+    /** UUID */
+    InstanceID?: string | undefined;
+  }[];
+};

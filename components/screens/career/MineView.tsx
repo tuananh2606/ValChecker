@@ -12,8 +12,6 @@ const MineView = () => {
   const user = useUserStore((state) => state.user);
   const { cards, titles } = getAssets();
 
-  console.log(user);
-
   useEffect(() => {
     const fetchData = async () => {
       let accessToken = (await SecureStore.getItemAsync(

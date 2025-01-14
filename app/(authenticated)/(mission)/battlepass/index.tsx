@@ -74,8 +74,6 @@ const BattlePass = () => {
               .ProgressionTowardsNextLevel,
             battlePass: battlePass,
           });
-          console.log(battlePass);
-
           setLoading(null);
         })
         .catch((error) => {
@@ -87,7 +85,6 @@ const BattlePass = () => {
   if (loading) {
     return <Loading msg={loading} />;
   }
-  console.log(contracts);
 
   return (
     <View style={styles.flex}>
