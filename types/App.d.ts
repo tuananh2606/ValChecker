@@ -1,10 +1,5 @@
 interface SkinShopItem extends ValorantSkin {
-  contentTier: ValorantContentTier;
   price: number;
-}
-
-interface SkinInventoryItem extends ValorantSkin {
-  contentTier: ValorantContentTier;
 }
 
 interface BattlePassItem {
@@ -51,6 +46,7 @@ interface AccessoryShopItem {
   largeArt?: string;
   titleText?: string;
   price: number;
+  type: string;
 }
 
 interface GalleryItem extends ValorantSkin {

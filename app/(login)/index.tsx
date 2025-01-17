@@ -4,8 +4,11 @@ import { useState } from "react";
 import { router } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme.web";
+import { useTranslation } from "react-i18next";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function RegionScreen() {
+  const { t } = useTranslation();
   const region = [
     { label: "Asia Pacific", value: "ap" },
     { label: "Europe", value: "eu" },
@@ -48,14 +51,12 @@ export default function RegionScreen() {
 
       <Pressable
         style={styles.buttonContainer}
-        onPress={() => {
-          router.push({
-            pathname: "/login_webview",
-            params: { region: value },
-          });
+        onPress={async () => {
+          await AsyncStorage.setItem("region", value);
+          router.push("/login_webview");
         }}
       >
-        <Text style={styles.buttonText}>Login</Text>
+        <Text style={styles.buttonText}>{t("login")}</Text>
       </Pressable>
     </View>
   );

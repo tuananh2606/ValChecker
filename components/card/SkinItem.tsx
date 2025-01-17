@@ -4,7 +4,7 @@ import { Card } from "react-native-paper";
 import { Link } from "expo-router";
 
 interface Props {
-  data: SkinShopItem | SkinInventoryItem;
+  data: SkinShopItem | ValorantSkin;
 }
 
 const SkinItem = ({ data }: Props) => {

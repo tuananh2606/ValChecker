@@ -1,9 +1,22 @@
 import useUserStore from "@/hooks/useUserStore";
 import { getAssets } from "@/utils/valorant-assets";
 import { Image } from "expo-image";
-import { useEffect, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { Menu, Title } from "react-native-paper";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  useColorScheme,
+  TouchableOpacity,
+} from "react-native";
+import { Divider, Title } from "react-native-paper";
 import * as SecureStore from "expo-secure-store";
 import { fetchPlayerOwnedItems } from "@/utils/valorant-api";
 import { convertOwnedItemIDToItem, VOwnedItemType } from "@/utils/misc";
@@ -11,18 +24,71 @@ import SkinItem from "@/components/card/SkinItem";
 import { FlashList } from "@shopify/flash-list";
 import { useNavigation } from "@react-navigation/native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetSectionList,
+} from "@gorhom/bottom-sheet";
+import { Colors } from "@/constants/Colors";
 
+const noMeleeFilter = [
+  "Vandal",
+  "Phantom",
+  "Spectre",
+  "Odin",
+  "Ares",
+  "Bulldog",
+  "Judge",
+  "Bucky",
+  "Frenzy",
+  "Classic",
+  "Ghost",
+  "Sheriff",
+  "Operator",
+  "Guardian",
+  "Outlaw",
+  "Marshal",
+  "Stinger",
+  "Shorty",
+];
+
+const filterSelect = [
+  {
+    title: "Choose Weapon",
+    data: [
+      "Owned",
+      "Vandal",
+      "Phantom",
+      "Spectre",
+      "Odin",
+      "Ares",
+      "Bulldog",
+      "Judge",
+      "Bucky",
+      "Frenzy",
+      "Classic",
+      "Ghost",
+      "Sheriff",
+      "Operator",
+      "Guardian",
+      "Outlaw",
+      "Marshal",
+      "Stinger",
+      "Shorty",
+      "Melee",
+    ],
+  },
+];
 export default function SkinsScreen() {
   const navigation = useNavigation();
-  const [ownedSkins, setOwnedSkins] = useState<SkinInventoryItem[]>([]);
+  const [ownedSkins, setOwnedSkins] = useState<ValorantSkin[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedTab, setSelectedTab] = useState<number>(0);
   const { skins } = getAssets();
   const [skinsData, setSkinsData] = useState<ValorantSkin[]>([]);
-  const [ownedSkinsData, setOwnedSkinsData] = useState<SkinInventoryItem[]>([]);
-  const [filteredSkins, setFilteredSkins] = useState<
-    (string | SkinInventoryItem)[]
-  >([]);
+  const [ownedSkinsData, setOwnedSkinsData] = useState<ValorantSkin[]>([]);
+  const [filteredSkins, setFilteredSkins] = useState<(string | ValorantSkin)[]>(
+    []
+  );
   const [totalCollectionCount, setTotalCollectionCount] = useState({
     select: 0,
     deluxe: 0,
@@ -32,13 +98,11 @@ export default function SkinsScreen() {
   });
   const [page, setPage] = useState<number>(1);
   const [ownedPage, setOwnedPage] = useState<number>(1);
-  const [menuAnchor, setMenuAnchor] = useState({ x: 0, y: 0 });
-  const [visible, setVisible] = useState(false);
 
-  const openMenu = () => setVisible(true);
+  const sheetRef = useRef<BottomSheet>(null);
+  const flashListRef = useRef<FlashList<string | ValorantSkin> | null>(null);
 
-  const closeMenu = () => setVisible(false);
-
+  const colorScheme = useColorScheme();
   const user = useUserStore((state) => state.user);
   useEffect(() => {
     const fetchSkins = async () => {
@@ -58,11 +122,42 @@ export default function SkinsScreen() {
 
       const newSkins = convertOwnedItemIDToItem(ownedSkins);
 
-      setOwnedSkins(newSkins as SkinInventoryItem[]);
-      setOwnedSkinsData((newSkins as SkinInventoryItem[]).slice(0, 50));
+      setOwnedSkins(newSkins as ValorantSkin[]);
+      setOwnedSkinsData((newSkins as ValorantSkin[]).slice(0, 50));
     };
     fetchSkins();
   }, []);
+
+  const handleChangeWeapon = (title: string) => {
+    sheetRef.current?.close();
+    flashListRef.current?.scrollToOffset({ animated: false, offset: 0 });
+    if (title === "Melee") {
+      const ownedSkin = ownedSkinsData.filter(
+        (skin) => !noMeleeFilter.some((s) => skin.displayName.includes(s))
+      );
+      const remainingSkin = skins.filter(
+        (skin) =>
+          !noMeleeFilter.some((s) => skin.displayName.includes(s)) &&
+          !ownedSkin.some((item) => item.uuid === skin.uuid)
+      );
+      handleTotalCollectionCount(ownedSkin);
+      setFilteredSkins(["Owned", ...ownedSkin, "Not Owned", ...remainingSkin]);
+    } else if (title === "Owned") {
+      handleTotalCollectionCount(ownedSkinsData);
+      setFilteredSkins(["Owned", ...ownedSkinsData]);
+    } else {
+      const ownedSkin = ownedSkinsData.filter((skin) =>
+        skin.displayName.includes(title)
+      );
+      const remainingSkin = skins.filter(
+        (skin) =>
+          skin.displayName.includes(title) &&
+          !ownedSkin.some((item) => item.uuid === skin.uuid)
+      );
+      handleTotalCollectionCount(ownedSkin);
+      setFilteredSkins(["Owned", ...ownedSkin, "Not Owned", ...remainingSkin]);
+    }
+  };
 
   useEffect(() => {
     handleTotalCollectionCount(ownedSkinsData);
@@ -110,56 +205,58 @@ export default function SkinsScreen() {
     });
   };
 
-  const onIconPress = (event: any) => {
-    const { nativeEvent } = event;
-    const anchor = {
-      x: nativeEvent.pageX + 12,
-      y: nativeEvent.pageY + 16,
-    };
+  const snapPoints = useMemo(() => ["50%"], []);
 
-    setMenuAnchor(anchor);
-    openMenu();
-  };
+  const renderSectionHeader = useCallback(
+    ({ section }: { section: { title: string } }) => (
+      <View
+        style={[
+          styles.sectionHeaderContainer,
+          { backgroundColor: Colors[colorScheme ?? "light"].surface },
+        ]}
+      >
+        <Text style={{ color: "white" }}>{section.title}</Text>
+      </View>
+    ),
+    []
+  );
+
+  const renderBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop
+        {...props}
+        opacity={0.7}
+        disappearsOnIndex={-1}
+        appearsOnIndex={1}
+      />
+    ),
+    []
+  );
 
   useEffect(() => {
-    // Use `setOptions` to update the button that we previously specified
-    // Now the button includes an `onPress` handler to update the count
     navigation.setOptions({
       headerRight: () => (
-        <View>
-          <MaterialIcons
-            onPress={onIconPress}
-            name="filter-list"
-            size={24}
-            color="white"
-          />
-          <Menu visible={visible} onDismiss={closeMenu} anchor={menuAnchor}>
-            <View>
-              <Menu.Item onPress={() => {}} title="Item 1" />
-              <Menu.Item onPress={() => {}} title="Item 2" />
-              <Menu.Item onPress={() => {}} title="Item 1" />
-              <Menu.Item onPress={() => {}} title="Item 2" />
-              <Menu.Item onPress={() => {}} title="Item 1" />
-              <Menu.Item onPress={() => {}} title="Item 2" />
-              <Menu.Item onPress={() => {}} title="Item 1" />
-              <Menu.Item onPress={() => {}} title="Item 2" />
-              <Menu.Item onPress={() => {}} title="Item 1" />
-              <Menu.Item onPress={() => {}} title="Item 2" />
-            </View>
-          </Menu>
-        </View>
+        <MaterialIcons
+          name="filter-list"
+          size={24}
+          color="white"
+          onPress={() => sheetRef.current?.collapse()}
+        />
       ),
     });
-  }, [visible]);
-
-  console.log(visible);
+  }, [navigation]);
 
   return (
     <View style={{ flex: 1 }}>
       <FlashList
+        ref={flashListRef}
         data={filteredSkins}
         ListHeaderComponent={
-          <View>
+          <View
+            style={{
+              marginLeft: 6,
+            }}
+          >
             <View
               style={{
                 flexDirection: "row",
@@ -232,12 +329,48 @@ export default function SkinsScreen() {
               </View>
             );
           } else {
-            // Render item
             return <SkinItem data={item} />;
           }
         }}
         estimatedItemSize={150}
       />
+      <BottomSheet
+        ref={sheetRef}
+        index={-1}
+        snapPoints={snapPoints}
+        enableDynamicSizing={false}
+        backdropComponent={renderBackdrop}
+        enablePanDownToClose
+        backgroundStyle={{
+          backgroundColor: Colors[colorScheme ?? "light"].surface,
+        }}
+      >
+        <BottomSheetSectionList
+          sections={filterSelect}
+          keyExtractor={(i) => i}
+          stickySectionHeadersEnabled
+          renderSectionHeader={renderSectionHeader}
+          renderItem={({ item }) => (
+            <Fragment>
+              <Divider
+                bold
+                style={{
+                  backgroundColor: "grey",
+                }}
+              />
+              <TouchableOpacity
+                onPress={() => handleChangeWeapon(item)}
+                style={styles.itemContainer}
+              >
+                <Text style={{ color: "white" }}>{item}</Text>
+              </TouchableOpacity>
+            </Fragment>
+          )}
+          contentContainerStyle={[
+            { backgroundColor: Colors[colorScheme ?? "light"].surface },
+          ]}
+        />
+      </BottomSheet>
     </View>
   );
 }
@@ -259,5 +392,18 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 16,
     color: "white",
+  },
+  contentContainer: {
+    color: "white",
+  },
+  sectionHeaderContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+  },
+  itemContainer: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+
+    justifyContent: "center",
   },
 });

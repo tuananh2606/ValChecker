@@ -42,6 +42,8 @@ export default function InventoryScreen() {
         user.region,
         user.id
       );
+      console.log(playerLoadout);
+
       if (playerLoadout) {
         const myCard = cards.find(
           (card) => card.uuid === playerLoadout.Identity.PlayerCardID

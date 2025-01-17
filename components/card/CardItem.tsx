@@ -2,6 +2,7 @@ import { TouchableWithoutFeedback, View } from "react-native";
 import { Image } from "expo-image";
 import { getDeviceWidth } from "@/utils/misc";
 import { memo } from "react";
+import { router } from "expo-router";
 
 interface Props {
   data: ValorantCardAccessory | ValorantSprayAccessory | ValorantBuddyAccessory;
@@ -14,13 +15,17 @@ const CardItem = ({ data, setState }: Props) => {
   return (
     <TouchableWithoutFeedback
       onPress={() =>
-        setState &&
-        setState({
-          title: data.displayName,
-          source:
-            (data as ValorantSprayAccessory).fullTransparentIcon ||
-            (data as ValorantBuddyAccessory).levels[0].displayIcon,
-        })
+        setState
+          ? setState({
+              title: data.displayName,
+              source:
+                (data as ValorantSprayAccessory).fullTransparentIcon ||
+                (data as ValorantBuddyAccessory).levels[0].displayIcon,
+            })
+          : router.push({
+              pathname: "/details-item/[id]",
+              params: { id: data.uuid, type: "card" },
+            })
       }
     >
       <View

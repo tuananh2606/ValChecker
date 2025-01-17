@@ -1,23 +1,21 @@
 import TabButtons, { TabButtonType } from "@/components/TabButtons";
 import { Colors } from "@/constants/Colors";
 import { getAssets } from "@/utils/valorant-assets";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useVideoPlayer, VideoView } from "expo-video";
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, StyleSheet, Text, useColorScheme, Image } from "react-native";
 
 const DetailsScreen = () => {
+  const navigation = useNavigation();
   const [selectedTab, setSelectedTab] = useState(0);
   const [selectedChroma, setSelectedChromaTab] = useState(0);
 
   const { id } = useLocalSearchParams();
-  const { skins, contentTier } = getAssets();
+  const { skins } = getAssets();
   const colorScheme = useColorScheme();
   const skin = skins.find((_skin) => _skin.uuid === id) as ValorantSkin;
-  const contentTierSkin = contentTier.find(
-    (_contentTier) => _contentTier.uuid === skin.contentTierUuid
-  ) as ValorantContentTier;
   const levels: TabButtonType[] = Array.from(
     Array(skin.levels.length),
     (_, x) => {
@@ -39,6 +37,12 @@ const DetailsScreen = () => {
     player.play();
   });
 
+  useEffect(() => {
+    navigation.setOptions({
+      title: "",
+    });
+  }, [navigation]);
+
   return (
     <View
       style={{
@@ -47,13 +51,18 @@ const DetailsScreen = () => {
       }}
     >
       <View
-        style={{ marginLeft: 30, flexDirection: "row", alignItems: "center" }}
+        style={{
+          marginLeft: 30,
+          marginTop: 16,
+          flexDirection: "row",
+          alignItems: "center",
+        }}
       >
         <Image
           style={{ width: 24, height: 24, marginRight: 8 }}
           resizeMode="contain"
           source={{
-            uri: contentTierSkin.displayIcon,
+            uri: skin.contentTier.displayIcon,
           }}
         />
         <Text

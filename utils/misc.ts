@@ -74,6 +74,15 @@ export const getAccessTokenFromUri = (uri: string) => {
     ) as any
   )[1];
 };
+
+export const isSameDayUTC = (d1: Date, d2: Date) => {
+  return (
+    d1.getUTCFullYear() === d2.getUTCFullYear() &&
+    d1.getUTCMonth() === d2.getUTCMonth() &&
+    d1.getUTCDate() === d2.getUTCDate()
+  );
+};
+
 export const convertSecstoHhMmSs = (remainingTime: number) => {
   const days = Math.floor(remainingTime / 3600 / 24);
   const hours = Math.floor((remainingTime - days * 24 * 3600) / 3600);
@@ -123,18 +132,15 @@ export function convertOwnedItemIDToItem(payload: OwnedItemsResponse) {
     return newBuddiesArr;
   }
   if (payload.ItemTypeID === VOwnedItemType.Skins) {
-    let newSkinsArr: SkinInventoryItem[] = [];
+    let newSkinsArr: ValorantSkin[] = [];
     for (let i = 0; i < payload.Entitlements.length; i++) {
       const onwedSkin = skins.find(
         (skin) => skin.levels[0].uuid === payload.Entitlements[i].ItemID
       );
-      const contierTierSkin = contentTier.find(
-        (_contentTier) => _contentTier.uuid === onwedSkin?.contentTierUuid
-      );
-      if (onwedSkin && contierTierSkin)
+
+      if (onwedSkin)
         newSkinsArr.push({
           ...onwedSkin,
-          contentTier: contierTierSkin,
         });
     }
     return newSkinsArr;

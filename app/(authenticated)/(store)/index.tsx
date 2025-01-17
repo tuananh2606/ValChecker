@@ -1,4 +1,4 @@
-import { StatusBar, useWindowDimensions } from "react-native";
+import { NativeModules, StatusBar, useWindowDimensions } from "react-native";
 import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 import { useState } from "react";
 

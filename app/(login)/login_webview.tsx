@@ -18,13 +18,12 @@ import {
 import useUserStore from "@/hooks/useUserStore";
 import Loading from "@/components/Loading";
 import CookieManager from "@react-native-cookies/cookies";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LoginScreen() {
-  const params = useLocalSearchParams();
   const { setUser } = useUserStore();
   const [loading, setLoading] = useState<string | null>(null);
   const { t } = useTranslation();
-  const { region } = params;
   const LOGIN_URL =
     "https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid";
 
@@ -38,6 +37,8 @@ export default function LoginScreen() {
     if (!newNavState.url) return;
     if (newNavState.url.includes("access_token=")) {
       const accessToken = getAccessTokenFromUri(newNavState.url);
+      const region = await AsyncStorage.getItem("region");
+
       await SecureStore.setItemAsync("access_token", accessToken);
       try {
         setLoading(t("fetching.assets"));

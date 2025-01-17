@@ -3,6 +3,19 @@ interface ValorantSkin {
   displayName: string;
   themeUuid: string;
   contentTierUuid?: string;
+  contentTier: ValorantContentTier;
+  displayIcon?: string;
+  wallpaper?: string;
+  assetPath: string;
+  chromas: ISkinChroma[];
+  levels: ISkinLevel[];
+}
+
+interface ValorantSkinResponse {
+  uuid: string;
+  displayName: string;
+  themeUuid: string;
+  contentTierUuid?: string;
   displayIcon?: string;
   wallpaper?: string;
   assetPath: string;
