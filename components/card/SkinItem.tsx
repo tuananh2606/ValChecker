@@ -1,17 +1,14 @@
 import { Colors } from "@/constants/Colors";
 import { StyleSheet, Image, View, Text, useColorScheme } from "react-native";
 import { Card } from "react-native-paper";
-import React, { useState } from "react";
-import SkinModal from "../modal/BattlePassModal";
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 
 interface Props {
-  data: SkinShopItem;
+  data: SkinShopItem | ValorantSkin;
 }
 
 const SkinItem = ({ data }: Props) => {
   const colorScheme = useColorScheme();
-  const [isModalVisible, setModalVisible] = useState(false);
 
   return (
     <Link
@@ -34,14 +31,23 @@ const SkinItem = ({ data }: Props) => {
           ]}
         >
           <View style={styles.priceContainer}>
-            <Image
-              style={{ width: 16, height: 16 }}
-              resizeMode="contain"
-              source={require("@/assets/images/valorantPoints.png")}
-            />
-            <Text style={{ fontSize: 16, color: "white", marginLeft: 4 }}>
-              {data.price}
-            </Text>
+            {(data as SkinShopItem).price && (
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <Image
+                  style={{ width: 16, height: 16 }}
+                  resizeMode="contain"
+                  source={require("@/assets/images/valorantPoints.png")}
+                />
+                <Text style={{ fontSize: 16, color: "white", marginLeft: 4 }}>
+                  {(data as SkinShopItem).price}
+                </Text>
+              </View>
+            )}
             <Image
               style={{ width: 24, height: 24, marginLeft: 8 }}
               resizeMode="contain"
@@ -56,7 +62,7 @@ const SkinItem = ({ data }: Props) => {
               style={styles.image}
               resizeMode="contain"
               source={{
-                uri: data.displayIcon,
+                uri: data.levels[0].displayIcon,
               }}
             />
           </View>

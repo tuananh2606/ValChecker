@@ -52,7 +52,7 @@ const BattlePassItem = ({
           {index !== undefined &&
             parentIdx !== undefined &&
             ProgressionLevelReached !== undefined &&
-            ProgressionTowardsNextLevel && (
+            ProgressionTowardsNextLevel !== undefined && (
               <View style={styles.progress}>
                 <Text style={{ fontSize: 16, color: "white" }}>
                   {`Lv${(parentIdx + 1) * 5 - (5 - index) + 1}`}

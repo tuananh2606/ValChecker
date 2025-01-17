@@ -8,16 +8,13 @@ import {
   Image,
   StyleSheet,
   StatusBar,
-  ImageBackground,
-  TouchableOpacity,
   TouchableWithoutFeedback,
 } from "react-native";
 import { fetchPlayerLoadout } from "@/utils/valorant-api";
 import { getDeviceWidth, VSprayEquipSlot } from "@/utils/misc";
-import Svg, { Path } from "react-native-svg";
-import { MaterialIcons } from "@expo/vector-icons";
 import { Button } from "react-native-paper";
 import { router } from "expo-router";
+import SprayItem from "@/components/SprayItem";
 
 interface ISprayAccessory extends ValorantSprayAccessory {
   equipSlot: string;
@@ -46,6 +43,7 @@ export default function InventoryScreen() {
         user.id
       );
       console.log(playerLoadout);
+
       if (playerLoadout) {
         const myCard = cards.find(
           (card) => card.uuid === playerLoadout.Identity.PlayerCardID
@@ -68,7 +66,6 @@ export default function InventoryScreen() {
     };
     fetchData();
   }, []);
-  console.log(playerLoadout);
 
   return (
     <View
@@ -114,88 +111,30 @@ export default function InventoryScreen() {
             alignItems: "center",
           }}
         >
-          <TouchableWithoutFeedback onPress={() => router.push("/sprays")}>
-            <ImageBackground
-              source={require("@/assets/images/top.png")}
-              resizeMode="contain"
-              style={[
-                styles.sprayContainer,
-                {
-                  top: 18,
-                  width: 200,
-                  height: 100,
-                },
-              ]}
-            >
-              <Image
-                style={styles.sprayImage}
-                resizeMode="contain"
-                source={{
-                  uri: playerLoadout?.sprays[0].fullTransparentIcon,
-                }}
-              />
-            </ImageBackground>
-          </TouchableWithoutFeedback>
-          <ImageBackground
+          <SprayItem
+            styleContainer={{ top: 18, width: 200, height: 100 }}
+            style={{ width: 200, height: 100 }}
+            source={require("@/assets/images/top.png")}
+            playerLoadout={playerLoadout?.sprays[0]}
+          />
+          <SprayItem
+            styleContainer={{ left: 81, width: 100, height: 200 }}
+            style={{ width: 100, height: 200 }}
             source={require("@/assets/images/left.png")}
-            resizeMode="contain"
-            style={[
-              styles.sprayContainer,
-              {
-                left: 81,
-                width: 100,
-                height: 200,
-              },
-            ]}
-          >
-            <Image
-              style={styles.sprayImage}
-              resizeMode="contain"
-              source={{
-                uri: playerLoadout?.sprays[3].fullTransparentIcon,
-              }}
-            />
-          </ImageBackground>
-          <ImageBackground
+            playerLoadout={playerLoadout?.sprays[3]}
+          />
+          <SprayItem
+            styleContainer={{ right: 81, width: 100, height: 200 }}
+            style={{ width: 100, height: 200 }}
             source={require("@/assets/images/right.png")}
-            resizeMode="contain"
-            style={[
-              styles.sprayContainer,
-              {
-                right: 81,
-                width: 100,
-                height: 200,
-              },
-            ]}
-          >
-            <Image
-              style={styles.sprayImage}
-              resizeMode="contain"
-              source={{
-                uri: playerLoadout?.sprays[1].fullTransparentIcon,
-              }}
-            />
-          </ImageBackground>
-          <ImageBackground
+            playerLoadout={playerLoadout?.sprays[1]}
+          />
+          <SprayItem
             source={require("@/assets/images/bottom.png")}
-            resizeMode="contain"
-            style={[
-              styles.sprayContainer,
-              {
-                bottom: 18,
-                width: 200,
-                height: 100,
-              },
-            ]}
-          >
-            <Image
-              style={styles.sprayImage}
-              resizeMode="contain"
-              source={{
-                uri: playerLoadout?.sprays[2].fullTransparentIcon,
-              }}
-            />
-          </ImageBackground>
+            styleContainer={{ bottom: 18, width: 200, height: 100 }}
+            style={{ width: 200, height: 100 }}
+            playerLoadout={playerLoadout?.sprays[2]}
+          />
         </View>
       </View>
       <View
@@ -207,14 +146,14 @@ export default function InventoryScreen() {
         <Button
           style={{ marginTop: 10, width: 170 }}
           mode="contained"
-          onPress={() => console.log("Pressed")}
+          onPress={() => router.push("/skins")}
         >
           Weapon Inventory
         </Button>
         <Button
           style={{ marginTop: 10, width: 170 }}
           mode="contained"
-          onPress={() => console.log("Pressed")}
+          onPress={() => router.push("/buddies")}
         >
           Weapon Buddies
         </Button>
@@ -239,6 +178,7 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
   sprayImage: {
+    backgroundColor: "red",
     width: 70,
     height: 70,
   },

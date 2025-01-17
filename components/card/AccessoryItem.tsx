@@ -1,4 +1,5 @@
 import { Colors } from "@/constants/Colors";
+import { router } from "expo-router";
 import { StyleSheet, Image, View, Text, useColorScheme } from "react-native";
 import { Card } from "react-native-paper";
 
@@ -9,44 +10,69 @@ interface Props {
 const AccessoryItem = ({ data }: Props) => {
   const colorScheme = useColorScheme();
   return (
-    <Card.Content
-      style={[
-        styles.container,
-        { backgroundColor: Colors[colorScheme ?? "light"].background },
-      ]}
+    <Card
+      onPress={() =>
+        router.push({
+          pathname: "/details-item/[id]",
+          params: { id: data.uuid, type: data.type },
+        })
+      }
+      style={{
+        marginVertical: 4,
+        marginHorizontal: 16,
+      }}
     >
-      <View style={styles.priceContainer}>
-        <Image
-          style={{ width: 16, height: 16 }}
-          resizeMode="contain"
-          source={require("@/assets/images/kingdomCredits.png")}
-        />
-        <Text style={{ fontSize: 16, color: "white", marginLeft: 4 }}>
-          {data.price}
-        </Text>
-      </View>
-
-      <View style={styles.imageContainer}>
-        <Image
-          style={styles.image}
-          resizeMode="contain"
-          source={{
-            uri: data.displayIcon,
-          }}
-        />
-      </View>
-
-      <Text
-        style={{
-          fontSize: 16,
-          color: "white",
-          textAlign: "center",
-          marginTop: 4,
-        }}
+      <Card.Content
+        style={[
+          styles.container,
+          { backgroundColor: Colors[colorScheme ?? "light"].background },
+        ]}
       >
-        {data.displayName}
-      </Text>
-    </Card.Content>
+        <View style={styles.priceContainer}>
+          <Image
+            style={{ width: 16, height: 16 }}
+            resizeMode="contain"
+            source={require("@/assets/images/kingdomCredits.png")}
+          />
+          <Text style={{ fontSize: 16, color: "white", marginLeft: 4 }}>
+            {data.price}
+          </Text>
+        </View>
+
+        <View style={styles.imageContainer}>
+          <Image
+            style={
+              data.displayIcon
+                ? styles.image
+                : {
+                    flex: 1,
+                    resizeMode: "contain",
+                    width: "30%",
+                  }
+            }
+            resizeMode="contain"
+            source={
+              !data.displayIcon
+                ? require("@/assets/images/Player-Title.png")
+                : {
+                    uri: data.displayIcon,
+                  }
+            }
+          />
+        </View>
+
+        <Text
+          style={{
+            fontSize: 16,
+            color: "white",
+            textAlign: "center",
+            marginTop: 4,
+          }}
+        >
+          {data.displayName}
+        </Text>
+      </Card.Content>
+    </Card>
   );
 };
 export default AccessoryItem;
@@ -55,8 +81,6 @@ const styles = StyleSheet.create({
   container: {
     height: 150,
     borderRadius: 12,
-    marginVertical: 4,
-    marginHorizontal: 16,
     display: "flex",
     justifyContent: "center",
   },

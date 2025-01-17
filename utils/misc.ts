@@ -1,4 +1,5 @@
 import { Dimensions, Platform } from "react-native";
+import { getAssets } from "./valorant-assets";
 
 export const TypeBattlePass = "Season";
 
@@ -33,6 +34,29 @@ export const VMissions = {
     title: "Purchase items from the armory",
     target: 200,
   },
+  "15c87696-49bc-e9d4-3672-e4a50488bfe2": {
+    title: "Play a game",
+    target: 10,
+  },
+  "2a1f28f5-44f6-ecce-b6e6-2f855b3c2d79": {
+    title: "Get headshots",
+    target: 50,
+  },
+  "b7d3cdcf-4bf0-4102-1947-d6ad90e6172a": {
+    title: "Use your abilities",
+    target: 200,
+  },
+};
+
+export const VOwnedItemType = {
+  Agents: "01bb38e1-da47-4e6a-9b3d-945fe4655707",
+  Contracts: "f85cb6f7-33e5-4dc8-b609-ec7212301948",
+  Sprays: "d5f120f8-ff8c-4aac-92ea-f2b5acbe9475",
+  Buddies: "dd3bf334-87f3-40bd-b043-682a57a8dc3a",
+  Cards: "3f296c07-64c3-494c-923b-fe692a4fa1bd",
+  Skins: "e7c63390-eda7-46e0-bb7a-a6abdacd2433",
+  Variants: "3ad1b2b2-acdb-4524-852f-954a76ddae0a",
+  Titles: "de7caa6b-adf7-4588-bbd1-143831e786c6",
 };
 
 export const VSprayEquipSlot = {
@@ -50,6 +74,15 @@ export const getAccessTokenFromUri = (uri: string) => {
     ) as any
   )[1];
 };
+
+export const isSameDayUTC = (d1: Date, d2: Date) => {
+  return (
+    d1.getUTCFullYear() === d2.getUTCFullYear() &&
+    d1.getUTCMonth() === d2.getUTCMonth() &&
+    d1.getUTCDate() === d2.getUTCDate()
+  );
+};
+
 export const convertSecstoHhMmSs = (remainingTime: number) => {
   const days = Math.floor(remainingTime / 3600 / 24);
   const hours = Math.floor((remainingTime - days * 24 * 3600) / 3600);
@@ -75,3 +108,51 @@ export const getDeviceWidth = () => {
 export const getDeviceHeight = () => {
   return Dimensions.get("window").height;
 };
+
+export function convertOwnedItemIDToItem(payload: OwnedItemsResponse) {
+  const { cards, buddies, skins, sprays, contentTier } = getAssets();
+  if (payload.ItemTypeID === VOwnedItemType.Cards && payload) {
+    let newCardArr = [];
+    for (let i = 0; i < payload.Entitlements.length; i++) {
+      const onwedCard = cards.find(
+        (card) => card.uuid === payload.Entitlements[i].ItemID
+      );
+      if (onwedCard) newCardArr.push(onwedCard);
+    }
+    return newCardArr;
+  }
+  if (payload.ItemTypeID === VOwnedItemType.Buddies) {
+    let newBuddiesArr = [];
+    for (let i = 0; i < payload.Entitlements.length; i++) {
+      const onwedBuddie = buddies.find(
+        (buddy) => buddy.levels[0].uuid === payload.Entitlements[i].ItemID
+      );
+      if (onwedBuddie) newBuddiesArr.push(onwedBuddie);
+    }
+    return newBuddiesArr;
+  }
+  if (payload.ItemTypeID === VOwnedItemType.Skins) {
+    let newSkinsArr: ValorantSkin[] = [];
+    for (let i = 0; i < payload.Entitlements.length; i++) {
+      const onwedSkin = skins.find(
+        (skin) => skin.levels[0].uuid === payload.Entitlements[i].ItemID
+      );
+
+      if (onwedSkin)
+        newSkinsArr.push({
+          ...onwedSkin,
+        });
+    }
+    return newSkinsArr;
+  }
+  if (payload.ItemTypeID === VOwnedItemType.Sprays) {
+    let newSpraysArr = [];
+    for (let i = 0; i < payload.Entitlements.length; i++) {
+      const onwedSpray = sprays.find(
+        (spray) => spray.uuid === payload.Entitlements[i].ItemID
+      );
+      if (onwedSpray) newSpraysArr.push(onwedSpray);
+    }
+    return newSpraysArr;
+  }
+}

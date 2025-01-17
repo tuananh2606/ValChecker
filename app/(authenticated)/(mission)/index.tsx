@@ -87,7 +87,7 @@ export default function MissionScreen() {
           )}
         </View>
       </View>
-      {missions &&
+      {/* {missions &&
         missions.Missions.map((mission, idx) => {
           const { ID, Objectives } = mission;
 
@@ -113,7 +113,7 @@ export default function MissionScreen() {
               </Text>
             </View>
           );
-        })}
+        })} */}
       <Button
         style={{
           width: "50%",

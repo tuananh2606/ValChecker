@@ -48,15 +48,31 @@ export async function loadAssets() {
       return;
     }
   }
+  const skins = await fetchSkins(language);
+  const contentTier = await fetchContentTier(language);
 
+  let skinsWithContentTier: ValorantSkin[] = [];
+  if (skins && contentTier) {
+    for (let i = 0; i < skins.length; i++) {
+      const contierTierSkin = contentTier.find(
+        (_contentTier) => _contentTier.uuid === skins[i]?.contentTierUuid
+      );
+      if (contierTierSkin)
+        skinsWithContentTier.push({
+          ...skins[i],
+          contentTier: contierTierSkin,
+        });
+    }
+  }
+
+  assets.skins = skinsWithContentTier;
   assets.riotClientVersion = version;
   assets.language = language;
-  assets.skins = await fetchSkins(language);
   assets.buddies = await fetchBuddies(language);
   assets.sprays = await fetchSprays(language);
   assets.cards = await fetchPlayerCards(language);
   assets.titles = await fetchPlayerTitles(language);
-  assets.contentTier = await fetchContentTier(language);
+  assets.contentTier = contentTier;
   assets.currencies = await fetchCurrencies(language);
 
   await FileSystem.writeAsStringAsync(FILE_LOCATION, JSON.stringify(assets));
@@ -72,7 +88,7 @@ export async function fetchVersion() {
 }
 
 export async function fetchSkins(language?: string) {
-  const res = await axios.request<{ data: ValorantSkin[] }>({
+  const res = await axios.request<{ data: ValorantSkinResponse[] }>({
     url: `https://valorant-api.com/v1/weapons/skins?language=${
       language ?? getVAPILang()
     }`,

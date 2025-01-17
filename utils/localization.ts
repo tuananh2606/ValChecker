@@ -69,20 +69,18 @@ const langDetector = {
   },
 };
 
-i18n
-  .use(langDetector)
-  .use(initReactI18next)
-  .init({
-    resources,
-    compatibilityJSON: "v4",
-    fallbackLng: "en",
-    debug: __DEV__,
-    react: {
-      useSuspense: false,
-    },
-    interpolation: {
-      escapeValue: false,
-    },
-  });
+i18n.use(initReactI18next).init({
+  resources,
+  lng: getLocales()[0].languageCode || "en",
+  compatibilityJSON: "v4",
+  fallbackLng: "en",
+  debug: __DEV__,
+  react: {
+    useSuspense: false,
+  },
+  interpolation: {
+    escapeValue: false,
+  },
+});
 
 export default i18n;

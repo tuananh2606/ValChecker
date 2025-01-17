@@ -1,7 +1,7 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { VCurrencies, VItemTypes } from "./misc";
-// import https from "https-browserify";
+//import https from "https-browserify";
 import { fetchBundle, getAssets } from "./valorant-assets";
 
 axios.interceptors.request.use(
@@ -119,20 +119,16 @@ export async function parseShop(shop: StorefrontResponse) {
   /* NORMAL SHOP */
   let singleItemStoreOffers = shop.SkinsPanelLayout.SingleItemStoreOffers;
   let main: SkinShopItem[] = [];
-  const { skins, buddies, cards, sprays, titles, contentTier } = getAssets();
+  const { skins, buddies, cards, sprays, titles } = getAssets();
 
   for (var i = 0; i < singleItemStoreOffers.length; i++) {
     const offer = singleItemStoreOffers[i];
 
     const skin = skins.find((_skin) => _skin.levels[0].uuid === offer.OfferID);
-    const contierTierSkin = contentTier.find(
-      (_contentTier) => _contentTier.uuid === skin?.contentTierUuid
-    );
 
-    if (skin && contierTierSkin) {
+    if (skin) {
       main[i] = {
         ...skin,
-        contentTier: contierTierSkin,
         price: offer.Cost[VCurrencies.VP],
       };
     }
@@ -155,12 +151,9 @@ export async function parseShop(shop: StorefrontResponse) {
         const skin = skins.find(
           (_skin) => _skin.levels[0].uuid === item.Item.ItemID
         ) as ValorantSkin;
-        const contentTierSkin = contentTier.find(
-          (_contentTier) => _contentTier.uuid === skin?.contentTierUuid
-        ) as ValorantContentTier;
+
         return {
           ...skin,
-          contentTier: contentTierSkin,
           price: item.BasePrice,
         };
       }),
@@ -176,12 +169,8 @@ export async function parseShop(shop: StorefrontResponse) {
       const skin = skins.find(
         (_skin) => _skin.levels[0].uuid === itemid
       ) as ValorantSkin;
-      const contentTierSkin = contentTier.find(
-        (_contentTier) => _contentTier.uuid === skin?.contentTierUuid
-      ) as ValorantContentTier;
       nightMarket.push({
         ...skin,
-        contentTier: contentTierSkin,
         price: bonusStore[k].Offer.Cost[VCurrencies.VP],
         discountedPrice: bonusStore[k].DiscountCosts[VCurrencies.VP],
         discountPercent: bonusStore[k].DiscountPercent,
@@ -215,6 +204,7 @@ export async function parseShop(shop: StorefrontResponse) {
         displayName: buddy.displayName,
         displayIcon: buddy.levels[0].displayIcon,
         price: accessoryItem.Cost[VCurrencies.KC],
+        type: "buddy",
       };
     } else if (card) {
       accessory[i] = {
@@ -224,6 +214,7 @@ export async function parseShop(shop: StorefrontResponse) {
         wideArt: card.wideArt,
         largeArt: card.largeArt,
         price: accessoryItem.Cost[VCurrencies.KC],
+        type: "card",
       };
     } else if (title) {
       accessory[i] = {
@@ -231,6 +222,7 @@ export async function parseShop(shop: StorefrontResponse) {
         displayName: title.displayName,
         titleText: title.titleText,
         price: accessoryItem.Cost[VCurrencies.KC],
+        type: "title",
       };
     } else if (spray) {
       accessory[i] = {
@@ -240,6 +232,7 @@ export async function parseShop(shop: StorefrontResponse) {
         fullIcon: spray.fullIcon,
         fullTransparentIcon: spray.fullTransparentIcon,
         price: accessoryItem.Cost[VCurrencies.KC],
+        type: "spray",
       };
     }
   }
@@ -432,6 +425,26 @@ export async function fetchPlayerLoadout(
   return res.data;
 }
 
+export async function fetchPlayerOwnedItems(
+  accessToken: string,
+  entitlementsToken: string,
+  region: string,
+  userId: string,
+  ownedItemType: string
+) {
+  const res = await axios.request<OwnedItemsResponse>({
+    url: getUrl("ownedItem", region, userId, ownedItemType),
+    method: "GET",
+    headers: {
+      ...extraHeaders(),
+      Authorization: `Bearer ${accessToken}`,
+      "X-Riot-Entitlements-JWT": entitlementsToken,
+    },
+  });
+
+  return res.data;
+}
+
 export const reAuth = (version: string) =>
   axios.request({
     url: "https://auth.riotgames.com/api/v1/authorization",
@@ -458,10 +471,15 @@ export const reAuth = (version: string) =>
     //   honorCipherOrder: true,
     //   minVersion: "TLSv1.2",
     // }),
-    withCredentials: true,
+    // withCredentials: true,
   });
 
-function getUrl(name: string, region?: string, userId?: string) {
+function getUrl(
+  name: string,
+  region?: string,
+  userId?: string,
+  itemTypeID?: string
+) {
   const URLS: any = {
     auth: "https://auth.riotgames.com/api/v1/authorization/",
     entitlements: "https://entitlements.auth.riotgames.com/api/token/v1/",
@@ -473,6 +491,7 @@ function getUrl(name: string, region?: string, userId?: string) {
     offers: `https://pd.${region}.a.pvp.net/store/v1/offers/`,
     name: `https://pd.${region}.a.pvp.net/name-service/v2/players`,
     player: `https://pd.${region}.a.pvp.net/personalization/v2/players/${userId}/playerloadout`,
+    ownedItem: `https://pd.${region}.a.pvp.net/store/v1/entitlements/${userId}/${itemTypeID}`,
   };
 
   return URLS[name];
