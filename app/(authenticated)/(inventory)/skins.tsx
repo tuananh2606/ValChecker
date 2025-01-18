@@ -29,6 +29,7 @@ import BottomSheet, {
   BottomSheetSectionList,
 } from "@gorhom/bottom-sheet";
 import { Colors } from "@/constants/Colors";
+import Loading from "@/components/Loading";
 
 const noMeleeFilter = [
   "Vandal",
@@ -105,6 +106,7 @@ export default function SkinsScreen() {
   const colorScheme = useColorScheme();
   const user = useUserStore((state) => state.user);
   useEffect(() => {
+    setLoading(true);
     const fetchSkins = async () => {
       let accessToken = (await SecureStore.getItemAsync(
         "access_token"
@@ -124,6 +126,7 @@ export default function SkinsScreen() {
 
       setOwnedSkins(newSkins as ValorantSkin[]);
       setOwnedSkinsData((newSkins as ValorantSkin[]).slice(0, 50));
+      setLoading(false);
     };
     fetchSkins();
   }, []);
@@ -155,13 +158,18 @@ export default function SkinsScreen() {
           !ownedSkin.some((item) => item.uuid === skin.uuid)
       );
       handleTotalCollectionCount(ownedSkin);
-      setFilteredSkins(["Owned", ...ownedSkin, "Not Owned", ...remainingSkin]);
+      setFilteredSkins([
+        "Owned",
+        ...ownedSkin.sort(customSort()),
+        "Not Owned",
+        ...remainingSkin.sort(customSort()),
+      ]);
     }
   };
 
   useEffect(() => {
     handleTotalCollectionCount(ownedSkinsData);
-    setFilteredSkins(["Owned", ...ownedSkinsData]);
+    setFilteredSkins(["Owned", ...ownedSkinsData.sort(customSort())]);
   }, [ownedSkinsData]);
 
   const handleLoadMore = () => {
@@ -245,6 +253,20 @@ export default function SkinsScreen() {
       ),
     });
   }, [navigation]);
+
+  if (loading) {
+    return <Loading />;
+  }
+
+  const customSort = () => {
+    return (a: ValorantSkin, b: ValorantSkin) => {
+      if (typeof a === "string" || typeof b === "string") {
+        return 10;
+      } else {
+        return b.contentTier.rank - a.contentTier.rank;
+      }
+    };
+  };
 
   return (
     <View style={{ flex: 1 }}>

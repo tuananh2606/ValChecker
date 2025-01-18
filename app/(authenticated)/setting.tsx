@@ -12,6 +12,7 @@ import {
   View,
   TextInput,
   Pressable,
+  ToastAndroid,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useUserStore from "@/hooks/useUserStore";
@@ -26,14 +27,28 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
+import { initBackgroundFetch, stopBackgroundFetch } from "@/utils/wishlist";
+import { useWishlistStore } from "@/hooks/useWishlistStore";
+import * as Notifications from "expo-notifications";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 export default function SettingScreen() {
   const { t } = useTranslation();
-  const { user, setUser } = useUserStore();
+  const { setUser } = useUserStore();
   const [time, setTime] = useState<Date>();
-  const [isSwitchOn, setIsSwitchOn] = useState(false);
+
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const [isSwitchStoreOn, setIsSwitchStoreOn] = useState(false);
+
+  const notificationEnabled = useWishlistStore(
+    (state) => state.notificationEnabled
+  );
+  const setNotificationEnabled = useWishlistStore(
+    (state) => state.setNotificationEnabled
+  );
+
+  const darkModeEnabled = useDarkMode((state) => state.darkModeEnabled);
+  const setDarkModeEnabled = useDarkMode((state) => state.setDarkMode);
+
   const handleTimeChange = (event: DateTimePickerEvent, date?: Date) => {
     const {
       type,
@@ -51,11 +66,35 @@ export default function SettingScreen() {
     await CookieManager.clearAll(true);
     await AsyncStorage.removeItem("region");
     setUser(defaultUser);
+    stopBackgroundFetch();
+    setNotificationEnabled(false);
     router.replace("/(login)");
   };
-
-  const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
   const handleShowPicker = () => setShowTimePicker(!showTimePicker);
+
+  const toggleNotificationEnabled = async () => {
+    if (!notificationEnabled) {
+      const permission = await Notifications.requestPermissionsAsync();
+      if (permission.granted) {
+        await initBackgroundFetch();
+        setNotificationEnabled(true);
+        ToastAndroid.show(
+          t("wishlist.notification.enabled"),
+          ToastAndroid.LONG
+        );
+      } else {
+        ToastAndroid.show(
+          t("wishlist.notification.no_permission"),
+          ToastAndroid.LONG
+        );
+      }
+    } else {
+      await stopBackgroundFetch();
+      setNotificationEnabled(false);
+      ToastAndroid.show(t("wishlist.notification.disabled"), ToastAndroid.LONG);
+    }
+  };
+  console.log(notificationEnabled);
 
   return (
     <View style={styles.container}>
@@ -106,8 +145,8 @@ export default function SettingScreen() {
             right={() => (
               <Switch
                 color="green"
-                value={isSwitchOn}
-                onValueChange={onToggleSwitch}
+                value={darkModeEnabled}
+                onValueChange={() => setDarkModeEnabled(!darkModeEnabled)}
               />
             )}
           />
@@ -150,8 +189,8 @@ export default function SettingScreen() {
             right={() => (
               <Switch
                 color="green"
-                value={isSwitchStoreOn}
-                onValueChange={() => setIsSwitchStoreOn(!isSwitchStoreOn)}
+                value={notificationEnabled}
+                onValueChange={toggleNotificationEnabled}
               />
             )}
           />
@@ -174,6 +213,7 @@ export default function SettingScreen() {
             right={() => (
               <Pressable onPress={handleShowPicker}>
                 <TextInput
+                  style={{ color: "white" }}
                   keyboardType={"numeric"}
                   editable={false}
                   value={time?.toLocaleTimeString().slice(0, 5) || "07:00"}
@@ -197,6 +237,8 @@ export default function SettingScreen() {
         style={{
           borderRadius: 8,
         }}
+        buttonColor="#ff4654"
+        dark
         mode="contained"
       >
         {t("logout")}

@@ -10,7 +10,7 @@ import axios from "axios";
 import i18n, { getVAPILang } from "./localization";
 import { useWishlistStore } from "@/hooks/useWishlistStore";
 import * as Notifications from "expo-notifications";
-//import BackgroundFetch from "react-native-background-fetch";
+import BackgroundFetch from "react-native-background-fetch";
 import { fetchVersion } from "./valorant-assets";
 
 Notifications.setNotificationHandler({
@@ -118,32 +118,32 @@ export async function checkShop(wishlist: string[]) {
   }
 }
 
-// export async function initBackgroundFetch() {
-//   await BackgroundFetch.configure(
-//     {
-//       minimumFetchInterval: 15,
-//       stopOnTerminate: false,
-//       enableHeadless: true,
-//       startOnBoot: true,
-//       // Android options
-//       forceAlarmManager: false,
-//       requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY,
-//       requiresCharging: false,
-//       requiresDeviceIdle: false,
-//       requiresBatteryNotLow: false,
-//       requiresStorageNotLow: false,
-//     },
-//     async (taskId: string) => {
-//       await wishlistBgTask();
-//       BackgroundFetch.finish(taskId);
-//     },
-//     (taskId: string) => {
-//       console.log("[Fetch] TIMEOUT taskId:", taskId);
-//       BackgroundFetch.finish(taskId);
-//     }
-//   );
-// }
+export async function initBackgroundFetch() {
+  await BackgroundFetch.configure(
+    {
+      minimumFetchInterval: 15,
+      stopOnTerminate: false,
+      enableHeadless: true,
+      startOnBoot: true,
+      // Android options
+      forceAlarmManager: false,
+      requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY,
+      requiresCharging: false,
+      requiresDeviceIdle: false,
+      requiresBatteryNotLow: false,
+      requiresStorageNotLow: false,
+    },
+    async (taskId: string) => {
+      await wishlistBgTask();
+      BackgroundFetch.finish(taskId);
+    },
+    (taskId: string) => {
+      console.log("[Fetch] TIMEOUT taskId:", taskId);
+      BackgroundFetch.finish(taskId);
+    }
+  );
+}
 
-// export async function stopBackgroundFetch() {
-//   await BackgroundFetch.stop();
-// }
+export async function stopBackgroundFetch() {
+  await BackgroundFetch.stop();
+}

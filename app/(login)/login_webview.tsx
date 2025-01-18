@@ -48,45 +48,51 @@ export default function LoginScreen() {
         await SecureStore.setItemAsync("entitlements_token", entitlementsToken);
         setLoading(t("fetching.user_id"));
         const userId = getUserId(accessToken);
-        setLoading(t("fetching.username"));
-        const username = await getUsername(
+
+        const username = getUsername(
           accessToken,
           entitlementsToken,
           userId,
           region as string
         );
-        setLoading(t("fetching.storefront"));
-        const shop = await getShop(
+
+        const shop = getShop(
           accessToken,
           entitlementsToken,
           region as string,
           userId
         );
-        const shops = await parseShop(shop);
-        setLoading(t("fetching.progress"));
-        const progress = await getProgress(
+
+        const progress = getProgress(
           accessToken,
           entitlementsToken,
           region as string,
           userId
         );
-        setLoading(t("fetching.balances"));
-        const balances = await getBalances(
+
+        const balances = getBalances(
           accessToken,
           entitlementsToken,
           region as string,
           userId
         );
-        setLoading(t("fetching.donator"));
-        setUser({
-          id: userId,
-          ...username,
-          region: region as string,
-          shops,
-          progress,
-          balances,
-        });
-        router.replace("/(authenticated)/(store)");
+        setLoading(t("fetching.username"));
+        Promise.all([username, shop, progress, balances])
+          .then(async ([username, shop, progress, balances]) => {
+            const shops = await parseShop(shop);
+            setUser({
+              id: userId,
+              ...username,
+              region: region as string,
+              shops,
+              progress,
+              balances,
+            });
+            router.replace("/(authenticated)/(store)");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
       } catch (e) {
         if (!__DEV__) {
           await CookieManager.clearAll(true);

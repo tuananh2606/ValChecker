@@ -42,7 +42,6 @@ export default function InventoryScreen() {
         user.region,
         user.id
       );
-      console.log(playerLoadout);
 
       if (playerLoadout) {
         const myCard = cards.find(
@@ -146,6 +145,8 @@ export default function InventoryScreen() {
         <Button
           style={{ marginTop: 10, width: 170 }}
           mode="contained"
+          buttonColor="#ff4654"
+          dark
           onPress={() => router.push("/skins")}
         >
           Weapon Inventory
@@ -153,6 +154,8 @@ export default function InventoryScreen() {
         <Button
           style={{ marginTop: 10, width: 170 }}
           mode="contained"
+          buttonColor="#ff4654"
+          dark
           onPress={() => router.push("/buddies")}
         >
           Weapon Buddies

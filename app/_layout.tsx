@@ -14,7 +14,20 @@ import { PaperProvider } from "react-native-paper";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as SecureStore from "expo-secure-store";
 import { jwtDecode } from "jwt-decode";
+import merge from "deepmerge";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useWishlistStore } from "@/hooks/useWishlistStore";
+import { initBackgroundFetch, stopBackgroundFetch } from "@/utils/wishlist";
+import { useDarkMode } from "@/hooks/useDarkMode";
+
+// export const CombinedDarkTheme = {
+//   ...merge(PaperDarkTheme, NavigationDarkTheme),
+//   colors: {
+//     ...merge(PaperDarkTheme.colors, NavigationDarkTheme.colors),
+//     primary: "#fa4454",
+//     accent: "#fa4454",
+//   },
+// };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -24,11 +37,19 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
-
+  const darkMode = useDarkMode.getState().darkModeEnabled;
   useEffect(() => {
-    // if (loaded) {
-    //   SplashScreen.hideAsync();
-    // }
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
+    const notificationEnabled = useWishlistStore.getState().notificationEnabled;
+
+    if (notificationEnabled) {
+      initBackgroundFetch();
+    } else {
+      stopBackgroundFetch();
+    }
+
     // SecureStore.getItemAsync("access_token").then((results) => {
     //   const decoded = jwtDecode(results as string);
     //   if ((decoded.exp as number) < Math.floor(Date.now() / 1000)) {
@@ -44,13 +65,16 @@ export default function RootLayout() {
       } else {
         router.replace("/(login)");
       }
-      SplashScreen.hideAsync();
     });
-  }, [router]);
+  }, [loaded]);
 
   if (!loaded) {
     return null;
   }
+
+  const handleTheme = () => {
+    return darkMode ? "dark" : "light";
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

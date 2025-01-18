@@ -44,7 +44,8 @@
             "usesCleartextTraffic": true
           }
         }
-      ]
+      ],
+      "react-native-background-fetch"
     ],
     "experiments": {
       "typedRoutes": true

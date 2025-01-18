@@ -119,6 +119,8 @@ export default function MissionScreen() {
           width: "50%",
           marginTop: 24,
         }}
+        buttonColor="#ff4654"
+        dark
         mode="contained"
         onPress={() => router.push("/battlepass")}
       >
