@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
   sprayImage: {
-    width: 80,
+    width: 60,
     height: 70,
   },
 });

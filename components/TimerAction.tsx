@@ -5,10 +5,9 @@ import { convertSecstoHhMmSs } from "@/utils/misc";
 import { Colors } from "@/constants/Colors";
 interface Props {
   remainingSecs: number;
-  showRefresh?: boolean;
 }
 
-const TimerAction = ({ remainingSecs, showRefresh = true }: Props) => {
+const TimerAction = ({ remainingSecs }: Props) => {
   const colorScheme = useColorScheme();
   const [diff, setDiff] = useState(remainingSecs);
   useEffect(() => {
@@ -19,9 +18,7 @@ const TimerAction = ({ remainingSecs, showRefresh = true }: Props) => {
   }, [remainingSecs]);
 
   return (
-    <View
-      style={[styles.container, { marginHorizontal: showRefresh ? 16 : 0 }]}
-    >
+    <View style={styles.container}>
       <View style={styles.timerContainer}>
         <MaterialIcons
           name="access-time"
@@ -38,11 +35,6 @@ const TimerAction = ({ remainingSecs, showRefresh = true }: Props) => {
           {convertSecstoHhMmSs(diff)}
         </Text>
       </View>
-      {showRefresh && (
-        <View>
-          <MaterialIcons name="refresh" size={28} color="red" />
-        </View>
-      )}
     </View>
   );
 };
@@ -52,6 +44,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginHorizontal: 16,
+    marginVertical: 8,
   },
   timerContainer: {
     flexDirection: "row",

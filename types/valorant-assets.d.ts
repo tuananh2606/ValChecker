@@ -210,3 +210,32 @@ interface ValorantCurrencies {
   rewardPreviewIcon: string;
   assetPath: string;
 }
+
+interface ValorantSeason {
+  uuid: string;
+  displayName: string;
+  title: string;
+  type: string;
+  startTime: Date;
+  endTime: Date;
+  parentUuid: string;
+  assetPath: string;
+}
+interface ValorantCompetitiveTiers {
+  uuid: string;
+  assetObjectName: string;
+  tiers: ValorantCompetitiveTier[];
+}
+
+interface ValorantCompetitiveTier {
+  tier: number;
+  tierName: string;
+  division: string;
+  divisionName: string;
+  color: string;
+  backgroundColor: string;
+  smallIcon: string;
+  largeIcon: string;
+  rankTriangleDownIcon?: string;
+  rankTriangleUpIcon?: string;
+}

@@ -11,7 +11,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { fetchPlayerLoadout } from "@/utils/valorant-api";
-import { getDeviceWidth, VSprayEquipSlot } from "@/utils/misc";
+import { VSprayEquipSlot } from "@/utils/misc";
 import { Button } from "react-native-paper";
 import { router } from "expo-router";
 import SprayItem from "@/components/SprayItem";
@@ -111,27 +111,27 @@ export default function InventoryScreen() {
           }}
         >
           <SprayItem
-            styleContainer={{ top: 18, width: 200, height: 100 }}
-            style={{ width: 200, height: 100 }}
+            styleContainer={{ top: 33, width: 160, height: 100 }}
+            style={{ width: 160, height: 100 }}
             source={require("@/assets/images/top.png")}
             playerLoadout={playerLoadout?.sprays[0]}
           />
           <SprayItem
-            styleContainer={{ left: 81, width: 100, height: 200 }}
-            style={{ width: 100, height: 200 }}
+            styleContainer={{ left: 54, width: 100, height: 160 }}
+            style={{ width: 100, height: 160 }}
             source={require("@/assets/images/left.png")}
             playerLoadout={playerLoadout?.sprays[3]}
           />
           <SprayItem
-            styleContainer={{ right: 81, width: 100, height: 200 }}
-            style={{ width: 100, height: 200 }}
+            styleContainer={{ right: 54, width: 100, height: 160 }}
+            style={{ width: 100, height: 160 }}
             source={require("@/assets/images/right.png")}
             playerLoadout={playerLoadout?.sprays[1]}
           />
           <SprayItem
             source={require("@/assets/images/bottom.png")}
-            styleContainer={{ bottom: 18, width: 200, height: 100 }}
-            style={{ width: 200, height: 100 }}
+            styleContainer={{ bottom: 33, width: 160, height: 100 }}
+            style={{ width: 160, height: 100 }}
             playerLoadout={playerLoadout?.sprays[2]}
           />
         </View>
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   },
 
   image: {
-    width: getDeviceWidth(),
+    width: "100%",
     height: 130,
   },
   sprayContainer: {

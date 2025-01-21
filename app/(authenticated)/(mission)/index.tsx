@@ -80,10 +80,7 @@ export default function MissionScreen() {
         </Text>
         <View>
           {expirationTime && (
-            <TimerAction
-              showRefresh={false}
-              remainingSecs={convertDatetoSeconds(expirationTime)}
-            />
+            <TimerAction remainingSecs={convertDatetoSeconds(expirationTime)} />
           )}
         </View>
       </View>
@@ -131,7 +128,6 @@ export default function MissionScreen() {
           }}
         >
           <Text style={{ fontSize: 16 }}>Battle Pass</Text>
-          <MaterialIcons name="arrow-forward" size={24} color="black" />
         </View>
       </Button>
     </View>

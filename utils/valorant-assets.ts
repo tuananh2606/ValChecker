@@ -196,3 +196,25 @@ export async function fetchCurrencies(language?: string) {
   });
   return res.data.data;
 }
+
+export async function fetchSeasons(language?: string) {
+  const res = await axios.request<{ data: ValorantSeason[] }>({
+    url: `https://valorant-api.com/v1/seasons?language=${
+      language ?? getVAPILang()
+    }`,
+    method: "GET",
+  });
+
+  return res.data.data;
+}
+
+export async function fetchCompetitiveTier(language?: string) {
+  const res = await axios.request<{ data: ValorantCompetitiveTiers[] }>({
+    url: `https://valorant-api.com/v1/competitivetiers?language=${
+      language ?? getVAPILang()
+    }`,
+    method: "GET",
+  });
+
+  return res.data.data;
+}

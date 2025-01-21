@@ -28,23 +28,9 @@ export async function wishlistBgTask() {
   const wishlistStore = useWishlistStore.getState();
 
   if (!wishlistStore.notificationEnabled) return;
+  console.log(wishlistStore.notificationEnabled);
 
-  const lastWishlistCheckTs = Number.parseInt(
-    (await AsyncStorage.getItem("lastWishlistCheck")) || "0"
-  );
-  const lastWishlistCheck = new Date(lastWishlistCheckTs);
-  const now = new Date();
-  console.log(
-    `Last wishlist check ${lastWishlistCheck}, current date: ${now.getTime()}`
-  );
-
-  if (!isSameDayUTC(lastWishlistCheck, now) || lastWishlistCheckTs === 0) {
-    console.log("New day, checking shop in the background");
-    await checkShop(wishlistStore.skinIds);
-    await AsyncStorage.setItem("lastWishlistCheck", now.getTime().toString());
-  }
-
-  console.log("No wishlist check needed");
+  await checkShop(wishlistStore.skinIds);
 }
 
 export async function checkShop(wishlist: string[]) {
@@ -62,7 +48,7 @@ export async function checkShop(wishlist: string[]) {
     const userId = getUserId(accessToken);
 
     const entitlementsToken = await getEntitlementsToken(accessToken);
-    const region = (await AsyncStorage.getItem("region")) || "eu";
+    const region = (await AsyncStorage.getItem("region")) as string;
     const shop = await getShop(accessToken, entitlementsToken, region, userId);
 
     var hit = false;
@@ -85,7 +71,8 @@ export async function checkShop(wishlist: string[]) {
           },
           trigger: {
             channelId: NOTIFICATION_CHANNEL,
-            seconds: 1,
+            seconds: 60 * 1,
+            repeats: true,
           },
         });
         hit = true;
@@ -99,7 +86,7 @@ export async function checkShop(wishlist: string[]) {
         },
         trigger: {
           channelId: NOTIFICATION_CHANNEL,
-          seconds: 1,
+          seconds: 60 * 1,
         },
       });
     }
@@ -134,6 +121,8 @@ export async function initBackgroundFetch() {
       requiresStorageNotLow: false,
     },
     async (taskId: string) => {
+      console.log("vao");
+
       await wishlistBgTask();
       BackgroundFetch.finish(taskId);
     },

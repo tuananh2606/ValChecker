@@ -437,3 +437,63 @@ type OwnedItemsResponse = {
     InstanceID?: string | undefined;
   }[];
 };
+type LeaderboardResponse = {
+  Deployment: string;
+  /** Queue ID */
+  QueueID: string;
+  /** Season ID */
+  SeasonID: string;
+  Players: {
+    /** Card ID */
+    PlayerCardID: string;
+    /** Title ID */
+    TitleID: string;
+    IsBanned: boolean;
+    IsAnonymized: boolean;
+    /** Player UUID */
+    puuid: string;
+    gameName: string;
+    tagLine: string;
+    leaderboardRank: number;
+    rankedRating: number;
+    numberOfWins: number;
+    competitiveTier: number;
+    rankTier?: ValorantCompetitiveTier;
+  }[];
+  totalPlayers: number;
+  immortalStartingPage: number;
+  immortalStartingIndex: number;
+  topTierRRThreshold: number;
+  tierDetails: {
+    [x: string]: {
+      rankedRatingThreshold: number;
+      startingPage: number;
+      startingIndex: number;
+    };
+  };
+  startIndex: number;
+  query: string;
+};
+type CompetitiveUpdatesResponse = {
+  Version: number;
+  /** Player UUID */
+  Subject: string;
+  Matches: {
+    /** Match ID */
+    MatchID: string;
+    /** Map ID */
+    MapID: string;
+    /** Season ID */
+    SeasonID: string;
+    /** Milliseconds since epoch */
+    MatchStartTime: number;
+    TierAfterUpdate: number;
+    TierBeforeUpdate: number;
+    RankedRatingAfterUpdate: number;
+    RankedRatingBeforeUpdate: number;
+    RankedRatingEarned: number;
+    RankedRatingPerformanceBonus: number;
+    CompetitiveMovement: "MOVEMENT_UNKNOWN";
+    AFKPenalty: number;
+  }[];
+};

@@ -12,6 +12,7 @@ const AccessoryItem = ({ data }: Props) => {
   return (
     <Card
       onPress={() =>
+        data.type !== "title" &&
         router.push({
           pathname: "/details-item/[id]",
           params: { id: data.uuid, type: data.type },

@@ -445,6 +445,27 @@ export async function fetchPlayerOwnedItems(
   return res.data;
 }
 
+export async function fetchLeaderBoard(
+  accessToken: string,
+  entitlementsToken: string,
+  region: string,
+  seasonId: string,
+  startIndex: number = 0,
+  size: number = 50
+) {
+  const res = await axios.request<LeaderboardResponse>({
+    url: `https://pd.${region}.a.pvp.net/mmr/v1/leaderboards/affinity/${region}/queue/competitive/season/${seasonId}?startIndex=${startIndex}&size=${size}`,
+    method: "GET",
+    headers: {
+      ...extraHeaders(),
+      Authorization: `Bearer ${accessToken}`,
+      "X-Riot-Entitlements-JWT": entitlementsToken,
+    },
+  });
+
+  return res.data;
+}
+
 export const reAuth = (version: string) =>
   axios.request({
     url: "https://auth.riotgames.com/api/v1/authorization",
@@ -478,7 +499,11 @@ function getUrl(
   name: string,
   region?: string,
   userId?: string,
-  itemTypeID?: string
+  itemTypeID?: string,
+  seasonId?: string,
+  startIndex?: number,
+  size?: number,
+  query?: string
 ) {
   const URLS: any = {
     auth: "https://auth.riotgames.com/api/v1/authorization/",
@@ -492,6 +517,8 @@ function getUrl(
     name: `https://pd.${region}.a.pvp.net/name-service/v2/players`,
     player: `https://pd.${region}.a.pvp.net/personalization/v2/players/${userId}/playerloadout`,
     ownedItem: `https://pd.${region}.a.pvp.net/store/v1/entitlements/${userId}/${itemTypeID}`,
+    leaderboard: `https://pd.${region}.a.pvp.net/mmr/v1/leaderboards/affinity/${region}/queue/competitive/season/${seasonId}?startIndex=${startIndex}&size=${size}
+`,
   };
 
   return URLS[name];

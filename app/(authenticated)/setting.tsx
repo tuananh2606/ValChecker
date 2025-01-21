@@ -94,7 +94,6 @@ export default function SettingScreen() {
       ToastAndroid.show(t("wishlist.notification.disabled"), ToastAndroid.LONG);
     }
   };
-  console.log(notificationEnabled);
 
   return (
     <View style={styles.container}>

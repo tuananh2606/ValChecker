@@ -1,21 +1,29 @@
 import TabButtons, { TabButtonType } from "@/components/TabButtons";
 import { Colors } from "@/constants/Colors";
+import { getDeviceWidth } from "@/utils/misc";
 import { getAssets } from "@/utils/valorant-assets";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useVideoPlayer, VideoView } from "expo-video";
-import React from "react";
-import { useState, useEffect } from "react";
-import { View, StyleSheet, Text, useColorScheme, Image } from "react-native";
+import { useState, useEffect, Fragment } from "react";
+import {
+  View,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  Image,
+  ScrollView,
+} from "react-native";
 
 const DetailsScreen = () => {
   const navigation = useNavigation();
-  const [selectedTab, setSelectedTab] = useState(0);
-  const [selectedChroma, setSelectedChromaTab] = useState(0);
-
   const { id } = useLocalSearchParams();
   const { skins } = getAssets();
   const colorScheme = useColorScheme();
   const skin = skins.find((_skin) => _skin.uuid === id) as ValorantSkin;
+  const [selectedTab, setSelectedTab] = useState<number>(0);
+  const [videoSrc, setVideoSrc] = useState<string>("");
+  const [selectedChroma, setSelectedChromaTab] = useState(0);
+
   const levels: TabButtonType[] = Array.from(
     Array(skin.levels.length),
     (_, x) => {
@@ -32,7 +40,8 @@ const DetailsScreen = () => {
     ? (skin.chromas[selectedChroma].displayIcon as string)
     : (skin.chromas[selectedChroma].fullRender as string);
   const videoSource = skin.levels[selectedTab].streamedVideo;
-  const player = useVideoPlayer(videoSource, (player) => {
+  const videoChromaSource = skin.chromas[selectedChroma].streamedVideo;
+  const player = useVideoPlayer(videoSrc, (player) => {
     player.loop = true;
     player.play();
   });
@@ -43,8 +52,16 @@ const DetailsScreen = () => {
     });
   }, [navigation]);
 
+  useEffect(() => {
+    if (selectedChroma !== 0) setVideoSrc(videoChromaSource as string);
+  }, [selectedChroma]);
+
+  useEffect(() => {
+    setVideoSrc(videoSource as string);
+  }, [selectedTab]);
+
   return (
-    <View
+    <ScrollView
       style={{
         flex: 1,
         backgroundColor: Colors[colorScheme ?? "light"].background,
@@ -52,7 +69,7 @@ const DetailsScreen = () => {
     >
       <View
         style={{
-          marginLeft: 30,
+          marginLeft: 20,
           marginTop: 16,
           flexDirection: "row",
           alignItems: "center",
@@ -77,11 +94,15 @@ const DetailsScreen = () => {
 
       <View style={styles.container}>
         {skin.levels[0].streamedVideo && (
-          <>
-            <VideoView style={styles.video} player={player} />
+          <Fragment>
+            <VideoView
+              style={styles.video}
+              player={player}
+              nativeControls={false}
+            />
             <View
               style={{
-                width: 350,
+                width: 300,
               }}
             >
               <TabButtons
@@ -90,7 +111,7 @@ const DetailsScreen = () => {
                 setSelectedTab={setSelectedTab}
               />
             </View>
-          </>
+          </Fragment>
         )}
 
         <View style={styles.imageContainer}>
@@ -104,7 +125,7 @@ const DetailsScreen = () => {
         </View>
         <View
           style={{
-            width: 350,
+            width: 300,
           }}
         >
           <TabButtons
@@ -114,16 +135,17 @@ const DetailsScreen = () => {
           />
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 export default DetailsScreen;
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
+    marginBottom: 16,
   },
   video: {
-    width: 350,
+    width: 300,
     height: 200,
     marginVertical: 16,
   },
@@ -133,7 +155,7 @@ const styles = StyleSheet.create({
     height: 200,
   },
   image: {
-    width: 350,
+    width: 300,
     height: "100%",
   },
 });

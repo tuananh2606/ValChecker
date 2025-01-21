@@ -55,12 +55,13 @@ export default function RootLayout() {
     //   if ((decoded.exp as number) < Math.floor(Date.now() / 1000)) {
     //     router.replace("/(login)");
     //   } else {
-    //     router.replace("/(login)");
+    //     router.replace("/(authenticated)/(store)");
     //   }
     // });
     AsyncStorage.getItem("region").then((region) => {
+      console.log(region);
+
       if (region) {
-        console.log(region);
         router.replace("/(login)/login_webview");
       } else {
         router.replace("/(login)");
@@ -71,10 +72,6 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
-
-  const handleTheme = () => {
-    return darkMode ? "dark" : "light";
-  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

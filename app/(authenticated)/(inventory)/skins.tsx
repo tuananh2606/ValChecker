@@ -83,9 +83,7 @@ export default function SkinsScreen() {
   const navigation = useNavigation();
   const [ownedSkins, setOwnedSkins] = useState<ValorantSkin[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [selectedTab, setSelectedTab] = useState<number>(0);
   const { skins } = getAssets();
-  const [skinsData, setSkinsData] = useState<ValorantSkin[]>([]);
   const [ownedSkinsData, setOwnedSkinsData] = useState<ValorantSkin[]>([]);
   const [filteredSkins, setFilteredSkins] = useState<(string | ValorantSkin)[]>(
     []
@@ -97,8 +95,6 @@ export default function SkinsScreen() {
     exclusive: 0,
     ultra: 0,
   });
-  const [page, setPage] = useState<number>(1);
-  const [ownedPage, setOwnedPage] = useState<number>(1);
 
   const sheetRef = useRef<BottomSheet>(null);
   const flashListRef = useRef<FlashList<string | ValorantSkin> | null>(null);
@@ -172,18 +168,6 @@ export default function SkinsScreen() {
     setFilteredSkins(["Owned", ...ownedSkinsData.sort(customSort())]);
   }, [ownedSkinsData]);
 
-  const handleLoadMore = () => {
-    if (selectedTab === 0) {
-      setOwnedPage((prevPage) => prevPage + 1);
-      const newSkins = ownedSkins.slice(ownedPage * 50, ownedPage * 50 + 50);
-      setOwnedSkinsData((prev) => [...prev, ...newSkins]);
-    } else {
-      setPage((prevPage) => prevPage + 1);
-      const newSkins = skins.slice(page * 50, page * 50 + 50);
-      setSkinsData((prev) => [...prev, ...newSkins]);
-    }
-  };
-
   const stickyHeaderIndices = filteredSkins
     .map((item, index) => {
       if (typeof item === "string") {
@@ -244,12 +228,14 @@ export default function SkinsScreen() {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <MaterialIcons
-          name="filter-list"
-          size={24}
-          color="white"
-          onPress={() => sheetRef.current?.collapse()}
-        />
+        <TouchableOpacity onPressIn={() => sheetRef.current?.collapse()}>
+          <MaterialIcons
+            name="filter-list"
+            size={24}
+            color="white"
+            style={{ marginLeft: 8 }}
+          />
+        </TouchableOpacity>
       ),
     });
   }, [navigation]);
