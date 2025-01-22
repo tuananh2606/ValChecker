@@ -10,8 +10,9 @@ type StoredAssets = {
   sprays: ValorantSprayAccessory[];
   cards: ValorantCardAccessory[];
   titles: ValorantTitleAccessory[];
-  contentTier: ValorantContentTier[];
+  contentTiers: ValorantContentTier[];
   currencies: ValorantCurrencies[];
+  competitiveTiers: ValorantCompetitiveTier[];
 };
 
 let assets: StoredAssets = {
@@ -20,8 +21,9 @@ let assets: StoredAssets = {
   sprays: [],
   cards: [],
   titles: [],
-  contentTier: [],
+  contentTiers: [],
   currencies: [],
+  competitiveTiers: [],
 };
 export const FILE_LOCATION =
   FileSystem.cacheDirectory + "/valorant_assets.json";
@@ -48,13 +50,31 @@ export async function loadAssets() {
       return;
     }
   }
-  const skins = await fetchSkins(language);
-  const contentTier = await fetchContentTier(language);
+
+  let [
+    skins,
+    contentTiers,
+    buddies,
+    sprays,
+    cards,
+    titles,
+    currencies,
+    competitiveTiers,
+  ] = await Promise.all([
+    fetchSkins(language),
+    fetchContentTier(language),
+    fetchBuddies(language),
+    fetchSprays(language),
+    fetchPlayerCards(language),
+    fetchPlayerTitles(language),
+    fetchCurrencies(language),
+    fetchCompetitiveTier(language),
+  ]);
 
   let skinsWithContentTier: ValorantSkin[] = [];
-  if (skins && contentTier) {
+  if (skins && contentTiers) {
     for (let i = 0; i < skins.length; i++) {
-      const contierTierSkin = contentTier.find(
+      const contierTierSkin = contentTiers.find(
         (_contentTier) => _contentTier.uuid === skins[i]?.contentTierUuid
       );
       if (contierTierSkin)
@@ -68,12 +88,13 @@ export async function loadAssets() {
   assets.skins = skinsWithContentTier;
   assets.riotClientVersion = version;
   assets.language = language;
-  assets.buddies = await fetchBuddies(language);
-  assets.sprays = await fetchSprays(language);
-  assets.cards = await fetchPlayerCards(language);
-  assets.titles = await fetchPlayerTitles(language);
-  assets.contentTier = contentTier;
-  assets.currencies = await fetchCurrencies(language);
+  assets.buddies = buddies;
+  assets.sprays = sprays;
+  assets.cards = cards;
+  assets.titles = titles;
+  assets.contentTiers = contentTiers;
+  assets.currencies = currencies;
+  assets.competitiveTiers = competitiveTiers[competitiveTiers.length - 1].tiers;
 
   await FileSystem.writeAsStringAsync(FILE_LOCATION, JSON.stringify(assets));
 }

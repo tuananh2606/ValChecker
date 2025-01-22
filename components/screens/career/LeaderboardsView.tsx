@@ -1,27 +1,29 @@
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, ActivityIndicator } from "react-native";
 import useUserStore from "@/hooks/useUserStore";
 import { Dropdown } from "react-native-element-dropdown";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, memo, useEffect, useRef, useState } from "react";
 import { fetchCompetitiveTier, fetchSeasons } from "@/utils/valorant-assets";
 import { Divider } from "react-native-paper";
-import { fetchLeaderBoard } from "@/utils/valorant-api";
+import { fetchLeaderBoard, parseSeason } from "@/utils/valorant-api";
 import * as SecureStore from "expo-secure-store";
 import { FlashList } from "@shopify/flash-list";
 import PlayerItem from "@/components/card/PlayerItem";
 
-interface ICompetitiveTier extends ValorantCompetitiveTiers {
-  rank: {
-    tier: number;
-    tierName: string;
-    division: string;
-    divisionName: string;
-    color: string;
-    backgroundColor: string;
-    smallIcon: string;
-    largeIcon: string;
-    rankTriangleDownIcon?: string;
-    rankTriangleUpIcon?: string;
-  };
+interface IPlayer {
+  PlayerCardID: string;
+  /** Title ID */
+  TitleID: string;
+  IsBanned: boolean;
+  IsAnonymized: boolean;
+  /** Player UUID */
+  puuid: string;
+  gameName: string;
+  tagLine: string;
+  leaderboardRank: number;
+  rankedRating: number;
+  numberOfWins: number;
+  competitiveTier: number;
+  rankTier?: ValorantCompetitiveTier;
 }
 
 const LeaderboardsView = () => {
@@ -33,7 +35,7 @@ const LeaderboardsView = () => {
     { label: "Korea", value: "kr" },
     { label: "North America", value: "na" },
   ];
-
+  const [loading, setLoading] = useState<boolean>(false);
   const [value, setValue] = useState(user.region);
   const [season, setSeason] = useState<string>("");
   const [isFocus, setIsFocus] = useState(false);
@@ -43,10 +45,10 @@ const LeaderboardsView = () => {
   );
   const [competitiveTiers, setCompetitiveTiers] =
     useState<ValorantCompetitiveTiers>();
-  const [leaderboard, setLeaderboard] = useState<LeaderboardResponse>();
+  const [leaderboard, setLeaderboard] = useState<IPlayer[]>([]);
+  const [page, setPage] = useState<number>(0);
 
   useEffect(() => {
-    let newSeasonsData = [];
     const fetchData = async () => {
       let [seasons, competitiveTiers] = await Promise.all([
         fetchSeasons(),
@@ -54,34 +56,15 @@ const LeaderboardsView = () => {
       ]);
       setCompetitiveTiers(competitiveTiers[competitiveTiers.length - 1]);
 
-      const parentSeasons = seasons
-        .slice(1)
-        .filter((season) => !season.parentUuid);
-      const childSeasons = seasons.filter(
-        (season) =>
-          season.parentUuid &&
-          new Date(season.startTime).getTime() < new Date().getTime()
-      );
-      const processSeasons = parentSeasons.filter(
-        (pS) => new Date(pS.startTime).getTime() < new Date().getTime()
-      );
-      for (let i = 0; i < processSeasons.length; i++) {
-        for (let j = 0; j < childSeasons.length; j++) {
-          if (childSeasons[j].parentUuid === processSeasons[i].uuid) {
-            newSeasonsData.push({
-              label: `${processSeasons[i].displayName} - ${childSeasons[j].displayName}`,
-              value: childSeasons[j].uuid,
-            });
-          }
-        }
-      }
-      setSeasons(newSeasonsData.slice(3));
-      setSeason(newSeasonsData[newSeasonsData.length - 1].value);
+      const seasonsAvailabe = parseSeason(seasons);
+      setSeasons(seasonsAvailabe.slice(3));
+      setSeason(seasonsAvailabe[seasonsAvailabe.length - 1].value);
     };
     fetchData();
   }, []);
   useEffect(() => {
     const fetchLeaderboard = async () => {
+      setLoading(true);
       let accessToken = (await SecureStore.getItemAsync(
         "access_token"
       )) as string;
@@ -104,10 +87,45 @@ const LeaderboardsView = () => {
           rankTier: competitiveTier,
         };
       }
-      setLeaderboard(leaderboard);
+      setLeaderboard(leaderboard.Players);
+      setLoading(false);
     };
     fetchLeaderboard();
   }, [value, season]);
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      let accessToken = (await SecureStore.getItemAsync(
+        "access_token"
+      )) as string;
+      let entitlementsToken = (await SecureStore.getItemAsync(
+        "entitlements_token"
+      )) as string;
+
+      let leaderboard = await fetchLeaderBoard(
+        accessToken,
+        entitlementsToken,
+        value,
+        season,
+        page * 50
+      );
+
+      for (let i = 0; i < leaderboard.Players.length; i++) {
+        const competitiveTier =
+          competitiveTiers?.tiers[leaderboard.Players[i].competitiveTier];
+        leaderboard.Players[i] = {
+          ...leaderboard.Players[i],
+          rankTier: competitiveTier,
+        };
+      }
+      setLeaderboard((prev) => [...prev, ...leaderboard.Players]);
+    };
+    fetchLeaderboard();
+  }, [page]);
+
+  const handleLoadMore = () => {
+    setPage((prev) => prev + 1);
+  };
 
   return (
     <View style={{ flex: 1, marginTop: 8 }}>
@@ -122,9 +140,8 @@ const LeaderboardsView = () => {
           renderRightIcon={() => null}
           selectedTextStyle={[
             styles.selectedTextStyle,
-            { color: "white" },
             isFocus && {
-              color: "blue",
+              color: "#a4161a",
             },
           ]}
           renderItem={({ label }) => (
@@ -166,9 +183,8 @@ const LeaderboardsView = () => {
           renderRightIcon={() => null}
           selectedTextStyle={[
             styles.selectedTextStyle,
-            { color: "white" },
             isSeasonFocus && {
-              color: "blue",
+              color: "#a4161a",
             },
           ]}
           renderItem={({ label }) => (
@@ -201,16 +217,25 @@ const LeaderboardsView = () => {
           }}
         />
       </View>
-      <FlashList
-        ref={flashListRef}
-        data={leaderboard?.Players}
-        renderItem={({ item }) => <PlayerItem data={item} />}
-        estimatedItemSize={150}
-      />
+      <View style={{ flex: 1, position: "relative" }}>
+        {loading && (
+          <View style={styles.loading}>
+            <ActivityIndicator size="large" color="red" />
+          </View>
+        )}
+        <FlashList
+          ref={flashListRef}
+          data={leaderboard}
+          renderItem={({ item }) => <PlayerItem data={item} />}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          estimatedItemSize={60}
+        />
+      </View>
     </View>
   );
 };
-export default LeaderboardsView;
+export default memo(LeaderboardsView);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -224,5 +249,18 @@ const styles = StyleSheet.create({
   selectedTextStyle: {
     textAlign: "center",
     fontSize: 16,
+    color: "red",
+  },
+  loading: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "gray",
+    opacity: 0.4,
+    zIndex: 10,
   },
 });

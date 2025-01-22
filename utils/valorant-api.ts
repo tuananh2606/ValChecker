@@ -255,6 +255,30 @@ export async function parseShop(shop: StorefrontResponse) {
   };
 }
 
+export function parseSeason(seasons: ValorantSeason[]) {
+  let seasonsAvailableData = [];
+  const parentSeasons = seasons.slice(1).filter((season) => !season.parentUuid);
+  const childSeasons = seasons.filter(
+    (season) =>
+      season.parentUuid &&
+      new Date(season.startTime).getTime() < new Date().getTime()
+  );
+  const processSeasons = parentSeasons.filter(
+    (pS) => new Date(pS.startTime).getTime() < new Date().getTime()
+  );
+  for (let i = 0; i < processSeasons.length; i++) {
+    for (let j = 0; j < childSeasons.length; j++) {
+      if (childSeasons[j].parentUuid === processSeasons[i].uuid) {
+        seasonsAvailableData.push({
+          label: `${processSeasons[i].displayName} - ${childSeasons[j].displayName}`,
+          value: childSeasons[j].uuid,
+        });
+      }
+    }
+  }
+  return seasonsAvailableData;
+}
+
 export async function getBalances(
   accessToken: string,
   entitlementsToken: string,
@@ -466,6 +490,25 @@ export async function fetchLeaderBoard(
   return res.data;
 }
 
+export async function fetchPlayerMMR(
+  accessToken: string,
+  entitlementsToken: string,
+  region: string,
+  userId: string
+) {
+  const res = await axios.request<PlayerMMRResponse>({
+    url: getUrl("playerMMR", region, userId),
+    method: "GET",
+    headers: {
+      ...extraHeaders(),
+      Authorization: `Bearer ${accessToken}`,
+      "X-Riot-Entitlements-JWT": entitlementsToken,
+    },
+  });
+
+  return res.data;
+}
+
 export const reAuth = (version: string) =>
   axios.request({
     url: "https://auth.riotgames.com/api/v1/authorization",
@@ -517,6 +560,7 @@ function getUrl(
     name: `https://pd.${region}.a.pvp.net/name-service/v2/players`,
     player: `https://pd.${region}.a.pvp.net/personalization/v2/players/${userId}/playerloadout`,
     ownedItem: `https://pd.${region}.a.pvp.net/store/v1/entitlements/${userId}/${itemTypeID}`,
+    playerMMR: `https://pd.${region}.a.pvp.net/mmr/v1/players/${userId}`,
     leaderboard: `https://pd.${region}.a.pvp.net/mmr/v1/leaderboards/affinity/${region}/queue/competitive/season/${seasonId}?startIndex=${startIndex}&size=${size}
 `,
   };

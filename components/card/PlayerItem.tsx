@@ -17,7 +17,7 @@ const PlayerItem = ({ data }: Props) => {
   return (
     <Fragment>
       <View style={[styles.container]}>
-        <Text style={[styles.text, { width: 20 }]}>{data.leaderboardRank}</Text>
+        <Text style={[styles.text, { width: 30 }]}>{data.leaderboardRank}</Text>
         <Image
           style={{ width: 40, height: 40, marginLeft: 8, marginRight: 8 }}
           contentFit="contain"
@@ -25,8 +25,10 @@ const PlayerItem = ({ data }: Props) => {
             uri: card?.displayIcon,
           }}
         />
-        {data.IsAnonymized ? (
-          <Text style={[styles.text, { flex: 1 }]}>Secret Agent</Text>
+        {data.IsAnonymized || data.gameName === "" ? (
+          <Text style={[styles.text, { flex: 1, fontSize: 16 }]}>
+            Secret Agent
+          </Text>
         ) : (
           <View
             style={{
@@ -35,7 +37,9 @@ const PlayerItem = ({ data }: Props) => {
               flexDirection: "row",
             }}
           >
-            <Text style={styles.text}>{`${data.gameName}`}</Text>
+            <Text
+              style={[styles.text, { fontSize: 16 }]}
+            >{`${data.gameName}`}</Text>
             <Text
               style={{ fontSize: 16, color: "grey" }}
             >{` #${data.tagLine}`}</Text>
@@ -67,7 +71,6 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   text: {
-    fontSize: 16,
     color: "white",
   },
 });

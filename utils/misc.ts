@@ -1,4 +1,4 @@
-import { Dimensions, Platform } from "react-native";
+import { Dimensions } from "react-native";
 import { getAssets } from "./valorant-assets";
 
 export const TypeBattlePass = "Season";
@@ -110,7 +110,7 @@ export const getDeviceHeight = () => {
 };
 
 export function convertOwnedItemIDToItem(payload: OwnedItemsResponse) {
-  const { cards, buddies, skins, sprays, contentTier } = getAssets();
+  const { cards, buddies, skins, sprays } = getAssets();
   if (payload.ItemTypeID === VOwnedItemType.Cards && payload) {
     let newCardArr = [];
     for (let i = 0; i < payload.Entitlements.length; i++) {

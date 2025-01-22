@@ -10,7 +10,6 @@ import useUserStore from "@/hooks/useUserStore";
 
 const StoreView = () => {
   const user = useUserStore((state) => state.user);
-  console.log(user);
 
   const { setUser } = useUserStore();
   const [refreshing, setRefreshing] = useState(false);

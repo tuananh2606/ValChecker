@@ -59,8 +59,6 @@ export default function RootLayout() {
     //   }
     // });
     AsyncStorage.getItem("region").then((region) => {
-      console.log(region);
-
       if (region) {
         router.replace("/(login)/login_webview");
       } else {
