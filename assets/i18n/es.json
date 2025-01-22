@@ -118,5 +118,7 @@
     },
     "remove": "Eliminar de la lista de deseos"
   },
-  "xp": "XP"
+  "xp": "XP",
+  "mine": "Mío",
+  "leaderboard": "Tabla de clasificación"
 }

@@ -106,5 +106,7 @@
     },
     "remove": "Supprimer de Wishlist"
   },
-  "xp": "XP"
+  "xp": "XP",
+  "mine": "Le mien",
+  "leaderboard": "Classement"
 }

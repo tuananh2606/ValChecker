@@ -118,5 +118,7 @@
     },
     "remove": "Von Wunschliste entfernen"
   },
-  "xp": "XP"
+  "xp": "XP",
+  "mine": "Meins",
+  "leaderboard": "Bestenliste"
 }

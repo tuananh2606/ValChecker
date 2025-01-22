@@ -109,5 +109,7 @@
     },
     "remove": "Xóa khỏi wishlist"
   },
-  "xp": "Kinh nghiệm"
+  "xp": "Kinh nghiệm",
+  "mine": "Của tôi",
+  "leaderboard": "Bảng xếp hạng"
 }

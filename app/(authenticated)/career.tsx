@@ -3,6 +3,7 @@ import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 import { useEffect, useState } from "react";
 import MineView from "@/components/screens/career/MineView";
 import LeaderboardsView from "@/components/screens/career/LeaderboardsView";
+import i18n from "@/utils/localization";
 
 const renderScene = SceneMap({
   mine: MineView,
@@ -10,8 +11,8 @@ const renderScene = SceneMap({
 });
 
 const routes = [
-  { key: "mine", title: "Mine" },
-  { key: "leaderboards", title: "Leaderboards" },
+  { key: "mine", title: i18n.t("mine") },
+  { key: "leaderboards", title: i18n.t("leaderboard") },
 ];
 
 export default function CareerScreen() {

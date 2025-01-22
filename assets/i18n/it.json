@@ -90,5 +90,7 @@
     },
     "remove": "Rimuovi dalla wishlist"
   },
-  "xp": "Punti Esperienza"
+  "xp": "Punti Esperienza",
+  "mine": "Mio",
+  "leaderboard": "Classifica"
 }
