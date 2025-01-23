@@ -47,6 +47,7 @@ const MineView = () => {
         fetchSeasons(),
       ]);
       const seasonsAvailabe = parseSeason(seasons);
+
       const prevSeason = seasonsAvailabe[seasonsAvailabe.length - 2];
       const seasonalInfo =
         playerMMR.QueueSkills["competitive"].SeasonalInfoBySeasonID;
@@ -54,6 +55,7 @@ const MineView = () => {
         (item) =>
           item.tier === seasonalInfo[`${prevSeason.value}`].CompetitiveTier
       );
+
       setPreviousRank({
         seasonTitle: prevSeason.label,
         rankPoint: seasonalInfo[`${prevSeason.value}`].RankedRating,
@@ -82,6 +84,7 @@ const MineView = () => {
     };
     fetchData();
   }, []);
+
   return (
     <View style={{ marginTop: 8, paddingHorizontal: 10 }}>
       <View
@@ -97,13 +100,13 @@ const MineView = () => {
       </View>
       <View
         style={{
-          marginTop: 20,
+          marginTop: 8,
         }}
       >
         <View
           style={{
             position: "absolute",
-            top: -15,
+            top: 0,
             left: 0,
             right: 0,
             zIndex: 10,
@@ -119,18 +122,19 @@ const MineView = () => {
             {user.progress.level}
           </Text>
         </View>
-
-        <Image
-          style={styles.image}
-          contentFit="contain"
-          source={{
-            uri: playerLoadout?.card.wideArt,
-          }}
-        />
+        {playerLoadout && (
+          <Image
+            style={styles.image}
+            contentFit="contain"
+            source={{
+              uri: playerLoadout?.card.wideArt,
+            }}
+          />
+        )}
         <View
           style={{
             position: "absolute",
-            bottom: 15,
+            bottom: 25,
             left: 0,
             right: 0,
             zIndex: 10,
@@ -149,7 +153,7 @@ const MineView = () => {
       </View>
       <View
         style={{
-          marginTop: 12,
+          marginTop: 8,
           flexDirection: "row",
         }}
       >

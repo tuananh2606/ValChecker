@@ -49,6 +49,12 @@
           }
         }
       ],
+      [
+        "expo-font",
+        {
+          "fonts": ["./assets/fonts/Manrope-VariableFont_wght.ttf"]
+        }
+      ],
       "react-native-background-fetch"
     ],
     "experiments": {

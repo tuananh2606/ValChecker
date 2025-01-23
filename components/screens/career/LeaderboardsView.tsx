@@ -2,7 +2,11 @@ import { View, StyleSheet, Text, ActivityIndicator } from "react-native";
 import useUserStore from "@/hooks/useUserStore";
 import { Dropdown } from "react-native-element-dropdown";
 import { Fragment, memo, useEffect, useRef, useState } from "react";
-import { fetchCompetitiveTier, fetchSeasons } from "@/utils/valorant-assets";
+import {
+  fetchCompetitiveTier,
+  fetchSeasons,
+  getAssets,
+} from "@/utils/valorant-assets";
 import { Divider } from "react-native-paper";
 import { fetchLeaderBoard, parseSeason } from "@/utils/valorant-api";
 import * as SecureStore from "expo-secure-store";
@@ -35,6 +39,7 @@ const LeaderboardsView = () => {
     { label: "Korea", value: "kr" },
     { label: "North America", value: "na" },
   ];
+  const { competitiveTiers } = getAssets();
   const [loading, setLoading] = useState<boolean>(false);
   const [value, setValue] = useState(user.region);
   const [season, setSeason] = useState<string>("");
@@ -43,19 +48,12 @@ const LeaderboardsView = () => {
   const [seasons, setSeasons] = useState<{ label: string; value: string }[]>(
     []
   );
-  const [competitiveTiers, setCompetitiveTiers] =
-    useState<ValorantCompetitiveTiers>();
   const [leaderboard, setLeaderboard] = useState<IPlayer[]>([]);
   const [page, setPage] = useState<number>(0);
 
   useEffect(() => {
     const fetchData = async () => {
-      let [seasons, competitiveTiers] = await Promise.all([
-        fetchSeasons(),
-        fetchCompetitiveTier(),
-      ]);
-      setCompetitiveTiers(competitiveTiers[competitiveTiers.length - 1]);
-
+      const seasons = await fetchSeasons();
       const seasonsAvailabe = parseSeason(seasons);
       setSeasons(seasonsAvailabe.slice(3));
       setSeason(seasonsAvailabe[seasonsAvailabe.length - 1].value);
@@ -80,8 +78,10 @@ const LeaderboardsView = () => {
       );
 
       for (let i = 0; i < leaderboard.Players.length; i++) {
-        const competitiveTier =
-          competitiveTiers?.tiers[leaderboard.Players[i].competitiveTier];
+        const competitiveTier = competitiveTiers.find(
+          (item) => item.tier === leaderboard.Players[i].competitiveTier
+        );
+
         leaderboard.Players[i] = {
           ...leaderboard.Players[i],
           rankTier: competitiveTier,
@@ -111,8 +111,9 @@ const LeaderboardsView = () => {
       );
 
       for (let i = 0; i < leaderboard.Players.length; i++) {
-        const competitiveTier =
-          competitiveTiers?.tiers[leaderboard.Players[i].competitiveTier];
+        const competitiveTier = competitiveTiers.find(
+          (item) => item.tier === leaderboard.Players[i].competitiveTier
+        );
         leaderboard.Players[i] = {
           ...leaderboard.Players[i],
           rankTier: competitiveTier,

@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   priceContainer: {
     zIndex: 10,
     position: "absolute",
-    right: 36,
+    right: 20,
     top: 10,
     display: "flex",
     flexDirection: "row",

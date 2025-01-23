@@ -12,6 +12,7 @@ import { useWishlistStore } from "@/hooks/useWishlistStore";
 import * as Notifications from "expo-notifications";
 import BackgroundFetch from "react-native-background-fetch";
 import { fetchVersion } from "./valorant-assets";
+import { SchedulableTriggerInputTypes } from "expo-notifications";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -28,8 +29,7 @@ export async function wishlistBgTask() {
   const wishlistStore = useWishlistStore.getState();
 
   if (!wishlistStore.notificationEnabled) return;
-  console.log(wishlistStore.notificationEnabled);
-
+  console.log(wishlistStore);
   await checkShop(wishlistStore.skinIds);
 }
 
@@ -62,6 +62,8 @@ export async function checkShop(wishlist: string[]) {
             wishlist[i]
           }?language=${getVAPILang()}`
         );
+        console.log(skinData);
+
         await Notifications.scheduleNotificationAsync({
           content: {
             title: i18n.t("wishlist.name"),
@@ -71,8 +73,9 @@ export async function checkShop(wishlist: string[]) {
           },
           trigger: {
             channelId: NOTIFICATION_CHANNEL,
-            seconds: 60 * 1,
-            repeats: true,
+            type: SchedulableTriggerInputTypes.DAILY,
+            hour: 7,
+            minute: 0,
           },
         });
         hit = true;
@@ -86,7 +89,9 @@ export async function checkShop(wishlist: string[]) {
         },
         trigger: {
           channelId: NOTIFICATION_CHANNEL,
-          seconds: 60 * 1,
+          type: SchedulableTriggerInputTypes.DAILY,
+          hour: 7,
+          minute: 0,
         },
       });
     }
@@ -121,8 +126,6 @@ export async function initBackgroundFetch() {
       requiresStorageNotLow: false,
     },
     async (taskId: string) => {
-      console.log("vao");
-
       await wishlistBgTask();
       BackgroundFetch.finish(taskId);
     },

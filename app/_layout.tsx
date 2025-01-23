@@ -7,7 +7,7 @@ import { useFonts } from "expo-font";
 import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { PaperProvider } from "react-native-paper";
@@ -19,7 +19,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useWishlistStore } from "@/hooks/useWishlistStore";
 import { initBackgroundFetch, stopBackgroundFetch } from "@/utils/wishlist";
 import { useDarkMode } from "@/hooks/useDarkMode";
-
 // export const CombinedDarkTheme = {
 //   ...merge(PaperDarkTheme, NavigationDarkTheme),
 //   colors: {
@@ -34,45 +33,50 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-  });
+  const [appIsReady, setAppIsReady] = useState(false);
+
   const darkMode = useDarkMode.getState().darkModeEnabled;
+
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-    const notificationEnabled = useWishlistStore.getState().notificationEnabled;
+    async function prepare() {
+      try {
+        // Pre-load fonts, make any API calls you need to do here
+        const notificationEnabled =
+          useWishlistStore.getState().notificationEnabled;
 
-    if (notificationEnabled) {
-      initBackgroundFetch();
-    } else {
-      stopBackgroundFetch();
-    }
-
-    // SecureStore.getItemAsync("access_token").then((results) => {
-    //   const decoded = jwtDecode(results as string);
-    //   if ((decoded.exp as number) < Math.floor(Date.now() / 1000)) {
-    //     router.replace("/(login)");
-    //   } else {
-    //     router.replace("/(authenticated)/(store)");
-    //   }
-    // });
-    AsyncStorage.getItem("region").then((region) => {
-      if (region) {
-        router.replace("/(login)/login_webview");
-      } else {
-        router.replace("/(login)");
+        if (notificationEnabled) {
+          initBackgroundFetch();
+        } else {
+          stopBackgroundFetch();
+        }
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        // Tell the application to render
+        setAppIsReady(true);
       }
-    });
-  }, [loaded]);
+    }
 
-  if (!loaded) {
+    prepare();
+  }, []);
+
+  const onLayoutRootView = useCallback(() => {
+    if (appIsReady) {
+      // This tells the splash screen to hide immediately! If we call this after
+      // `setAppIsReady`, then we may see a blank screen while the app is
+      // loading its initial state and rendering its first pixels. So instead,
+      // we hide the splash screen once we know the root view has already
+      // performed layout.
+      SplashScreen.hide();
+    }
+  }, [appIsReady]);
+
+  if (!appIsReady) {
     return null;
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <PaperProvider>
         <ThemeProvider
           value={colorScheme === "dark" ? DarkTheme : DefaultTheme}

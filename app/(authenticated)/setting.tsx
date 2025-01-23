@@ -73,24 +73,23 @@ export default function SettingScreen() {
   const handleShowPicker = () => setShowTimePicker(!showTimePicker);
 
   const toggleNotificationEnabled = async () => {
+    setNotificationEnabled(!notificationEnabled);
     if (!notificationEnabled) {
       const permission = await Notifications.requestPermissionsAsync();
       if (permission.granted) {
         await initBackgroundFetch();
-        setNotificationEnabled(true);
         ToastAndroid.show(
           t("wishlist.notification.enabled"),
-          ToastAndroid.LONG
+          ToastAndroid.SHORT
         );
       } else {
         ToastAndroid.show(
           t("wishlist.notification.no_permission"),
-          ToastAndroid.LONG
+          ToastAndroid.SHORT
         );
       }
     } else {
       await stopBackgroundFetch();
-      setNotificationEnabled(false);
       ToastAndroid.show(t("wishlist.notification.disabled"), ToastAndroid.LONG);
     }
   };

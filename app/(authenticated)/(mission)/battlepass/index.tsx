@@ -59,7 +59,7 @@ const BattlePass = () => {
         user.region,
         user.id
       );
-      setLoading("Fetching BattlePass");
+      setLoading("Fetching battlepass");
       Promise.all([contracts, contract])
         .then(async ([data1, data2]) => {
           const currentBP = filterCurrentBattlePass(data1);
@@ -67,6 +67,9 @@ const BattlePass = () => {
             (item) => item.ContractDefinitionID === currentBP.uuid
           );
           const battlePass = await parseBattlePass(currentBP);
+          positionAnimatedValue.setValue(
+            Math.floor((progressBP as Contract).ProgressionLevelReached / 5)
+          );
           setContracts({
             ProgressionLevelReached: (progressBP as Contract)
               .ProgressionLevelReached,
@@ -93,61 +96,63 @@ const BattlePass = () => {
         scrollOffsetAnimatedValue={scrollOffsetAnimatedValue}
         positionAnimatedValue={positionAnimatedValue}
       />
-      <AnimatedPagerView
-        initialPage={0}
-        testID="pager-view"
-        ref={ref}
-        onPageScroll={Animated.event<PagerViewOnPageScrollEventData>(
-          [
-            {
-              nativeEvent: {
-                offset: scrollOffsetAnimatedValue,
-                position: positionAnimatedValue,
+      {contracts && (
+        <AnimatedPagerView
+          initialPage={Math.floor(contracts.ProgressionLevelReached / 5)}
+          testID="pager-view"
+          ref={ref}
+          onPageScroll={Animated.event<PagerViewOnPageScrollEventData>(
+            [
+              {
+                nativeEvent: {
+                  offset: scrollOffsetAnimatedValue,
+                  position: positionAnimatedValue,
+                },
               },
-            },
-          ],
-          {
-            listener: ({ nativeEvent: { offset, position } }) => {},
-            useNativeDriver: true,
-          }
-        )}
-        style={[styles.flex, { marginTop: 30 }]}
-      >
-        {contracts?.battlePass.map((battlePass, idx) => (
-          <ScrollView key={idx} style={styles.content}>
-            {battlePass.levels.map((_, index) => (
-              <BattlePassItem
-                key={`level-key-${index}`}
-                data={_}
-                index={index}
-                parentIdx={idx}
-                ProgressionLevelReached={contracts.ProgressionLevelReached}
-                ProgressionTowardsNextLevel={
-                  contracts.ProgressionTowardsNextLevel
-                }
-              />
-            ))}
-            {battlePass.freeRewards.length > 0 && (
-              <View>
-                <Text
-                  style={{
-                    color: "white",
-                    fontSize: 14,
-                    textTransform: "uppercase",
-                    marginVertical: 8,
-                    opacity: 0.6,
-                  }}
-                >
-                  Free Rewards
-                </Text>
-                {battlePass.freeRewards.map((_, idx) => (
-                  <BattlePassItem key={`free-rewards-key-${idx}`} data={_} />
-                ))}
-              </View>
-            )}
-          </ScrollView>
-        ))}
-      </AnimatedPagerView>
+            ],
+            {
+              listener: ({ nativeEvent: { offset, position } }) => {},
+              useNativeDriver: true,
+            }
+          )}
+          style={[styles.flex, { marginTop: 30 }]}
+        >
+          {contracts?.battlePass.map((battlePass, idx) => (
+            <ScrollView key={idx} style={styles.content}>
+              {battlePass.levels.map((_, index) => (
+                <BattlePassItem
+                  key={`level-key-${index}`}
+                  data={_}
+                  index={index}
+                  parentIdx={idx}
+                  ProgressionLevelReached={contracts.ProgressionLevelReached}
+                  ProgressionTowardsNextLevel={
+                    contracts.ProgressionTowardsNextLevel
+                  }
+                />
+              ))}
+              {battlePass.freeRewards.length > 0 && (
+                <View>
+                  <Text
+                    style={{
+                      color: "white",
+                      fontSize: 14,
+                      textTransform: "uppercase",
+                      marginVertical: 8,
+                      opacity: 0.6,
+                    }}
+                  >
+                    Free Rewards
+                  </Text>
+                  {battlePass.freeRewards.map((_, idx) => (
+                    <BattlePassItem key={`free-rewards-key-${idx}`} data={_} />
+                  ))}
+                </View>
+              )}
+            </ScrollView>
+          ))}
+        </AnimatedPagerView>
+      )}
     </View>
   );
 };

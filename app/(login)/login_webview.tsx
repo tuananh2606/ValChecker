@@ -3,8 +3,25 @@ import WebView from "react-native-webview";
 import { getAccessTokenFromUri } from "@/utils/misc";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import useUserStore from "@/hooks/useUserStore";
+import CookieManager from "@react-native-cookies/cookies";
+import {
+  getBalances,
+  getEntitlementsToken,
+  getProgress,
+  getShop,
+  getUserId,
+  getUsername,
+  parseShop,
+} from "@/utils/valorant-api";
+import { loadAssets } from "@/utils/valorant-assets";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useState } from "react";
+import Loading from "@/components/Loading";
 
 export default function LoginScreen() {
+  const { setUser } = useUserStore();
+  const [loading, setLoading] = useState(false);
   const LOGIN_URL =
     "https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid";
 
@@ -18,10 +35,73 @@ export default function LoginScreen() {
     if (!newNavState.url) return;
     if (newNavState.url.includes("access_token=")) {
       const accessToken = getAccessTokenFromUri(newNavState.url);
+      const region = await AsyncStorage.getItem("region");
       await SecureStore.setItemAsync("access_token", accessToken);
-      router.replace("/(authenticated)/(store)");
+      try {
+        setLoading(true);
+        await loadAssets();
+        const entitlementsToken = await getEntitlementsToken(accessToken);
+        await SecureStore.setItemAsync("entitlements_token", entitlementsToken);
+        const userId = getUserId(accessToken);
+
+        const username = getUsername(
+          accessToken,
+          entitlementsToken,
+          userId,
+          region as string
+        );
+
+        const shop = getShop(
+          accessToken,
+          entitlementsToken,
+          region as string,
+          userId
+        );
+
+        const progress = getProgress(
+          accessToken,
+          entitlementsToken,
+          region as string,
+          userId
+        );
+
+        const balances = getBalances(
+          accessToken,
+          entitlementsToken,
+          region as string,
+          userId
+        );
+        Promise.all([username, shop, progress, balances])
+          .then(async ([username, shop, progress, balances]) => {
+            const shops = await parseShop(shop);
+            setUser({
+              id: userId,
+              ...username,
+              region: region as string,
+              shops,
+              progress,
+              balances,
+            });
+
+            router.replace("/(authenticated)/(store)");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      } catch (e) {
+        if (!__DEV__) {
+          await CookieManager.clearAll(true);
+          router.replace("/(login)"); // Fallback to setup, so user doesn't get stuck
+        }
+      } finally {
+        setLoading(false);
+      }
     }
   };
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <View style={styles.container} renderToHardwareTextureAndroid>
