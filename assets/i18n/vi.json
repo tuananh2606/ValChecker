@@ -103,8 +103,8 @@
       "error": "Một sự cố đã xảy ra khi kiểm tra shop của bạn",
       "hit": "{{displayname}} đang ở trong shop của bạn!",
       "info": "Nhận thông báo khi skin trong wishlist trong shop của bạn.",
-      "name": "Thông báo wishlist",
-      "no_hit": "Hôm nay bạn không may rồi: Không có skin trong wishlist trong shop của bạn.",
+      "name": "ValChecker",
+      "no_hit": "Cửa hàng của bạn đã làm mới. Vào kiểm tra ngay nào bro!",
       "no_permission": "Chúng tôi chưa có quyền gửi thông báo cho bạn!"
     },
     "remove": "Xóa khỏi wishlist"

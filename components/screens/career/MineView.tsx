@@ -9,6 +9,7 @@ import {
 } from "@/utils/valorant-api";
 import { fetchSeasons, getAssets } from "@/utils/valorant-assets";
 import { Image } from "expo-image";
+import Loading from "@/components/Loading";
 
 const MineView = () => {
   const [playerLoadout, setPlayerLoadout] = useState<{
@@ -27,9 +28,11 @@ const MineView = () => {
   }>();
   const user = useUserStore((state) => state.user);
   const { cards, titles, competitiveTiers } = getAssets();
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       let accessToken = (await SecureStore.getItemAsync(
         "access_token"
       )) as string;
@@ -81,9 +84,14 @@ const MineView = () => {
         card: myCard as ValorantCardAccessory,
         title: myTitle as ValorantTitleAccessory,
       });
+      setLoading(false);
     };
     fetchData();
   }, []);
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <View style={{ marginTop: 8, paddingHorizontal: 10 }}>

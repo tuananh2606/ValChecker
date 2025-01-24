@@ -28,11 +28,12 @@ export default function Index() {
       const accessToken = (await SecureStore.getItemAsync(
         "access_token"
       )) as string;
-      // if ((decoded.exp as number) < Math.floor(Date.now() / 1000)) {
-      //   router.replace("/(login)");
-      // }
+
       if (region && accessToken) {
         const decoded = jwtDecode(accessToken as string);
+        if ((decoded.exp as number) < Math.floor(Date.now() / 1000)) {
+          router.replace("/(login)");
+        }
         try {
           await loadAssets();
           const entitlementsToken = await getEntitlementsToken(accessToken);

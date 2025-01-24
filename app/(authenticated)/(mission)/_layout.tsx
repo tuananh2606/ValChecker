@@ -10,6 +10,7 @@ export default function StoreLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
+
       <Stack.Screen
         name="battlepass/index"
         options={{

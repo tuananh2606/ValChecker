@@ -1,8 +1,7 @@
 import { Colors } from "@/constants/Colors";
 import { StyleSheet, Image, View, Text, useColorScheme } from "react-native";
-import { Card, ProgressBar, MD3Colors } from "react-native-paper";
-import BattlePassModal from "../modal/BattlePassModal";
-import { useState } from "react";
+import { Card, ProgressBar } from "react-native-paper";
+import { router } from "expo-router";
 
 interface IBattlePassItem {
   data: BattlePassLevelsItem | BattlePassItem;
@@ -21,7 +20,6 @@ const BattlePassItem = ({
 }: IBattlePassItem) => {
   const { displayName, displayIcon, type } = data;
   const colorScheme = useColorScheme();
-  const [isVisible, setIsVisible] = useState<boolean>(false);
   const hanndleTitleImage = (type?: string, uri?: string) => {
     return type === "Title"
       ? require("@/assets/images/Player-Title.png")
@@ -29,7 +27,12 @@ const BattlePassItem = ({
   };
   const toggleModal = () => {
     if (data.type !== "Title" && data.type !== "Currency") {
-      setIsVisible(!isVisible);
+      router.push({
+        pathname: "/modal",
+        params: {
+          source: data.largeArt || data.fullTransparentIcon || data.displayIcon,
+        },
+      });
     }
   };
 
@@ -114,12 +117,6 @@ const BattlePassItem = ({
           </Text>
         </Card.Content>
       </Card>
-
-      <BattlePassModal
-        isModalVisible={isVisible}
-        toggleModal={toggleModal}
-        data={data}
-      />
     </View>
   );
 };

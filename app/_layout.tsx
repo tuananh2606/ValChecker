@@ -88,6 +88,14 @@ export default function RootLayout() {
             />
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="(login)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="modal"
+              options={{
+                headerTitle: "",
+                animation: "slide_from_right",
+                presentation: "modal",
+              }}
+            />
             <Stack.Screen name="+not-found" />
           </Stack>
           <StatusBar style="auto" />

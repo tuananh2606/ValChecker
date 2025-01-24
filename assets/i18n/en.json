@@ -112,8 +112,8 @@
       "error": "An error occurred while checking your shop",
       "hit": "The {{displayname}} is in your Shop!",
       "info": "Get a notication when your wishlisted item is in the shop.",
-      "name": "Wishlist Notification",
-      "no_hit": "No luck today: No wishlisted skin is in your shop.",
+      "name": "ValChecker",
+      "no_hit": "The store has been reset.",
       "no_permission": "We don't have permission to send you notifications!"
     },
     "remove": "Remove from wishlist"

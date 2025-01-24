@@ -127,7 +127,7 @@ export default function MissionScreen() {
             alignItems: "center",
           }}
         >
-          <Text style={{ fontSize: 16 }}>Battle Pass</Text>
+          <Text style={{ fontSize: 16, color: "white" }}>Battle Pass</Text>
         </View>
       </Button>
     </View>

@@ -6,6 +6,7 @@ import {
   ScrollView,
   useColorScheme,
   Animated,
+  FlatList,
 } from "react-native";
 
 import { fetchContracts } from "@/utils/valorant-assets";
@@ -18,6 +19,7 @@ import useUserStore from "@/hooks/useUserStore";
 import type { PagerViewOnPageScrollEventData } from "react-native-pager-view";
 import PaginationBattlePass from "@/components/PaginationBattlePass";
 import Loading from "@/components/Loading";
+import { useSharedValue } from "react-native-reanimated";
 
 interface BattlePassContract {
   ProgressionLevelReached: number;
@@ -28,15 +30,18 @@ interface BattlePassContract {
 const BattlePass = () => {
   const colorScheme = useColorScheme();
   const [contracts, setContracts] = useState<BattlePassContract>();
+
   const [loading, setLoading] = useState<string | null>(null);
   const user = useUserStore((state) => state.user);
   const scrollOffsetAnimatedValue = useRef(new Animated.Value(0)).current;
+  const postitionAV = useSharedValue(0);
+  const [activeIndex, setActiveIndex] = useState<number>(postitionAV.value);
   const positionAnimatedValue = useRef(new Animated.Value(0)).current;
-  const { AnimatedPagerView, ref, setPage, activePage, ...rest } = usePagerView(
-    {
-      pagesAmount: 11,
-    }
-  );
+  const flatListRef = useRef<FlatList>(null);
+  const { AnimatedPagerView, ref, setPage, ...rest } = usePagerView({
+    pagesAmount: 11,
+  });
+
   const filterCurrentBattlePass = (contracts: ValorantContract[]) => {
     const battlePass = contracts
       .reverse()
@@ -70,6 +75,9 @@ const BattlePass = () => {
           positionAnimatedValue.setValue(
             Math.floor((progressBP as Contract).ProgressionLevelReached / 5)
           );
+          postitionAV.value = Math.floor(
+            (progressBP as Contract).ProgressionLevelReached / 5
+          );
           setContracts({
             ProgressionLevelReached: (progressBP as Contract)
               .ProgressionLevelReached,
@@ -85,6 +93,7 @@ const BattlePass = () => {
     };
     fetchData();
   }, []);
+
   if (loading) {
     return <Loading msg={loading} />;
   }
@@ -92,9 +101,9 @@ const BattlePass = () => {
   return (
     <View style={styles.flex}>
       <PaginationBattlePass
+        activeIndex={postitionAV}
+        ref={flatListRef}
         setPage={setPage}
-        scrollOffsetAnimatedValue={scrollOffsetAnimatedValue}
-        positionAnimatedValue={positionAnimatedValue}
       />
       {contracts && (
         <AnimatedPagerView
@@ -111,8 +120,15 @@ const BattlePass = () => {
               },
             ],
             {
-              listener: ({ nativeEvent: { offset, position } }) => {},
-              useNativeDriver: true,
+              listener: ({ nativeEvent: { offset, position } }) => {
+                postitionAV.value = position;
+                flatListRef.current?.scrollToIndex({
+                  index: position,
+                  animated: true,
+                  viewPosition: 0.5,
+                });
+              },
+              useNativeDriver: false,
             }
           )}
           style={[styles.flex, { marginTop: 30 }]}
