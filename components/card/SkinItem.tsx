@@ -80,7 +80,7 @@ const SkinItem = ({ data }: Props) => {
               />
             </View>
             <View style={styles.name}>
-              <Text style={{ fontSize: 16, color: "white", marginLeft: 4 }}>
+              <Text style={{ color: "white", marginLeft: 4 }}>
                 {data.displayName}
               </Text>
             </View>

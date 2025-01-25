@@ -196,7 +196,7 @@ const MineView = () => {
             style={[
               styles.text,
               {
-                fontSize: 16,
+                fontSize: 14,
               },
             ]}
           >
@@ -242,7 +242,7 @@ const MineView = () => {
             style={[
               styles.text,
               {
-                fontSize: 16,
+                fontSize: 14,
               },
             ]}
           >

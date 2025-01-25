@@ -78,15 +78,19 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <PaperProvider>
-        <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
+        <ThemeProvider value={DarkTheme}>
           <Stack>
             <Stack.Screen
               name="(authenticated)"
               options={{ headerShown: false }}
             />
-            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="index"
+              options={{
+                headerShown: false,
+                headerStyle: { backgroundColor: "black" },
+              }}
+            />
             <Stack.Screen name="(login)" options={{ headerShown: false }} />
             <Stack.Screen
               name="modal"

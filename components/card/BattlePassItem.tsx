@@ -134,7 +134,6 @@ const styles = StyleSheet.create({
     top: 10,
   },
   name: {
-    fontSize: 16,
     color: "white",
     marginLeft: 4,
     textAlign: "center",

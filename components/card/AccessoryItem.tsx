@@ -64,7 +64,6 @@ const AccessoryItem = ({ data }: Props) => {
 
         <Text
           style={{
-            fontSize: 16,
             color: "white",
             textAlign: "center",
             marginTop: 4,
