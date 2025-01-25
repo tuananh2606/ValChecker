@@ -29,8 +29,22 @@ export async function wishlistBgTask() {
   const wishlistStore = useWishlistStore.getState();
 
   if (!wishlistStore.notificationEnabled) return;
-  console.log(wishlistStore);
-  await checkShop(wishlistStore.skinIds);
+
+  const lastWishlistCheckTs = Number.parseInt(
+    (await AsyncStorage.getItem("lastWishlistCheck")) || "0"
+  );
+  const lastWishlistCheck = new Date(lastWishlistCheckTs);
+  const now = new Date();
+  console.log(
+    `Last wishlist check ${lastWishlistCheck}, current date: ${now.getTime()}`
+  );
+  if (!isSameDayUTC(lastWishlistCheck, now) || lastWishlistCheckTs === 0) {
+    console.log("New day, checking shop in the background");
+    await checkShop(wishlistStore.skinIds);
+    await AsyncStorage.setItem("lastWishlistCheck", now.getTime().toString());
+  }
+
+  console.log("No wishlist check needed");
 }
 
 export async function checkShop(wishlist: string[]) {
@@ -50,8 +64,8 @@ export async function checkShop(wishlist: string[]) {
     const entitlementsToken = await getEntitlementsToken(accessToken);
     const region = (await AsyncStorage.getItem("region")) as string;
     const shop = await getShop(accessToken, entitlementsToken, region, userId);
-
     var hit = false;
+    let wishlistSkin = [];
     for (let i = 0; i < wishlist.length; i++) {
       if (shop.SkinsPanelLayout.SingleItemOffers.includes(wishlist[i])) {
         const skinData = await axios.get<{
@@ -62,36 +76,32 @@ export async function checkShop(wishlist: string[]) {
             wishlist[i]
           }?language=${getVAPILang()}`
         );
-        console.log(skinData);
-
-        await Notifications.scheduleNotificationAsync({
-          content: {
-            title: i18n.t("wishlist.name"),
-            body: i18n.t("wishlist.notification.hit", {
-              displayname: skinData.data.data.displayName,
-            }),
-          },
-          trigger: {
-            channelId: NOTIFICATION_CHANNEL,
-            type: SchedulableTriggerInputTypes.DAILY,
-            hour: 7,
-            minute: 0,
-          },
-        });
-        hit = true;
+        wishlistSkin.push(skinData.data.data.displayName);
       }
+    }
+    if (wishlistSkin.length > 0) {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: i18n.t("wishlist.name"),
+          body: i18n.t("wishlist.notification.hit", {
+            displayname: wishlistSkin.join(", "),
+          }),
+        },
+        trigger: {
+          channelId: NOTIFICATION_CHANNEL,
+          seconds: 1,
+        },
+      });
+      hit = true;
     }
     if (!hit) {
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: i18n.t("wishlist.name"),
           body: i18n.t("wishlist.notification.no_hit"),
         },
         trigger: {
           channelId: NOTIFICATION_CHANNEL,
-          type: SchedulableTriggerInputTypes.DAILY,
-          hour: 7,
-          minute: 0,
+          seconds: 1,
         },
       });
     }
