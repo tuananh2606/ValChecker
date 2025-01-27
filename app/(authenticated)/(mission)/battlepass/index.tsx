@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  useColorScheme,
   Animated,
   FlatList,
 } from "react-native";
@@ -28,7 +27,6 @@ interface BattlePassContract {
 }
 
 const BattlePass = () => {
-  const colorScheme = useColorScheme();
   const [contracts, setContracts] = useState<BattlePassContract>();
 
   const [loading, setLoading] = useState<string | null>(null);
@@ -151,7 +149,6 @@ const BattlePass = () => {
                 <View>
                   <Text
                     style={{
-                      color: "white",
                       fontSize: 14,
                       textTransform: "uppercase",
                       marginVertical: 8,

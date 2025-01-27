@@ -1,19 +1,14 @@
-import { Colors } from "@/constants/Colors";
 import { Image } from "expo-image";
 import { useLocalSearchParams } from "expo-router";
-import { StyleSheet, useColorScheme, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { useAppTheme } from "./_layout";
 
 export default function Modal() {
-  const colorScheme = useColorScheme();
+  const { colors } = useAppTheme();
   const { source } = useLocalSearchParams();
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: Colors[colorScheme ?? "light"].background },
-      ]}
-    >
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Image
         contentFit="contain"
         style={styles.image}

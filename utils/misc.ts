@@ -21,31 +21,9 @@ export const VItemTypes = {
   PlayerTitle: "de7caa6b-adf7-4588-bbd1-143831e786c6",
 };
 
-export const VMissions = {
-  "2374d513-4508-aab4-cf0c-d7b166fb46d7": {
-    title: "Kill enemies",
-    target: 100,
-  },
-  "f2294642-4c5c-b89e-fdc3-a68bb46ec1a1": {
-    title: "Deal damage",
-    target: 18000,
-  },
-  "d6c42ee5-4a94-61ce-8a72-43bac02f51c9": {
-    title: "Purchase items from the armory",
-    target: 200,
-  },
-  "15c87696-49bc-e9d4-3672-e4a50488bfe2": {
-    title: "Play a game",
-    target: 10,
-  },
-  "2a1f28f5-44f6-ecce-b6e6-2f855b3c2d79": {
-    title: "Get headshots",
-    target: 50,
-  },
-  "b7d3cdcf-4bf0-4102-1947-d6ad90e6172a": {
-    title: "Use your abilities",
-    target: 200,
-  },
+export const VMissionsType = {
+  weekly: "EAresMissionType::Weekly",
+  tutorial: "EAresMissionType::Tutorial",
 };
 
 export const VOwnedItemType = {

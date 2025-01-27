@@ -1,20 +1,31 @@
 import CardItem from "@/components/card/CardItem";
 import useUserStore from "@/hooks/useUserStore";
 import { getAssets } from "@/utils/valorant-assets";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FlatList, View, StyleSheet, Text } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { fetchPlayerOwnedItems } from "@/utils/valorant-api";
-import { convertOwnedItemIDToItem, VOwnedItemType } from "@/utils/misc";
+import {
+  convertOwnedItemIDToItem,
+  getDeviceWidth,
+  VOwnedItemType,
+} from "@/utils/misc";
 import TabButtons from "@/components/TabButtons";
 import { SwitchTabArray } from "./cards";
 import { Image } from "expo-image";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { useAppTheme } from "@/app/_layout";
 
 export default function BuddiesScreen() {
   const [ownedBuddies, setOwnedBuddies] = useState<ValorantBuddyAccessory[]>(
     []
   );
-  const [buddy, setBuddy] = useState<{ source: string; title: string }>({
+  const [buddy, setBuddy] = useState<{
+    source: string;
+    title: string;
+    activeIndex?: number;
+  }>({
+    activeIndex: undefined,
     source: "",
     title: "",
   });
@@ -26,7 +37,7 @@ export default function BuddiesScreen() {
   >([]);
   const [page, setPage] = useState<number>(1);
   const [ownedPage, setOwnedPage] = useState<number>(1);
-
+  const { colors } = useAppTheme();
   const user = useUserStore((state) => state.user);
   useEffect(() => {
     const fetchBuddies = async () => {
@@ -53,6 +64,14 @@ export default function BuddiesScreen() {
     setBuddiesData(buddies.slice(0, 50));
   }, []);
 
+  useEffect(() => {
+    setBuddy({
+      activeIndex: undefined,
+      title: "",
+      source: "",
+    });
+  }, [selectedTab]);
+
   const handleLoadMore = () => {
     if (selectedTab === 0) {
       setOwnedPage((prevPage) => prevPage + 1);
@@ -68,6 +87,23 @@ export default function BuddiesScreen() {
     }
   };
 
+  const renderItem = useCallback(
+    ({ item, index }: { item: ValorantBuddyAccessory; index: number }) => (
+      <TouchableWithoutFeedback
+        onPress={() =>
+          setBuddy({
+            activeIndex: index,
+            title: item.displayName,
+            source: item.levels[0].displayIcon,
+          })
+        }
+      >
+        <CardItem data={item} isActive={buddy.activeIndex === index} />
+      </TouchableWithoutFeedback>
+    ),
+    [buddy]
+  );
+
   return (
     <View style={styles.container}>
       <View
@@ -81,7 +117,7 @@ export default function BuddiesScreen() {
           style={{
             fontWeight: 700,
             fontSize: 16,
-            color: "white",
+            color: colors.text,
             marginBottom: 8,
           }}
         >
@@ -90,7 +126,7 @@ export default function BuddiesScreen() {
         <Image
           style={{
             width: "100%",
-            height: 150,
+            height: 100,
           }}
           contentFit="contain"
           placeholder={require("@/assets/images/image-placeholder.png")}
@@ -122,11 +158,14 @@ export default function BuddiesScreen() {
           columnWrapperStyle={{
             gap: 4,
           }}
+          getItemLayout={(data, index) => ({
+            length: getDeviceWidth() / 5 - 4,
+            offset: (getDeviceWidth() / 5 - 4) * index,
+            index,
+          })}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
-          renderItem={({ item }) => (
-            <CardItem data={item} setState={setBuddy} />
-          )}
+          renderItem={renderItem}
           keyExtractor={(item) => item.uuid}
         />
       ) : (
@@ -142,11 +181,14 @@ export default function BuddiesScreen() {
           columnWrapperStyle={{
             gap: 4,
           }}
+          getItemLayout={(data, index) => ({
+            length: getDeviceWidth() / 5 - 4,
+            offset: (getDeviceWidth() / 5 - 4) * index,
+            index,
+          })}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
-          renderItem={({ item }) => (
-            <CardItem data={item} setState={setBuddy} />
-          )}
+          renderItem={renderItem}
           keyExtractor={(item) => item.uuid}
         />
       )}

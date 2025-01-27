@@ -36,7 +36,7 @@ const AccessoryView = () => {
   }, []);
 
   return (
-    <View style={{ marginTop: 8 }}>
+    <View style={{ marginTop: 8, paddingHorizontal: 16 }}>
       <FlatList
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

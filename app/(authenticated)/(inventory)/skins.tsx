@@ -9,14 +9,8 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  useColorScheme,
-  TouchableOpacity,
-} from "react-native";
-import { Divider, Title } from "react-native-paper";
+import { View, Text, StyleSheet, useColorScheme } from "react-native";
+import { Divider, Title, TouchableRipple } from "react-native-paper";
 import * as SecureStore from "expo-secure-store";
 import { fetchPlayerOwnedItems } from "@/utils/valorant-api";
 import { convertOwnedItemIDToItem, VOwnedItemType } from "@/utils/misc";
@@ -30,6 +24,7 @@ import BottomSheet, {
 } from "@gorhom/bottom-sheet";
 import { Colors } from "@/constants/Colors";
 import Loading from "@/components/Loading";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 const noMeleeFilter = [
   "Vandal",
@@ -228,7 +223,7 @@ export default function SkinsScreen() {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity onPressIn={() => sheetRef.current?.collapse()}>
+        <TouchableOpacity onPress={() => sheetRef.current?.collapse()}>
           <MaterialIcons
             name="filter-list"
             size={24}
@@ -366,12 +361,12 @@ export default function SkinsScreen() {
                   backgroundColor: "grey",
                 }}
               />
-              <TouchableOpacity
+              <TouchableRipple
                 onPress={() => handleChangeWeapon(item)}
                 style={styles.itemContainer}
               >
                 <Text style={{ color: "white" }}>{item}</Text>
-              </TouchableOpacity>
+              </TouchableRipple>
             </Fragment>
           )}
           contentContainerStyle={[

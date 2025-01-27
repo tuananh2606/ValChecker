@@ -82,12 +82,11 @@ export default function LoginScreen() {
               progress,
               balances,
             });
-
-            router.replace("/(authenticated)/(store)");
           })
           .catch((error) => {
             console.log(error);
-          });
+          })
+          .finally(() => router.replace("/(authenticated)/(store)"));
       } catch (e) {
         if (!__DEV__) {
           await CookieManager.clearAll(true);

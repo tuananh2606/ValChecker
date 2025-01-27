@@ -325,7 +325,7 @@ export async function getProgress(
   };
 }
 
-export async function getMissions(
+export async function getMissionsMetadata(
   accessToken: string,
   entitlementsToken: string,
   region: string,

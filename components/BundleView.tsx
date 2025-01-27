@@ -38,7 +38,7 @@ const BundleView = () => {
   }, []);
 
   return (
-    <ScrollView style={{ marginTop: 8 }}>
+    <ScrollView style={{ marginTop: 8, paddingHorizontal: 16 }}>
       {user.shops.bundles.map((bundle, idx) => {
         return (
           <View key={idx} style={{ marginBottom: 8 }}>

@@ -1,41 +1,47 @@
 import {
-  DarkTheme,
-  DefaultTheme,
+  DarkTheme as NavigationDarkTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { useFonts } from "expo-font";
-import { router, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useState } from "react";
 import "react-native-reanimated";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { PaperProvider } from "react-native-paper";
+import {
+  adaptNavigationTheme,
+  MD3DarkTheme,
+  PaperProvider,
+  useTheme,
+} from "react-native-paper";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import * as SecureStore from "expo-secure-store";
-import { jwtDecode } from "jwt-decode";
 import merge from "deepmerge";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useWishlistStore } from "@/hooks/useWishlistStore";
 import { initBackgroundFetch, stopBackgroundFetch } from "@/utils/wishlist";
-import { useDarkMode } from "@/hooks/useDarkMode";
-// export const CombinedDarkTheme = {
-//   ...merge(PaperDarkTheme, NavigationDarkTheme),
-//   colors: {
-//     ...merge(PaperDarkTheme.colors, NavigationDarkTheme.colors),
-//     primary: "#fa4454",
-//     accent: "#fa4454",
-//   },
-// };
+
+const { DarkTheme } = adaptNavigationTheme({
+  reactNavigationDark: NavigationDarkTheme,
+});
+
+const CombinedDarkTheme = {
+  ...merge(MD3DarkTheme, DarkTheme),
+  colors: {
+    ...merge(MD3DarkTheme.colors, DarkTheme.colors),
+    background: "#000000",
+    surface: "#3f3f3f",
+    primary: "#fa4454",
+    tint: "#ffffff",
+  },
+  fonts: { ...NavigationDarkTheme.fonts, ...MD3DarkTheme.fonts },
+};
+
+export type AppTheme = typeof CombinedDarkTheme;
+
+export const useAppTheme = () => useTheme<AppTheme>();
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [appIsReady, setAppIsReady] = useState(false);
-
-  const darkMode = useDarkMode.getState().darkModeEnabled;
 
   useEffect(() => {
     async function prepare() {
@@ -76,9 +82,12 @@ export default function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
-      <PaperProvider>
-        <ThemeProvider value={DarkTheme}>
+    <GestureHandlerRootView
+      style={{ flex: 1, backgroundColor: CombinedDarkTheme.colors.background }}
+      onLayout={onLayoutRootView}
+    >
+      <PaperProvider theme={CombinedDarkTheme}>
+        <ThemeProvider value={CombinedDarkTheme}>
           <Stack>
             <Stack.Screen
               name="(authenticated)"
@@ -88,7 +97,9 @@ export default function RootLayout() {
               name="index"
               options={{
                 headerShown: false,
-                headerStyle: { backgroundColor: "black" },
+                headerStyle: {
+                  backgroundColor: CombinedDarkTheme.colors.background,
+                },
               }}
             />
             <Stack.Screen name="(login)" options={{ headerShown: false }} />
@@ -96,13 +107,12 @@ export default function RootLayout() {
               name="modal"
               options={{
                 headerTitle: "",
-                animation: "slide_from_right",
+                animation: "default",
                 presentation: "modal",
               }}
             />
             <Stack.Screen name="+not-found" />
           </Stack>
-          <StatusBar style="auto" />
         </ThemeProvider>
       </PaperProvider>
     </GestureHandlerRootView>

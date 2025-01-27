@@ -26,7 +26,7 @@ let assets: StoredAssets = {
   competitiveTiers: [],
 };
 export const FILE_LOCATION =
-  FileSystem.cacheDirectory + "/valorant_assets.json";
+  FileSystem.cacheDirectory + "/valchecker_assets.json";
 
 export function getAssets() {
   return assets;
@@ -232,6 +232,17 @@ export async function fetchSeasons(language?: string) {
 export async function fetchCompetitiveTier(language?: string) {
   const res = await axios.request<{ data: ValorantCompetitiveTiers[] }>({
     url: `https://valorant-api.com/v1/competitivetiers?language=${
+      language ?? getVAPILang()
+    }`,
+    method: "GET",
+  });
+
+  return res.data.data;
+}
+
+export async function getMissions(language?: string) {
+  const res = await axios.request<{ data: ValorantMission[] }>({
+    url: `https://valorant-api.com/v1/missions?language=${
       language ?? getVAPILang()
     }`,
     method: "GET",

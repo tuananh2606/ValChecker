@@ -1,25 +1,38 @@
-import { Colors } from "@/constants/Colors";
 import {
   StyleSheet,
-  Image,
   View,
   Text,
-  useColorScheme,
-  Pressable,
   TouchableOpacity,
+  ToastAndroid,
 } from "react-native";
 import { Card } from "react-native-paper";
+import { Image } from "expo-image";
 import { Link } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useWishlistStore } from "@/hooks/useWishlistStore";
+import { useAppTheme } from "@/app/_layout";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   data: SkinShopItem | ValorantSkin;
 }
 
 const SkinItem = ({ data }: Props) => {
+  const { t } = useTranslation();
   const { skinIds, toggleSkin } = useWishlistStore();
-  const colorScheme = useColorScheme();
+  const { colors } = useAppTheme();
+
+  const handlePress = () => {
+    toggleSkin(data.levels[0].uuid);
+    if (!skinIds.includes(data.levels[0].uuid)) {
+      ToastAndroid.show(
+        t("wishlist.add.success", {
+          displayname: data.displayName,
+        }),
+        ToastAndroid.SHORT
+      );
+    }
+  };
 
   return (
     <View>
@@ -34,15 +47,9 @@ const SkinItem = ({ data }: Props) => {
           style={{
             position: "relative",
             marginVertical: 4,
-            marginHorizontal: 16,
           }}
         >
-          <Card.Content
-            style={[
-              styles.container,
-              { backgroundColor: Colors[colorScheme ?? "light"].background },
-            ]}
-          >
+          <Card.Content style={styles.container}>
             <View style={styles.priceContainer}>
               {(data as SkinShopItem).price && (
                 <View
@@ -53,17 +60,20 @@ const SkinItem = ({ data }: Props) => {
                 >
                   <Image
                     style={{ width: 16, height: 16 }}
-                    resizeMode="contain"
+                    contentFit="contain"
+                    tintColor={colors.tint}
                     source={require("@/assets/images/valorantPoints.png")}
                   />
-                  <Text style={{ fontSize: 16, color: "white", marginLeft: 4 }}>
+                  <Text
+                    style={{ fontSize: 16, color: colors.text, marginLeft: 4 }}
+                  >
                     {(data as SkinShopItem).price}
                   </Text>
                 </View>
               )}
               <Image
                 style={{ width: 24, height: 24, marginLeft: 8 }}
-                resizeMode="contain"
+                contentFit="contain"
                 source={{
                   uri: data.contentTier.displayIcon,
                 }}
@@ -73,14 +83,14 @@ const SkinItem = ({ data }: Props) => {
             <View style={styles.imageContainer}>
               <Image
                 style={styles.image}
-                resizeMode="contain"
+                contentFit="contain"
                 source={{
                   uri: data.levels[0].displayIcon,
                 }}
               />
             </View>
             <View style={styles.name}>
-              <Text style={{ color: "white", marginLeft: 4 }}>
+              <Text style={{ color: colors.text, marginLeft: 4 }}>
                 {data.displayName}
               </Text>
             </View>
@@ -88,9 +98,9 @@ const SkinItem = ({ data }: Props) => {
         </Card>
       </Link>
       <TouchableOpacity
-        onPress={() => toggleSkin(data.levels[0].uuid)}
+        onPress={handlePress}
         style={{
-          right: 30,
+          right: 10,
           bottom: 10,
           position: "absolute",
         }}
@@ -101,7 +111,7 @@ const SkinItem = ({ data }: Props) => {
           <MaterialCommunityIcons
             name="heart-outline"
             size={24}
-            color="white"
+            color={colors.tint}
           />
         )}
       </TouchableOpacity>

@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "ValChecker",
-    "slug": "ValChecker",
+    "slug": "valchecker",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -16,7 +16,11 @@
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.bjjitaccll01.ValChecker"
+      "package": "com.ndta.valchecker"
+    },
+    "androidStatusBar": {
+      "backgroundColor": "#000000",
+      "translucent": false
     },
     "web": {
       "bundler": "metro",
@@ -31,11 +35,7 @@
           "image": "./assets/images/splash.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
-          "dark": {
-            "image": "./assets/images/splash.png",
-            "backgroundColor": "#000000"
-          }
+          "backgroundColor": "#000000"
         }
       ],
       "expo-secure-store",
@@ -47,12 +47,6 @@
           "android": {
             "usesCleartextTraffic": true
           }
-        }
-      ],
-      [
-        "expo-font",
-        {
-          "fonts": ["./assets/fonts/Manrope-VariableFont_wght.ttf"]
         }
       ],
       "react-native-background-fetch"

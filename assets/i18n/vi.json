@@ -95,7 +95,9 @@
   "welcome_back": "Chào mừng trở lại",
   "welcome_back_info": "Chúng tôi đang đăng nhập lại cho bạn.",
   "wishlist": {
-    "add": "Thêm vào wishlist",
+    "add": {
+      "success": "Đã thêm {{displayname}} vào wishlist."
+    },
     "name": "Danh sách skin mong muốn (Wishlist)",
     "notification": {
       "disabled": "Thông báo đã được tắt",

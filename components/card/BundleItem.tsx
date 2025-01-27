@@ -1,4 +1,3 @@
-import { Colors } from "@/constants/Colors";
 import { StyleSheet, Image, View, Text, useColorScheme } from "react-native";
 
 interface Props {
@@ -6,8 +5,6 @@ interface Props {
 }
 
 const BundleItem = ({ data }: Props) => {
-  const colorScheme = useColorScheme();
-
   return (
     <View style={styles.container}>
       <View style={styles.priceContainer}>
@@ -40,7 +37,6 @@ const styles = StyleSheet.create({
   container: {
     height: 180,
     marginVertical: 4,
-    marginHorizontal: 16,
   },
   priceContainer: {
     zIndex: 10,

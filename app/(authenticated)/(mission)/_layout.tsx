@@ -1,11 +1,13 @@
+import { useAppTheme } from "@/app/_layout";
 import { Stack } from "expo-router";
 
 export default function StoreLayout() {
+  const { colors } = useAppTheme();
   return (
     <Stack
       screenOptions={{
         headerStyle: {
-          backgroundColor: "black",
+          backgroundColor: colors.background,
         },
       }}
     >

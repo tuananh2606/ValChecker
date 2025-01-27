@@ -49,6 +49,9 @@ const DetailsScreen = () => {
   useEffect(() => {
     navigation.setOptions({
       title: "",
+      headerStyle: {
+        backgroundColor: "black",
+      },
     });
   }, [navigation]);
 

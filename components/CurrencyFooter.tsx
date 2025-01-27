@@ -1,5 +1,4 @@
-import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme.web";
+import { useAppTheme } from "@/app/_layout";
 import { View, Image, Text, StyleSheet } from "react-native";
 
 interface Props {
@@ -7,12 +6,13 @@ interface Props {
 }
 
 const CurrencyFooter = ({ balances }: Props) => {
-  const colorScheme = useColorScheme();
+  const { colors } = useAppTheme();
   return (
     <View style={styles.wrapper}>
       <View style={styles.container}>
         <Image
           style={{ width: 16, height: 16 }}
+          tintColor={colors.tint}
           resizeMode="contain"
           source={require("@/assets/images/valorantPoints.png")}
         />
@@ -20,7 +20,7 @@ const CurrencyFooter = ({ balances }: Props) => {
           style={{
             fontSize: 16,
             marginLeft: 4,
-            color: Colors[colorScheme ?? "light"].text,
+            color: colors.text,
           }}
         >
           {balances.vp}
@@ -29,6 +29,7 @@ const CurrencyFooter = ({ balances }: Props) => {
       <View style={[styles.container, { marginLeft: 12 }]}>
         <Image
           style={{ width: 16, height: 16 }}
+          tintColor={colors.tint}
           resizeMode="contain"
           source={require("@/assets/images/kingdomCredits.png")}
         />
@@ -36,7 +37,7 @@ const CurrencyFooter = ({ balances }: Props) => {
           style={{
             fontSize: 16,
             marginLeft: 4,
-            color: Colors[colorScheme ?? "light"].text,
+            color: colors.text,
           }}
         >
           {balances.kc}
@@ -45,6 +46,7 @@ const CurrencyFooter = ({ balances }: Props) => {
       <View style={[styles.container, { marginLeft: 12 }]}>
         <Image
           style={{ width: 16, height: 16 }}
+          tintColor={colors.tint}
           resizeMode="contain"
           source={require("@/assets/images/radianitePoints.png")}
         />
@@ -52,7 +54,7 @@ const CurrencyFooter = ({ balances }: Props) => {
           style={{
             fontSize: 16,
             marginLeft: 4,
-            color: Colors[colorScheme ?? "light"].text,
+            color: colors.text,
           }}
         >
           {balances.rad}
@@ -66,7 +68,6 @@ const styles = StyleSheet.create({
   wrapper: {
     display: "flex",
     flexDirection: "row",
-    marginHorizontal: 16,
     marginTop: 8,
     marginBottom: 16,
   },

@@ -1,18 +1,27 @@
 import CardItem from "@/components/card/CardItem";
 import TabButtons from "@/components/TabButtons";
 import { getAssets } from "@/utils/valorant-assets";
-import React, { useEffect, useState } from "react";
-import { FlatList, View, StyleSheet, useWindowDimensions } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { FlatList, View, StyleSheet, Animated } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { fetchPlayerOwnedItems } from "@/utils/valorant-api";
 import useUserStore from "@/hooks/useUserStore";
-import { convertOwnedItemIDToItem, VOwnedItemType } from "@/utils/misc";
+import {
+  convertOwnedItemIDToItem,
+  getDeviceWidth,
+  VOwnedItemType,
+} from "@/utils/misc";
+import {
+  PagerViewOnPageScrollEventData,
+  usePagerView,
+} from "react-native-pager-view";
+import { Pressable } from "react-native-gesture-handler";
+import { router } from "expo-router";
 
 export const SwitchTabArray = [{ title: "Owned" }, { title: "All" }];
 
 export default function CardsScreen() {
   const [ownedCards, setOwnedCards] = useState<ValorantCardAccessory[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
   const [selectedTab, setSelectedTab] = useState<number>(0);
   const { cards } = getAssets();
   const [cardsData, setCardsData] = useState<ValorantCardAccessory[]>([]);
@@ -21,7 +30,7 @@ export default function CardsScreen() {
   );
   const [page, setPage] = useState<number>(1);
   const [ownedPage, setOwnedPage] = useState<number>(1);
-
+  const { AnimatedPagerView, ref, ...rest } = usePagerView({ pagesAmount: 2 });
   const user = useUserStore((state) => state.user);
   useEffect(() => {
     const fetchCards = async () => {
@@ -59,6 +68,24 @@ export default function CardsScreen() {
     }
   };
 
+  const renderItem = useCallback(
+    ({ item }: { item: ValorantCardAccessory; index: number }) => (
+      <Pressable
+        onPress={() =>
+          router.push({
+            pathname: "/details-item/[id]",
+            params: { id: item.uuid, type: "card" },
+          })
+        }
+      >
+        <CardItem data={item} />
+      </Pressable>
+    ),
+    []
+  );
+  const scrollOffsetAnimatedValue = React.useRef(new Animated.Value(0)).current;
+  const positionAnimatedValue = React.useRef(new Animated.Value(0)).current;
+
   return (
     <View style={styles.container}>
       <View style={{ alignItems: "flex-end", marginBottom: 8 }}>
@@ -71,7 +98,7 @@ export default function CardsScreen() {
         </View>
       </View>
 
-      {selectedTab === 0 ? (
+      {/* {selectedTab === 0 ? (
         <FlatList
           key={`tab-1`}
           numColumns={5}
@@ -107,7 +134,81 @@ export default function CardsScreen() {
           renderItem={({ item }) => <CardItem data={item} />}
           keyExtractor={(item) => item.uuid}
         />
-      )}
+      )} */}
+      <AnimatedPagerView
+        ref={ref}
+        style={{
+          flex: 1,
+        }}
+        initialPage={0}
+        overdrag={false}
+        scrollEnabled={rest.scrollEnabled}
+        onPageScroll={Animated.event<PagerViewOnPageScrollEventData>(
+          [
+            {
+              nativeEvent: {
+                offset: scrollOffsetAnimatedValue,
+                position: positionAnimatedValue,
+              },
+            },
+          ],
+          {
+            listener: ({ nativeEvent: { offset, position } }) => {},
+            useNativeDriver: true,
+          }
+        )}
+        onPageSelected={rest.onPageSelected}
+        onPageScrollStateChanged={rest.onPageScrollStateChanged}
+        pageMargin={10}
+        orientation="horizontal"
+      >
+        <View>
+          <FlatList
+            numColumns={5}
+            horizontal={false}
+            bounces={false}
+            data={ownedCardsData}
+            contentContainerStyle={{
+              gap: 4,
+            }}
+            columnWrapperStyle={{
+              gap: 4,
+            }}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.uuid}
+            getItemLayout={(data, index) => ({
+              length: getDeviceWidth() / 5 - 4,
+              offset: (getDeviceWidth() / 5 - 4) * index,
+              index,
+            })}
+          />
+        </View>
+        <View>
+          <FlatList
+            numColumns={5}
+            horizontal={false}
+            bounces={false}
+            data={cardsData}
+            contentContainerStyle={{
+              gap: 4,
+            }}
+            columnWrapperStyle={{
+              gap: 4,
+            }}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.uuid}
+            getItemLayout={(data, index) => ({
+              length: getDeviceWidth() / 5 - 4,
+              offset: (getDeviceWidth() / 5 - 4) * index,
+              index,
+            })}
+          />
+        </View>
+      </AnimatedPagerView>
     </View>
   );
 }

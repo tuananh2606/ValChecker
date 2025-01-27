@@ -1,3 +1,4 @@
+import { useAppTheme } from "@/app/_layout";
 import { Colors } from "@/constants/Colors";
 import { router } from "expo-router";
 import { StyleSheet, Image, View, Text, useColorScheme } from "react-native";
@@ -8,7 +9,7 @@ interface Props {
 }
 
 const AccessoryItem = ({ data }: Props) => {
-  const colorScheme = useColorScheme();
+  const { colors } = useAppTheme();
   return (
     <Card
       onPress={() =>
@@ -20,22 +21,17 @@ const AccessoryItem = ({ data }: Props) => {
       }
       style={{
         marginVertical: 4,
-        marginHorizontal: 16,
       }}
     >
-      <Card.Content
-        style={[
-          styles.container,
-          { backgroundColor: Colors[colorScheme ?? "light"].background },
-        ]}
-      >
+      <Card.Content style={styles.container}>
         <View style={styles.priceContainer}>
           <Image
             style={{ width: 16, height: 16 }}
+            tintColor={colors.tint}
             resizeMode="contain"
             source={require("@/assets/images/kingdomCredits.png")}
           />
-          <Text style={{ fontSize: 16, color: "white", marginLeft: 4 }}>
+          <Text style={{ fontSize: 16, color: colors.text, marginLeft: 4 }}>
             {data.price}
           </Text>
         </View>
@@ -52,6 +48,7 @@ const AccessoryItem = ({ data }: Props) => {
                   }
             }
             resizeMode="contain"
+            tintColor={!data.displayIcon ? colors.tint : undefined}
             source={
               !data.displayIcon
                 ? require("@/assets/images/Player-Title.png")
@@ -64,7 +61,7 @@ const AccessoryItem = ({ data }: Props) => {
 
         <Text
           style={{
-            color: "white",
+            color: colors.text,
             textAlign: "center",
             marginTop: 4,
           }}

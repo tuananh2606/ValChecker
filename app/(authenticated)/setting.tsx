@@ -2,43 +2,31 @@ import {
   Button,
   Divider,
   List,
-  MD3Colors,
   Switch,
   Title,
+  TouchableRipple,
 } from "react-native-paper";
-import {
-  StatusBar,
-  StyleSheet,
-  View,
-  TextInput,
-  Pressable,
-  ToastAndroid,
-} from "react-native";
+import { StyleSheet, View, ToastAndroid } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useUserStore from "@/hooks/useUserStore";
 import { defaultUser } from "@/utils/valorant-api";
 import { router } from "expo-router";
 import CookieManager from "@react-native-cookies/cookies";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import DateTimePicker, {
-  DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
 import { initBackgroundFetch, stopBackgroundFetch } from "@/utils/wishlist";
 import { useWishlistStore } from "@/hooks/useWishlistStore";
 import * as Notifications from "expo-notifications";
 import { useDarkMode } from "@/hooks/useDarkMode";
+import { useAppTheme } from "../_layout";
+import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 
 export default function SettingScreen() {
   const { t } = useTranslation();
   const { setUser } = useUserStore();
-  const [time, setTime] = useState<Date>();
-
-  const [showTimePicker, setShowTimePicker] = useState(false);
-
+  const { colors } = useAppTheme();
   const notificationEnabled = useWishlistStore(
     (state) => state.notificationEnabled
   );
@@ -48,20 +36,6 @@ export default function SettingScreen() {
 
   const darkModeEnabled = useDarkMode((state) => state.darkModeEnabled);
   const setDarkModeEnabled = useDarkMode((state) => state.setDarkMode);
-
-  const handleTimeChange = (event: DateTimePickerEvent, date?: Date) => {
-    const {
-      type,
-      nativeEvent: { timestamp, utcOffset },
-    } = event;
-    if (type === "set") {
-      const currentDate = date;
-      setTime(currentDate);
-      handleShowPicker();
-      console.log(currentDate?.toLocaleTimeString());
-    }
-  };
-
   const handleLogout = async () => {
     await CookieManager.clearAll(true);
     await AsyncStorage.removeItem("region");
@@ -70,7 +44,6 @@ export default function SettingScreen() {
     setNotificationEnabled(false);
     router.replace("/(login)");
   };
-  const handleShowPicker = () => setShowTimePicker(!showTimePicker);
 
   const toggleNotificationEnabled = async () => {
     setNotificationEnabled(!notificationEnabled);
@@ -98,9 +71,9 @@ export default function SettingScreen() {
     <View style={styles.container}>
       <Title
         style={{
-          fontSize: 24,
-          fontWeight: 900,
-          color: "white",
+          textAlign: "center",
+          fontWeight: 700,
+          color: colors.text,
         }}
       >
         Settings
@@ -114,9 +87,7 @@ export default function SettingScreen() {
             backgroundColor: "#2E2E2E",
           }}
           title="FAQ"
-          right={() => (
-            <List.Icon color={MD3Colors.tertiary70} icon="chevron-right" />
-          )}
+          right={() => <List.Icon color={colors.tint} icon="chevron-right" />}
         />
         <List.Subheader>General</List.Subheader>
         <View
@@ -135,7 +106,7 @@ export default function SettingScreen() {
                 <MaterialCommunityIcons
                   name="lightbulb-outline"
                   size={24}
-                  color="white"
+                  color={colors.tint}
                 />
               </View>
             )}
@@ -149,21 +120,27 @@ export default function SettingScreen() {
             )}
           />
           <Divider />
-          <List.Item
-            left={() => (
-              <View
-                style={{
-                  marginLeft: 8,
-                }}
-              >
-                <AntDesign name="earth" size={24} color="white" />
-              </View>
-            )}
-            title="Change Time Language"
-            right={() => (
-              <List.Icon color={MD3Colors.tertiary70} icon="chevron-right" />
-            )}
-          />
+          <TouchableRipple
+            onPress={() => {
+              startActivityAsync(ActivityAction.LOCALE_SETTINGS);
+            }}
+          >
+            <List.Item
+              left={() => (
+                <View
+                  style={{
+                    marginLeft: 8,
+                  }}
+                >
+                  <AntDesign name="earth" size={24} color={colors.tint} />
+                </View>
+              )}
+              title="Change Time Language"
+              right={() => (
+                <List.Icon color={colors.tint} icon="chevron-right" />
+              )}
+            />
+          </TouchableRipple>
         </View>
 
         <List.Subheader>NOTIFICATION</List.Subheader>
@@ -181,7 +158,7 @@ export default function SettingScreen() {
                   marginLeft: 8,
                 }}
               >
-                <SimpleLineIcons name="bell" size={24} color="white" />
+                <SimpleLineIcons name="bell" size={24} color={colors.tint} />
               </View>
             )}
             right={() => (
@@ -192,44 +169,8 @@ export default function SettingScreen() {
               />
             )}
           />
-          <Divider />
-          <List.Item
-            title="Time"
-            left={() => (
-              <View
-                style={{
-                  marginLeft: 8,
-                }}
-              >
-                <MaterialCommunityIcons
-                  name="clock-time-three-outline"
-                  size={24}
-                  color="white"
-                />
-              </View>
-            )}
-            right={() => (
-              <Pressable onPress={handleShowPicker}>
-                <TextInput
-                  style={{ color: "white" }}
-                  keyboardType={"numeric"}
-                  editable={false}
-                  value={time?.toLocaleTimeString().slice(0, 5) || "07:00"}
-                />
-              </Pressable>
-            )}
-          />
         </View>
       </List.Section>
-      {showTimePicker && (
-        <DateTimePicker
-          display="spinner"
-          is24Hour
-          value={time || new Date()}
-          onChange={handleTimeChange}
-          mode="time"
-        />
-      )}
       <Button
         onPress={handleLogout}
         style={{
@@ -248,7 +189,6 @@ export default function SettingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: StatusBar.currentHeight,
     paddingHorizontal: 8,
     paddingBottom: 20,
   },

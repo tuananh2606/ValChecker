@@ -1,20 +1,30 @@
 import CardItem from "@/components/card/CardItem";
 import useUserStore from "@/hooks/useUserStore";
 import { getAssets } from "@/utils/valorant-assets";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FlatList, View, StyleSheet, Text } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { fetchPlayerOwnedItems } from "@/utils/valorant-api";
-import { convertOwnedItemIDToItem, VOwnedItemType } from "@/utils/misc";
+import {
+  convertOwnedItemIDToItem,
+  getDeviceWidth,
+  VOwnedItemType,
+} from "@/utils/misc";
 import TabButtons from "@/components/TabButtons";
 import { SwitchTabArray } from "./cards";
 import { Image } from "expo-image";
 import { useLocalSearchParams } from "expo-router";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 export default function SpraysScreen() {
   const { source, title } = useLocalSearchParams();
   const [ownedSprays, setOwnedSprays] = useState<ValorantSprayAccessory[]>([]);
-  const [spray, setSpray] = useState<{ source: string; title: string }>({
+  const [spray, setSpray] = useState<{
+    source: string;
+    title: string;
+    activeIndex: number;
+  }>({
+    activeIndex: 0,
     source: "",
     title: "",
   });
@@ -63,7 +73,22 @@ export default function SpraysScreen() {
       setSpraysData((prev) => [...prev, ...newSprays]);
     }
   };
-
+  const renderItem = useCallback(
+    ({ item, index }: { item: ValorantSprayAccessory; index: number }) => (
+      <TouchableWithoutFeedback
+        onPress={() =>
+          setSpray({
+            activeIndex: index,
+            title: item.displayName,
+            source: item.fullTransparentIcon,
+          })
+        }
+      >
+        <CardItem data={item} isActive={spray.activeIndex === index} />
+      </TouchableWithoutFeedback>
+    ),
+    [spray]
+  );
   return (
     <View style={styles.container}>
       <View
@@ -118,11 +143,14 @@ export default function SpraysScreen() {
           columnWrapperStyle={{
             gap: 4,
           }}
+          getItemLayout={(data, index) => ({
+            length: getDeviceWidth() / 5 - 4,
+            offset: (getDeviceWidth() / 5 - 4) * index,
+            index,
+          })}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
-          renderItem={({ item }) => (
-            <CardItem data={item} setState={setSpray} />
-          )}
+          renderItem={renderItem}
           keyExtractor={(item) => item.uuid}
         />
       ) : (
@@ -138,11 +166,14 @@ export default function SpraysScreen() {
           columnWrapperStyle={{
             gap: 4,
           }}
+          getItemLayout={(data, index) => ({
+            length: getDeviceWidth() / 5 - 4,
+            offset: (getDeviceWidth() / 5 - 4) * index,
+            index,
+          })}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
-          renderItem={({ item }) => (
-            <CardItem data={item} setState={setSpray} />
-          )}
+          renderItem={renderItem}
           keyExtractor={(item) => item.uuid}
         />
       )}

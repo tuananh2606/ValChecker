@@ -2,43 +2,33 @@ import { View, Text, StyleSheet, StatusBar } from "react-native";
 import { useEffect, useState } from "react";
 
 import useUserStore from "@/hooks/useUserStore";
-import { getMissions } from "@/utils/valorant-api";
+
 import * as SecureStore from "expo-secure-store";
-import { convertDatetoSeconds, VMissions } from "@/utils/misc";
-import { ProgressBar, MD3Colors, Button } from "react-native-paper";
+import { convertDatetoSeconds, getDeviceWidth } from "@/utils/misc";
+import { ProgressBar, MD3Colors, Button, Title } from "react-native-paper";
 import TimerAction from "@/components/TimerAction";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
+import { getMissions } from "@/utils/valorant-assets";
+import { getMissionsMetadata } from "@/utils/valorant-api";
+import { Skeleton } from "@/components/Skeleton";
+import { useAppTheme } from "@/app/_layout";
 
-interface Missions {
-  MissionMetadata: {
-    NPECompleted: boolean;
-    /** Date in ISO 8601 format */
-    WeeklyCheckpoint: string;
-    /** Date in ISO 8601 format */
-    WeeklyRefillTime: string;
-  };
-  Missions: {
-    /** UUID */
-    ID: string;
-    Objectives: {
-      [x: string]: number;
-    };
-    Complete: boolean;
-    /** Date in ISO 8601 format */
-    ExpirationTime: string;
-  }[];
+interface WeeklyMission extends ValorantMission {
+  progress: number;
 }
 
 export default function MissionScreen() {
   const [expirationTime, setExpirationTime] = useState<string>();
-  const [missions, setMissions] = useState<Missions>();
-
+  const [missions, setMissions] = useState<WeeklyMission[]>();
+  const [loading, setLoading] = useState<boolean>(false);
+  const { colors } = useAppTheme();
   const user = useUserStore((state) => state.user);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       let accessToken = (await SecureStore.getItemAsync(
         "access_token"
       )) as string;
@@ -46,23 +36,53 @@ export default function MissionScreen() {
         "entitlements_token"
       )) as string;
 
-      const missions = await getMissions(
-        accessToken,
-        entitlementsToken,
-        user.region,
-        user.id
-      );
+      let [missions, missionsMetadata] = await Promise.all([
+        getMissions(),
+        getMissionsMetadata(
+          accessToken,
+          entitlementsToken,
+          user.region,
+          user.id
+        ),
+      ]);
 
-      setExpirationTime(missions.MissionMetadata.WeeklyRefillTime);
-      setMissions(missions);
+      let weeklyMissions: WeeklyMission[] = [];
+      for (let i = 0; i < missionsMetadata.Missions.length; i++) {
+        const weeklyMission = missions.find(
+          (mission) => mission.uuid === missionsMetadata.Missions[i].ID
+        );
+        if (weeklyMission) {
+          weeklyMissions.push({
+            ...weeklyMission,
+            progress:
+              missionsMetadata.Missions[i].Objectives[
+                Object.keys(missionsMetadata.Missions[i].Objectives)[0]
+              ],
+          });
+        }
+      }
+
+      setExpirationTime(missionsMetadata.MissionMetadata.WeeklyRefillTime);
+      setMissions(weeklyMissions);
+      setLoading(false);
     };
     fetchData();
   }, []);
 
   return (
     <View style={styles.container}>
+      <Title
+        style={{
+          textAlign: "center",
+          color: colors.text,
+          fontWeight: 700,
+        }}
+      >
+        Mission
+      </Title>
       <View
         style={{
+          height: 40,
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
@@ -71,46 +91,144 @@ export default function MissionScreen() {
         <Text
           style={{
             flex: 1,
-            color: "white",
+            color: colors.text,
             textTransform: "uppercase",
-            fontSize: 18,
+            fontSize: 16,
           }}
         >
           Weekly Missions
         </Text>
-        <View>
-          {expirationTime && (
-            <TimerAction remainingSecs={convertDatetoSeconds(expirationTime)} />
-          )}
-        </View>
-      </View>
-      {/* {missions &&
-        missions.Missions.map((mission, idx) => {
-          const { ID, Objectives } = mission;
 
-          const progressNumber = +(
-            Objectives[Object.keys(Objectives)[0]] /
-            VMissions[ID as keyof typeof VMissions].target
-          ).toFixed(2);
+        {expirationTime && (
+          <TimerAction remainingSecs={convertDatetoSeconds(expirationTime)} />
+        )}
+      </View>
+      {loading ? (
+        <View
+          style={{
+            marginVertical: 8,
+          }}
+        >
+          <View
+            style={{
+              width: getDeviceWidth() - 60,
+              marginHorizontal: 30,
+            }}
+          >
+            <Skeleton
+              width={`${60}%`}
+              height={6}
+              style={{
+                marginBottom: 8,
+              }}
+            />
+            <Skeleton
+              width={`${100}%`}
+              height={6}
+              style={{
+                marginBottom: 8,
+              }}
+            />
+            <Skeleton
+              width={`${40}%`}
+              height={6}
+              style={{
+                marginBottom: 8,
+              }}
+            />
+          </View>
+          <View
+            style={{
+              width: getDeviceWidth() - 60,
+              marginHorizontal: 30,
+              marginVertical: 18,
+            }}
+          >
+            <Skeleton
+              width={`${60}%`}
+              height={6}
+              style={{
+                marginBottom: 8,
+              }}
+            />
+            <Skeleton
+              width={`${100}%`}
+              height={6}
+              style={{
+                marginBottom: 8,
+              }}
+            />
+            <Skeleton
+              width={`${40}%`}
+              height={6}
+              style={{
+                marginBottom: 8,
+              }}
+            />
+          </View>
+          <View
+            style={{
+              width: getDeviceWidth() - 60,
+              marginHorizontal: 30,
+            }}
+          >
+            <Skeleton
+              width={`${60}%`}
+              height={6}
+              style={{
+                marginBottom: 8,
+              }}
+            />
+            <Skeleton
+              width={`${100}%`}
+              height={6}
+              style={{
+                marginBottom: 8,
+              }}
+            />
+            <Skeleton
+              width={`${40}%`}
+              height={6}
+              style={{
+                marginBottom: 8,
+              }}
+            />
+          </View>
+        </View>
+      ) : (
+        missions &&
+        missions.map((mission, idx) => {
+          const { title, progress, progressToComplete, xpGrant } = mission;
+
+          const progressNumber = +(progress / progressToComplete).toFixed(2);
 
           return (
             <View key={idx} style={{ marginVertical: 8, width: "100%" }}>
-              <Text style={{ color: "white", fontSize: 16 }}>
-                {VMissions[ID as keyof typeof VMissions].title}
-              </Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Text style={{ color: colors.text }}>{title}</Text>
+                <Text style={{ color: colors.text, fontSize: 16 }}>
+                  {new Intl.NumberFormat("en", { notation: "standard" }).format(
+                    xpGrant
+                  ) + " XP"}
+                </Text>
+              </View>
               <ProgressBar
                 animatedValue={progressNumber}
                 style={{ marginVertical: 4 }}
                 color={MD3Colors.error50}
               />
-              <Text style={{ color: "white", fontSize: 16 }}>
-                {`${Objectives[Object.keys(Objectives)[0]]} / ${
-                  VMissions[mission.ID as keyof typeof VMissions].target
-                }`}
+              <Text style={{ color: colors.text }}>
+                {`${progress} / ${progressToComplete}`}
               </Text>
             </View>
           );
-        })} */}
+        })
+      )}
       <Button
         style={{
           width: "50%",
@@ -127,7 +245,7 @@ export default function MissionScreen() {
             alignItems: "center",
           }}
         >
-          <Text style={{ fontSize: 16, color: "white" }}>Battle Pass</Text>
+          <Text style={{ fontSize: 16, color: colors.text }}>Battle Pass</Text>
         </View>
       </Button>
     </View>
@@ -139,6 +257,5 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 30,
     alignItems: "center",
-    marginTop: StatusBar.currentHeight,
   },
 });

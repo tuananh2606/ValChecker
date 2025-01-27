@@ -239,3 +239,20 @@ interface ValorantCompetitiveTier {
   rankTriangleDownIcon?: string;
   rankTriangleUpIcon?: string;
 }
+
+interface ValorantMission {
+  uuid: string;
+  displayName?: string;
+  title: string;
+  type: string;
+  xpGrant: number;
+  progressToComplete: number;
+  activationDate: string;
+  expirationDate: string;
+  tags?: string;
+  objectives: {
+    objectiveUuid: string;
+    value: number;
+  }[];
+  assetPath: string;
+}

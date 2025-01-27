@@ -32,7 +32,7 @@ export default function Index() {
       if (region && accessToken) {
         const decoded = jwtDecode(accessToken as string);
         if ((decoded.exp as number) < Math.floor(Date.now() / 1000)) {
-          router.replace("/(login)");
+          router.replace("/(login)/login_webview");
         }
         try {
           await loadAssets();

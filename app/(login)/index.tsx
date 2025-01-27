@@ -1,9 +1,14 @@
-import { StyleSheet, View, Text, Pressable } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Pressable,
+  useColorScheme,
+} from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { useState } from "react";
 import { router } from "expo-router";
 import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme.web";
 import { useTranslation } from "react-i18next";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 

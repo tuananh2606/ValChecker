@@ -12,6 +12,7 @@ import {
   SharedValue,
   useAnimatedStyle,
 } from "react-native-reanimated";
+import { useAppTheme } from "@/app/_layout";
 
 const DOT_SIZE = 40;
 
@@ -26,6 +27,7 @@ const PaginationBattlePass = (
   ref: any
 ) => {
   const [act, setAct] = useState(activeIndex.value);
+  const { colors } = useAppTheme();
   return (
     <View style={[styles.pagination]}>
       <FlatList
@@ -54,7 +56,7 @@ const PaginationBattlePass = (
               <Text
                 style={[
                   {
-                    color: "white",
+                    color: colors.text,
                     textAlign: "center",
                   },
                 ]}

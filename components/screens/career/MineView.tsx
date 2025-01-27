@@ -10,6 +10,7 @@ import {
 import { fetchSeasons, getAssets } from "@/utils/valorant-assets";
 import { Image } from "expo-image";
 import Loading from "@/components/Loading";
+import { useAppTheme } from "@/app/_layout";
 
 const MineView = () => {
   const [playerLoadout, setPlayerLoadout] = useState<{
@@ -26,6 +27,7 @@ const MineView = () => {
     rankPoint: number;
     rank: ValorantCompetitiveTier;
   }>();
+  const { colors } = useAppTheme();
   const user = useUserStore((state) => state.user);
   const { cards, titles, competitiveTiers } = getAssets();
   const [loading, setLoading] = useState<boolean>(false);
@@ -101,7 +103,9 @@ const MineView = () => {
           flexDirection: "row",
         }}
       >
-        <Text style={{ fontSize: 16, color: "white" }}>{`${user.name}`}</Text>
+        <Text
+          style={{ fontSize: 16, color: colors.text }}
+        >{`${user.name}`}</Text>
         <Text
           style={{ fontSize: 16, color: "grey" }}
         >{`#${user.tagLine}`}</Text>
@@ -114,7 +118,7 @@ const MineView = () => {
         <View
           style={{
             position: "absolute",
-            top: 0,
+            top: -2,
             left: 0,
             right: 0,
             zIndex: 10,
@@ -123,7 +127,7 @@ const MineView = () => {
           <Text
             style={{
               fontSize: 16,
-              color: "white",
+              color: colors.text,
               textAlign: "center",
             }}
           >

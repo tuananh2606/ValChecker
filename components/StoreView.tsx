@@ -7,10 +7,11 @@ import SkinItem from "./card/SkinItem";
 import { getShop, parseShop } from "@/utils/valorant-api";
 import CurrencyFooter from "./CurrencyFooter";
 import useUserStore from "@/hooks/useUserStore";
+import { useAppTheme } from "@/app/_layout";
 
 const StoreView = () => {
   const user = useUserStore((state) => state.user);
-
+  const { colors } = useAppTheme();
   const { setUser } = useUserStore();
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(() => {
@@ -37,7 +38,7 @@ const StoreView = () => {
     }, 2000);
   }, []);
   return (
-    <View style={{ marginTop: 8 }}>
+    <View style={{ marginTop: 8, paddingHorizontal: 16 }}>
       <FlatList
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

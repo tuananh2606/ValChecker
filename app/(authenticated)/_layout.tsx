@@ -1,9 +1,8 @@
 import { Tabs } from "expo-router";
-import { Platform, StatusBar } from "react-native";
+import { Platform, useColorScheme } from "react-native";
 import { HapticTab } from "@/components/HapticTab";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 export default function TabLayout() {
@@ -14,7 +13,6 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         headerStyle: {
-          marginTop: StatusBar.currentHeight,
           backgroundColor: "black",
         },
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
@@ -25,7 +23,9 @@ export default function TabLayout() {
             // Use a transparent background on iOS to show the blur effect
             position: "absolute",
           },
-          default: {},
+          default: {
+            backgroundColor: "black",
+          },
         }),
       }}
     >

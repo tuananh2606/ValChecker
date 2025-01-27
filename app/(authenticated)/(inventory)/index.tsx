@@ -12,9 +12,10 @@ import {
 } from "react-native";
 import { fetchPlayerLoadout } from "@/utils/valorant-api";
 import { VSprayEquipSlot } from "@/utils/misc";
-import { Button } from "react-native-paper";
+import { Button, Title } from "react-native-paper";
 import { router } from "expo-router";
 import SprayItem from "@/components/SprayItem";
+import { useAppTheme } from "@/app/_layout";
 
 interface ISprayAccessory extends ValorantSprayAccessory {
   equipSlot: string;
@@ -27,6 +28,7 @@ export default function InventoryScreen() {
   }>();
   const user = useUserStore((state) => state.user);
   const { cards, sprays } = getAssets();
+  const { colors } = useAppTheme();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,20 +71,23 @@ export default function InventoryScreen() {
   return (
     <View
       style={{
+        flex: 1,
         paddingHorizontal: 10,
-        marginTop: StatusBar.currentHeight,
       }}
     >
+      <Title
+        style={{ textAlign: "center", color: colors.text, fontWeight: 700 }}
+      >
+        Inventory
+      </Title>
       <View>
-        <Text
+        <Title
           style={{
             fontSize: 20,
-            color: "white",
-            marginBottom: 10,
           }}
         >
           Card
-        </Text>
+        </Title>
         <TouchableWithoutFeedback onPress={() => router.push("/cards")}>
           <Image
             style={styles.image}
@@ -94,24 +99,16 @@ export default function InventoryScreen() {
         </TouchableWithoutFeedback>
       </View>
       <View>
-        <Text
+        <Title
           style={{
             fontSize: 20,
-            color: "white",
-            marginVertical: 10,
           }}
         >
           Spray
-        </Text>
-        <View
-          style={{
-            height: 300,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+        </Title>
+        <View style={styles.sprayContainer}>
           <SprayItem
-            styleContainer={{ top: 33, width: 160, height: 100 }}
+            styleContainer={{ top: 11, width: 160, height: 100 }}
             style={{ width: 160, height: 100 }}
             source={require("@/assets/images/top.png")}
             playerLoadout={playerLoadout?.sprays[0]}
@@ -130,7 +127,7 @@ export default function InventoryScreen() {
           />
           <SprayItem
             source={require("@/assets/images/bottom.png")}
-            styleContainer={{ bottom: 33, width: 160, height: 100 }}
+            styleContainer={{ bottom: 11, width: 160, height: 100 }}
             style={{ width: 160, height: 100 }}
             playerLoadout={playerLoadout?.sprays[2]}
           />
@@ -172,17 +169,12 @@ const styles = StyleSheet.create({
 
   image: {
     width: "100%",
-    height: 130,
+    height: 110,
   },
   sprayContainer: {
-    display: "flex",
+    position: "relative",
+    height: 250,
     justifyContent: "center",
     alignItems: "center",
-    position: "absolute",
-  },
-  sprayImage: {
-    backgroundColor: "red",
-    width: 70,
-    height: 70,
   },
 });
