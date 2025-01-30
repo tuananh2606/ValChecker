@@ -1,8 +1,13 @@
 import CardItem from "@/components/card/CardItem";
-import TabButtons from "@/components/TabButtons";
 import { getAssets } from "@/utils/valorant-assets";
-import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, View, StyleSheet, Animated } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  StyleSheet,
+  Animated,
+  ActivityIndicator,
+  Text,
+} from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { fetchPlayerOwnedItems } from "@/utils/valorant-api";
 import useUserStore from "@/hooks/useUserStore";
@@ -17,23 +22,33 @@ import {
 } from "react-native-pager-view";
 import { Pressable } from "react-native-gesture-handler";
 import { router } from "expo-router";
+import Pagination from "@/components/Pagination";
+import { FlashList } from "@shopify/flash-list";
 
-export const SwitchTabArray = [{ title: "Owned" }, { title: "All" }];
+export const SwitchTabArray = [
+  { title: "Owned", id: "owned" },
+  { title: "All", id: "all" },
+];
 
 export default function CardsScreen() {
-  const [ownedCards, setOwnedCards] = useState<ValorantCardAccessory[]>([]);
-  const [selectedTab, setSelectedTab] = useState<number>(0);
   const { cards } = getAssets();
+  const [loading, setLoading] = useState<boolean>(false);
   const [cardsData, setCardsData] = useState<ValorantCardAccessory[]>([]);
   const [ownedCardsData, setOwnedCardsData] = useState<ValorantCardAccessory[]>(
     []
   );
-  const [page, setPage] = useState<number>(1);
-  const [ownedPage, setOwnedPage] = useState<number>(1);
-  const { AnimatedPagerView, ref, ...rest } = usePagerView({ pagesAmount: 2 });
+  const { AnimatedPagerView, ref, setPage, activePage, ...rest } = usePagerView(
+    {
+      pagesAmount: 2,
+    }
+  );
+  const scrollOffsetAnimatedValue = React.useRef(new Animated.Value(0)).current;
+  const positionAnimatedValue = React.useRef(new Animated.Value(0)).current;
+
   const user = useUserStore((state) => state.user);
   useEffect(() => {
     const fetchCards = async () => {
+      setLoading(true);
       let accessToken = (await SecureStore.getItemAsync(
         "access_token"
       )) as string;
@@ -49,92 +64,42 @@ export default function CardsScreen() {
       );
 
       const newCards = convertOwnedItemIDToItem(ownedCards);
-      setOwnedCards(newCards as ValorantCardAccessory[]);
-      setOwnedCardsData((newCards as ValorantCardAccessory[]).slice(0, 50));
+      setOwnedCardsData(newCards as ValorantCardAccessory[]);
     };
     fetchCards();
-    setCardsData(cards.slice(0, 50));
+    setCardsData(cards);
+    setLoading(false);
   }, []);
 
-  const handleLoadMore = () => {
-    if (selectedTab === 0) {
-      setOwnedPage((prevPage) => prevPage + 1);
-      const newCards = ownedCards.slice(ownedPage * 50, ownedPage * 50 + 50);
-      setOwnedCardsData((prev) => [...prev, ...newCards]);
-    } else {
-      setPage((prevPage) => prevPage + 1);
-      const newCards = cards.slice(page * 50, page * 50 + 50);
-      setCardsData((prev) => [...prev, ...newCards]);
-    }
-  };
-
-  const renderItem = useCallback(
-    ({ item }: { item: ValorantCardAccessory; index: number }) => (
-      <Pressable
-        onPress={() =>
-          router.push({
-            pathname: "/details-item/[id]",
-            params: { id: item.uuid, type: "card" },
-          })
-        }
-      >
-        <CardItem data={item} />
-      </Pressable>
-    ),
-    []
+  const renderItem = ({ item }: { item: ValorantCardAccessory }) => (
+    <Pressable
+      onPress={() =>
+        router.push({
+          pathname: "/details-item/[id]",
+          params: { id: item.uuid, type: "card" },
+        })
+      }
+    >
+      <CardItem data={item} />
+    </Pressable>
   );
-  const scrollOffsetAnimatedValue = React.useRef(new Animated.Value(0)).current;
-  const positionAnimatedValue = React.useRef(new Animated.Value(0)).current;
 
   return (
     <View style={styles.container}>
-      <View style={{ alignItems: "flex-end", marginBottom: 8 }}>
-        <View style={{ width: 150 }}>
-          <TabButtons
-            buttons={SwitchTabArray}
-            selectedTab={selectedTab}
-            setSelectedTab={setSelectedTab}
-          />
-        </View>
+      <View
+        style={{
+          alignItems: "flex-end",
+          marginBottom: 8,
+        }}
+      >
+        <Pagination
+          buttons={SwitchTabArray}
+          setPage={setPage}
+          scrollOffsetAnimatedValue={scrollOffsetAnimatedValue}
+          positionAnimatedValue={positionAnimatedValue}
+        />
       </View>
 
-      {/* {selectedTab === 0 ? (
-        <FlatList
-          key={`tab-1`}
-          numColumns={5}
-          horizontal={false}
-          bounces={false}
-          data={ownedCardsData}
-          contentContainerStyle={{
-            gap: 4,
-          }}
-          columnWrapperStyle={{
-            gap: 4,
-          }}
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-          renderItem={({ item }) => <CardItem data={item} />}
-          keyExtractor={(item) => item.uuid}
-        />
-      ) : (
-        <FlatList
-          key={`tab-2`}
-          numColumns={5}
-          horizontal={false}
-          bounces={false}
-          data={cardsData}
-          contentContainerStyle={{
-            gap: 4,
-          }}
-          columnWrapperStyle={{
-            gap: 4,
-          }}
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-          renderItem={({ item }) => <CardItem data={item} />}
-          keyExtractor={(item) => item.uuid}
-        />
-      )} */}
       <AnimatedPagerView
         ref={ref}
         style={{
@@ -142,7 +107,6 @@ export default function CardsScreen() {
         }}
         initialPage={0}
         overdrag={false}
-        scrollEnabled={rest.scrollEnabled}
         onPageScroll={Animated.event<PagerViewOnPageScrollEventData>(
           [
             {
@@ -157,55 +121,35 @@ export default function CardsScreen() {
             useNativeDriver: true,
           }
         )}
-        onPageSelected={rest.onPageSelected}
-        onPageScrollStateChanged={rest.onPageScrollStateChanged}
-        pageMargin={10}
-        orientation="horizontal"
       >
-        <View>
-          <FlatList
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <FlashList
             numColumns={5}
-            horizontal={false}
-            bounces={false}
+            ItemSeparatorComponent={() => (
+              <View
+                style={{
+                  marginTop: 4,
+                }}
+              ></View>
+            )}
             data={ownedCardsData}
-            contentContainerStyle={{
-              gap: 4,
-            }}
-            columnWrapperStyle={{
-              gap: 4,
-            }}
-            onEndReached={handleLoadMore}
-            onEndReachedThreshold={0.5}
             renderItem={renderItem}
-            keyExtractor={(item) => item.uuid}
-            getItemLayout={(data, index) => ({
-              length: getDeviceWidth() / 5 - 4,
-              offset: (getDeviceWidth() / 5 - 4) * index,
-              index,
-            })}
+            estimatedItemSize={getDeviceWidth() / 5}
           />
         </View>
-        <View>
-          <FlatList
+        <View style={{ flex: 1 }}>
+          <FlashList
             numColumns={5}
-            horizontal={false}
-            bounces={false}
+            ItemSeparatorComponent={() => (
+              <View
+                style={{
+                  marginTop: 4,
+                }}
+              ></View>
+            )}
             data={cardsData}
-            contentContainerStyle={{
-              gap: 4,
-            }}
-            columnWrapperStyle={{
-              gap: 4,
-            }}
-            onEndReached={handleLoadMore}
-            onEndReachedThreshold={0.5}
             renderItem={renderItem}
-            keyExtractor={(item) => item.uuid}
-            getItemLayout={(data, index) => ({
-              length: getDeviceWidth() / 5 - 4,
-              offset: (getDeviceWidth() / 5 - 4) * index,
-              index,
-            })}
+            estimatedItemSize={getDeviceWidth() / 5}
           />
         </View>
       </AnimatedPagerView>
@@ -217,4 +161,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-const AllView = () => {};

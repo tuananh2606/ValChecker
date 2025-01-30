@@ -46,8 +46,8 @@ export default function SettingScreen() {
   };
 
   const toggleNotificationEnabled = async () => {
-    setNotificationEnabled(!notificationEnabled);
     if (!notificationEnabled) {
+      setNotificationEnabled(true);
       const permission = await Notifications.requestPermissionsAsync();
       if (permission.granted) {
         await initBackgroundFetch();
@@ -62,6 +62,7 @@ export default function SettingScreen() {
         );
       }
     } else {
+      setNotificationEnabled(false);
       await stopBackgroundFetch();
       ToastAndroid.show(t("wishlist.notification.disabled"), ToastAndroid.LONG);
     }
@@ -96,7 +97,7 @@ export default function SettingScreen() {
             borderRadius: 10,
           }}
         >
-          <List.Item
+          {/* <List.Item
             left={() => (
               <View
                 style={{
@@ -119,7 +120,7 @@ export default function SettingScreen() {
               />
             )}
           />
-          <Divider />
+          <Divider /> */}
           <TouchableRipple
             onPress={() => {
               startActivityAsync(ActivityAction.LOCALE_SETTINGS);

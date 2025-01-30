@@ -144,7 +144,7 @@ export default function InventoryScreen() {
           mode="contained"
           buttonColor="#ff4654"
           dark
-          onPress={() => router.push("/skins")}
+          onPress={() => router.push("/(authenticated)/(inventory)/(skins)")}
         >
           Weapon Inventory
         </Button>

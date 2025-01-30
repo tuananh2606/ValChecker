@@ -26,7 +26,7 @@ const CombinedDarkTheme = {
   colors: {
     ...merge(MD3DarkTheme.colors, DarkTheme.colors),
     background: "#000000",
-    surface: "#3f3f3f",
+    surface: "#151718",
     primary: "#fa4454",
     tint: "#ffffff",
   },
@@ -83,7 +83,10 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView
-      style={{ flex: 1, backgroundColor: CombinedDarkTheme.colors.background }}
+      style={{
+        flex: 1,
+        backgroundColor: CombinedDarkTheme.colors.background,
+      }}
       onLayout={onLayoutRootView}
     >
       <PaperProvider theme={CombinedDarkTheme}>
@@ -107,6 +110,9 @@ export default function RootLayout() {
               name="modal"
               options={{
                 headerTitle: "",
+                headerStyle: {
+                  backgroundColor: "black",
+                },
                 animation: "default",
                 presentation: "modal",
               }}

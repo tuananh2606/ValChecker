@@ -1,5 +1,4 @@
 import { Colors } from "@/constants/Colors";
-import { getDeviceWidth } from "@/utils/misc";
 import { useState } from "react";
 import {
   Dimensions,

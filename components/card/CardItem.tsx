@@ -5,17 +5,16 @@ import { memo } from "react";
 
 interface Props {
   data: ValorantCardAccessory | ValorantSprayAccessory | ValorantBuddyAccessory;
-  isActive?: boolean;
 }
 
-const CardItem = ({ data, isActive }: Props) => {
+const CardItem = ({ data }: Props) => {
   return (
     <View
       style={{
         height: getDeviceWidth() / 5 - 4,
         width: getDeviceWidth() / 5 - 4,
         borderWidth: 1,
-        borderColor: isActive ? "red" : "grey",
+        borderColor: "grey",
       }}
     >
       <Image

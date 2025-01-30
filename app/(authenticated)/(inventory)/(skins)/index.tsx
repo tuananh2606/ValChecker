@@ -9,8 +9,14 @@ import {
   useRef,
   useState,
 } from "react";
-import { View, Text, StyleSheet, useColorScheme } from "react-native";
-import { Divider, Title, TouchableRipple } from "react-native-paper";
+import {
+  View,
+  Text,
+  StyleSheet,
+  useColorScheme,
+  Pressable,
+} from "react-native";
+import { Divider, FAB, Title, TouchableRipple } from "react-native-paper";
 import * as SecureStore from "expo-secure-store";
 import { fetchPlayerOwnedItems } from "@/utils/valorant-api";
 import { convertOwnedItemIDToItem, VOwnedItemType } from "@/utils/misc";
@@ -24,7 +30,9 @@ import BottomSheet, {
 } from "@gorhom/bottom-sheet";
 import { Colors } from "@/constants/Colors";
 import Loading from "@/components/Loading";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { useAppTheme } from "@/app/_layout";
+import { router } from "expo-router";
 
 const noMeleeFilter = [
   "Vandal",
@@ -76,10 +84,10 @@ const filterSelect = [
 ];
 export default function SkinsScreen() {
   const navigation = useNavigation();
+  const { colors } = useAppTheme();
   const [ownedSkins, setOwnedSkins] = useState<ValorantSkin[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { skins } = getAssets();
-  const [ownedSkinsData, setOwnedSkinsData] = useState<ValorantSkin[]>([]);
   const [filteredSkins, setFilteredSkins] = useState<(string | ValorantSkin)[]>(
     []
   );
@@ -116,7 +124,6 @@ export default function SkinsScreen() {
       const newSkins = convertOwnedItemIDToItem(ownedSkins);
 
       setOwnedSkins(newSkins as ValorantSkin[]);
-      setOwnedSkinsData((newSkins as ValorantSkin[]).slice(0, 50));
       setLoading(false);
     };
     fetchSkins();
@@ -126,7 +133,7 @@ export default function SkinsScreen() {
     sheetRef.current?.close();
     flashListRef.current?.scrollToOffset({ animated: false, offset: 0 });
     if (title === "Melee") {
-      const ownedSkin = ownedSkinsData.filter(
+      const ownedSkin = ownedSkins.filter(
         (skin) => !noMeleeFilter.some((s) => skin.displayName.includes(s))
       );
       const remainingSkin = skins.filter(
@@ -137,10 +144,10 @@ export default function SkinsScreen() {
       handleTotalCollectionCount(ownedSkin);
       setFilteredSkins(["Owned", ...ownedSkin, "Not Owned", ...remainingSkin]);
     } else if (title === "Owned") {
-      handleTotalCollectionCount(ownedSkinsData);
-      setFilteredSkins(["Owned", ...ownedSkinsData]);
+      handleTotalCollectionCount(ownedSkins);
+      setFilteredSkins(["Owned", ...ownedSkins]);
     } else {
-      const ownedSkin = ownedSkinsData.filter((skin) =>
+      const ownedSkin = ownedSkins.filter((skin) =>
         skin.displayName.includes(title)
       );
       const remainingSkin = skins.filter(
@@ -159,9 +166,9 @@ export default function SkinsScreen() {
   };
 
   useEffect(() => {
-    handleTotalCollectionCount(ownedSkinsData);
-    setFilteredSkins(["Owned", ...ownedSkinsData.sort(customSort())]);
-  }, [ownedSkinsData]);
+    handleTotalCollectionCount(ownedSkins);
+    setFilteredSkins(["Owned", ...ownedSkins.sort(customSort())]);
+  }, [ownedSkins]);
 
   const stickyHeaderIndices = filteredSkins
     .map((item, index) => {
@@ -223,14 +230,14 @@ export default function SkinsScreen() {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity onPress={() => sheetRef.current?.collapse()}>
+        <TouchableWithoutFeedback onPress={() => sheetRef.current?.collapse()}>
           <MaterialIcons
             name="filter-list"
             size={24}
             color="white"
             style={{ marginLeft: 8 }}
           />
-        </TouchableOpacity>
+        </TouchableWithoutFeedback>
       ),
     });
   }, [navigation]);
@@ -337,6 +344,13 @@ export default function SkinsScreen() {
         }}
         estimatedItemSize={150}
       />
+      <FAB
+        icon={() => (
+          <MaterialIcons name="search" size={24} color={colors.tint} />
+        )}
+        style={[styles.fab, { backgroundColor: colors.primary }]}
+        onPress={() => router.push("/search")}
+      />
       <BottomSheet
         ref={sheetRef}
         index={-1}
@@ -406,7 +420,12 @@ const styles = StyleSheet.create({
   itemContainer: {
     paddingVertical: 8,
     paddingHorizontal: 16,
-
     justifyContent: "center",
+  },
+  fab: {
+    position: "absolute",
+    margin: 16,
+    right: 0,
+    bottom: 0,
   },
 });

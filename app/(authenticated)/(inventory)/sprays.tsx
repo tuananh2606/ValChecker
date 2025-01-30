@@ -2,7 +2,7 @@ import CardItem from "@/components/card/CardItem";
 import useUserStore from "@/hooks/useUserStore";
 import { getAssets } from "@/utils/valorant-assets";
 import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, Animated } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { fetchPlayerOwnedItems } from "@/utils/valorant-api";
 import {
@@ -10,10 +10,16 @@ import {
   getDeviceWidth,
   VOwnedItemType,
 } from "@/utils/misc";
-import TabButtons from "@/components/TabButtons";
 import { SwitchTabArray } from "./cards";
 import { Image } from "expo-image";
 import { useLocalSearchParams } from "expo-router";
+
+import Pagination from "@/components/Pagination";
+import {
+  PagerViewOnPageScrollEventData,
+  usePagerView,
+} from "react-native-pager-view";
+import { FlashList } from "@shopify/flash-list";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 export default function SpraysScreen() {
@@ -22,20 +28,20 @@ export default function SpraysScreen() {
   const [spray, setSpray] = useState<{
     source: string;
     title: string;
-    activeIndex: number;
   }>({
-    activeIndex: 0,
     source: "",
     title: "",
   });
-  const [selectedTab, setSelectedTab] = useState<number>(0);
+
   const { sprays } = getAssets();
-  const [spraysData, setSpraysData] = useState<ValorantSprayAccessory[]>([]);
-  const [ownedSpraysData, setOwnedSpraysData] = useState<
-    ValorantSprayAccessory[]
-  >([]);
-  const [page, setPage] = useState<number>(1);
-  const [ownedPage, setOwnedPage] = useState<number>(1);
+
+  const { AnimatedPagerView, ref, setPage, activePage, ...rest } = usePagerView(
+    {
+      pagesAmount: 2,
+    }
+  );
+  const scrollOffsetAnimatedValue = React.useRef(new Animated.Value(0)).current;
+  const positionAnimatedValue = React.useRef(new Animated.Value(0)).current;
 
   const user = useUserStore((state) => state.user);
   useEffect(() => {
@@ -53,42 +59,33 @@ export default function SpraysScreen() {
         user.id,
         VOwnedItemType.Sprays
       );
-
       const newSprays = convertOwnedItemIDToItem(ownedSprays);
       setOwnedSprays(newSprays as ValorantSprayAccessory[]);
-      setOwnedSpraysData((newSprays as ValorantSprayAccessory[]).slice(0, 50));
     };
     fetchSprays();
-    setSpraysData(sprays.slice(0, 50));
   }, []);
 
-  const handleLoadMore = () => {
-    if (selectedTab === 0) {
-      setOwnedPage((prevPage) => prevPage + 1);
-      const newSprays = ownedSprays.slice(ownedPage * 50, ownedPage * 50 + 50);
-      setOwnedSpraysData((prev) => [...prev, ...newSprays]);
-    } else {
-      setPage((prevPage) => prevPage + 1);
-      const newSprays = sprays.slice(page * 50, page * 50 + 50);
-      setSpraysData((prev) => [...prev, ...newSprays]);
-    }
-  };
-  const renderItem = useCallback(
-    ({ item, index }: { item: ValorantSprayAccessory; index: number }) => (
+  const renderItem = ({
+    item,
+    index,
+  }: {
+    item: ValorantSprayAccessory;
+    index: number;
+  }) => {
+    return (
       <TouchableWithoutFeedback
-        onPress={() =>
+        onPress={() => {
           setSpray({
-            activeIndex: index,
             title: item.displayName,
             source: item.fullTransparentIcon,
-          })
-        }
+          });
+        }}
       >
-        <CardItem data={item} isActive={spray.activeIndex === index} />
+        <CardItem data={item} />
       </TouchableWithoutFeedback>
-    ),
-    [spray]
-  );
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View
@@ -120,63 +117,73 @@ export default function SpraysScreen() {
           }}
         />
       </View>
-      <View style={{ alignItems: "flex-end", marginBottom: 8 }}>
-        <View style={{ width: 150 }}>
-          <TabButtons
-            buttons={SwitchTabArray}
-            selectedTab={selectedTab}
-            setSelectedTab={setSelectedTab}
-          />
-        </View>
+      <View
+        style={{
+          alignItems: "flex-end",
+          marginBottom: 8,
+        }}
+      >
+        <Pagination
+          buttons={SwitchTabArray}
+          setPage={setPage}
+          scrollOffsetAnimatedValue={scrollOffsetAnimatedValue}
+          positionAnimatedValue={positionAnimatedValue}
+        />
       </View>
 
-      {selectedTab === 0 ? (
-        <FlatList
-          key={`tab-1`}
-          numColumns={5}
-          horizontal={false}
-          bounces={false}
-          data={ownedSpraysData}
-          contentContainerStyle={{
-            gap: 4,
-          }}
-          columnWrapperStyle={{
-            gap: 4,
-          }}
-          getItemLayout={(data, index) => ({
-            length: getDeviceWidth() / 5 - 4,
-            offset: (getDeviceWidth() / 5 - 4) * index,
-            index,
-          })}
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.uuid}
-        />
-      ) : (
-        <FlatList
-          key={`tab-2`}
-          numColumns={5}
-          horizontal={false}
-          bounces={false}
-          data={spraysData}
-          contentContainerStyle={{
-            gap: 4,
-          }}
-          columnWrapperStyle={{
-            gap: 4,
-          }}
-          getItemLayout={(data, index) => ({
-            length: getDeviceWidth() / 5 - 4,
-            offset: (getDeviceWidth() / 5 - 4) * index,
-            index,
-          })}
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.uuid}
-        />
-      )}
+      <AnimatedPagerView
+        ref={ref}
+        style={{
+          flex: 1,
+        }}
+        initialPage={0}
+        overdrag={false}
+        onPageScroll={Animated.event<PagerViewOnPageScrollEventData>(
+          [
+            {
+              nativeEvent: {
+                offset: scrollOffsetAnimatedValue,
+                position: positionAnimatedValue,
+              },
+            },
+          ],
+          {
+            listener: ({ nativeEvent: { offset, position } }) => {},
+            useNativeDriver: true,
+          }
+        )}
+      >
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <FlashList
+            numColumns={5}
+            ItemSeparatorComponent={() => (
+              <View
+                style={{
+                  marginTop: 4,
+                }}
+              ></View>
+            )}
+            data={ownedSprays}
+            renderItem={renderItem}
+            estimatedItemSize={getDeviceWidth() / 5}
+          />
+        </View>
+        <View style={{ flex: 1 }}>
+          <FlashList
+            numColumns={5}
+            ItemSeparatorComponent={() => (
+              <View
+                style={{
+                  marginTop: 4,
+                }}
+              ></View>
+            )}
+            data={sprays}
+            renderItem={renderItem}
+            estimatedItemSize={getDeviceWidth() / 5}
+          />
+        </View>
+      </AnimatedPagerView>
     </View>
   );
 }

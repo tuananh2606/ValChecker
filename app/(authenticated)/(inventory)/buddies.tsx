@@ -2,7 +2,7 @@ import CardItem from "@/components/card/CardItem";
 import useUserStore from "@/hooks/useUserStore";
 import { getAssets } from "@/utils/valorant-assets";
 import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, View, StyleSheet, Text } from "react-native";
+import { FlatList, View, StyleSheet, Text, Animated } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { fetchPlayerOwnedItems } from "@/utils/valorant-api";
 import {
@@ -15,6 +15,12 @@ import { SwitchTabArray } from "./cards";
 import { Image } from "expo-image";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { useAppTheme } from "@/app/_layout";
+import Pagination from "@/components/Pagination";
+import {
+  PagerViewOnPageScrollEventData,
+  usePagerView,
+} from "react-native-pager-view";
+import { FlashList } from "@shopify/flash-list";
 
 export default function BuddiesScreen() {
   const [ownedBuddies, setOwnedBuddies] = useState<ValorantBuddyAccessory[]>(
@@ -23,22 +29,21 @@ export default function BuddiesScreen() {
   const [buddy, setBuddy] = useState<{
     source: string;
     title: string;
-    activeIndex?: number;
   }>({
-    activeIndex: undefined,
     source: "",
     title: "",
   });
-  const [selectedTab, setSelectedTab] = useState<number>(0);
+
   const { buddies } = getAssets();
-  const [buddiesData, setBuddiesData] = useState<ValorantBuddyAccessory[]>([]);
-  const [ownedBuddiesData, setOwnedBuddiesData] = useState<
-    ValorantBuddyAccessory[]
-  >([]);
-  const [page, setPage] = useState<number>(1);
-  const [ownedPage, setOwnedPage] = useState<number>(1);
   const { colors } = useAppTheme();
   const user = useUserStore((state) => state.user);
+  const { AnimatedPagerView, ref, setPage, activePage, ...rest } = usePagerView(
+    {
+      pagesAmount: 2,
+    }
+  );
+  const scrollOffsetAnimatedValue = React.useRef(new Animated.Value(0)).current;
+  const positionAnimatedValue = React.useRef(new Animated.Value(0)).current;
   useEffect(() => {
     const fetchBuddies = async () => {
       let accessToken = (await SecureStore.getItemAsync(
@@ -56,52 +61,29 @@ export default function BuddiesScreen() {
       );
       const newBuddies = convertOwnedItemIDToItem(ownedBuddies);
       setOwnedBuddies(newBuddies as ValorantBuddyAccessory[]);
-      setOwnedBuddiesData(
-        (newBuddies as ValorantBuddyAccessory[]).slice(0, 50)
-      );
+      setBuddy({
+        title: (newBuddies as ValorantBuddyAccessory[])[0].displayName,
+        source: (newBuddies as ValorantBuddyAccessory[])[0].levels[0]
+          .displayIcon,
+      });
     };
     fetchBuddies();
-    setBuddiesData(buddies.slice(0, 50));
   }, []);
-
-  useEffect(() => {
-    setBuddy({
-      activeIndex: undefined,
-      title: "",
-      source: "",
-    });
-  }, [selectedTab]);
-
-  const handleLoadMore = () => {
-    if (selectedTab === 0) {
-      setOwnedPage((prevPage) => prevPage + 1);
-      const newBuddies = ownedBuddies.slice(
-        ownedPage * 50,
-        ownedPage * 50 + 50
-      );
-      setOwnedBuddiesData((prev) => [...prev, ...newBuddies]);
-    } else {
-      setPage((prevPage) => prevPage + 1);
-      const newBuddies = buddies.slice(page * 50, page * 50 + 50);
-      setBuddiesData((prev) => [...prev, ...newBuddies]);
-    }
-  };
 
   const renderItem = useCallback(
     ({ item, index }: { item: ValorantBuddyAccessory; index: number }) => (
       <TouchableWithoutFeedback
         onPress={() =>
           setBuddy({
-            activeIndex: index,
             title: item.displayName,
             source: item.levels[0].displayIcon,
           })
         }
       >
-        <CardItem data={item} isActive={buddy.activeIndex === index} />
+        <CardItem data={item} />
       </TouchableWithoutFeedback>
     ),
-    [buddy]
+    []
   );
 
   return (
@@ -135,63 +117,73 @@ export default function BuddiesScreen() {
           }}
         />
       </View>
-      <View style={{ alignItems: "flex-end", marginBottom: 8 }}>
-        <View style={{ width: 150 }}>
-          <TabButtons
-            buttons={SwitchTabArray}
-            selectedTab={selectedTab}
-            setSelectedTab={setSelectedTab}
-          />
-        </View>
+      <View
+        style={{
+          alignItems: "flex-end",
+          marginVertical: 8,
+        }}
+      >
+        <Pagination
+          buttons={SwitchTabArray}
+          setPage={setPage}
+          scrollOffsetAnimatedValue={scrollOffsetAnimatedValue}
+          positionAnimatedValue={positionAnimatedValue}
+        />
       </View>
 
-      {selectedTab === 0 ? (
-        <FlatList
-          key={`tab-1`}
-          numColumns={5}
-          horizontal={false}
-          bounces={false}
-          data={ownedBuddiesData}
-          contentContainerStyle={{
-            gap: 4,
-          }}
-          columnWrapperStyle={{
-            gap: 4,
-          }}
-          getItemLayout={(data, index) => ({
-            length: getDeviceWidth() / 5 - 4,
-            offset: (getDeviceWidth() / 5 - 4) * index,
-            index,
-          })}
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.uuid}
-        />
-      ) : (
-        <FlatList
-          key={`tab-2`}
-          numColumns={5}
-          horizontal={false}
-          bounces={false}
-          data={buddiesData}
-          contentContainerStyle={{
-            gap: 4,
-          }}
-          columnWrapperStyle={{
-            gap: 4,
-          }}
-          getItemLayout={(data, index) => ({
-            length: getDeviceWidth() / 5 - 4,
-            offset: (getDeviceWidth() / 5 - 4) * index,
-            index,
-          })}
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.uuid}
-        />
-      )}
+      <AnimatedPagerView
+        ref={ref}
+        style={{
+          flex: 1,
+        }}
+        initialPage={0}
+        overdrag={false}
+        onPageScroll={Animated.event<PagerViewOnPageScrollEventData>(
+          [
+            {
+              nativeEvent: {
+                offset: scrollOffsetAnimatedValue,
+                position: positionAnimatedValue,
+              },
+            },
+          ],
+          {
+            listener: ({ nativeEvent: { offset, position } }) => {},
+            useNativeDriver: true,
+          }
+        )}
+      >
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <FlashList
+            numColumns={5}
+            ItemSeparatorComponent={() => (
+              <View
+                style={{
+                  marginTop: 4,
+                }}
+              ></View>
+            )}
+            data={ownedBuddies}
+            renderItem={renderItem}
+            estimatedItemSize={getDeviceWidth() / 5}
+          />
+        </View>
+        <View style={{ flex: 1 }}>
+          <FlashList
+            numColumns={5}
+            ItemSeparatorComponent={() => (
+              <View
+                style={{
+                  marginTop: 4,
+                }}
+              ></View>
+            )}
+            data={buddies}
+            renderItem={renderItem}
+            estimatedItemSize={getDeviceWidth() / 5}
+          />
+        </View>
+      </AnimatedPagerView>
     </View>
   );
 }

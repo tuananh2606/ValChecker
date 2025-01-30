@@ -1,5 +1,4 @@
-import { Colors } from "@/constants/Colors";
-import { StyleSheet, Image, View, Text, useColorScheme } from "react-native";
+import { StyleSheet, Image, View, Text } from "react-native";
 import { Card, ProgressBar } from "react-native-paper";
 import { router } from "expo-router";
 import { useAppTheme } from "@/app/_layout";
@@ -20,7 +19,6 @@ const BattlePassItem = ({
   ProgressionLevelReached,
 }: IBattlePassItem) => {
   const { displayName, displayIcon, type } = data;
-  const colorScheme = useColorScheme();
   const { colors } = useAppTheme();
   const hanndleTitleImage = (type?: string, uri?: string) => {
     return type === "Title"

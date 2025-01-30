@@ -86,14 +86,15 @@ export default function LoginScreen() {
           .catch((error) => {
             console.log(error);
           })
-          .finally(() => router.replace("/(authenticated)/(store)"));
+          .finally(() => {
+            setLoading(false);
+            router.replace("/(authenticated)/(store)");
+          });
       } catch (e) {
         if (!__DEV__) {
           await CookieManager.clearAll(true);
           router.replace("/(login)"); // Fallback to setup, so user doesn't get stuck
         }
-      } finally {
-        setLoading(false);
       }
     }
   };

@@ -8,7 +8,7 @@ export default function Modal() {
   const { source } = useLocalSearchParams();
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <Image
         contentFit="contain"
         style={styles.image}

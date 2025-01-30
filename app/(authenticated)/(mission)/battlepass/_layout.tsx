@@ -1,7 +1,7 @@
 import { useAppTheme } from "@/app/_layout";
 import { Stack } from "expo-router";
 
-export default function StoreLayout() {
+export default function BattlepassLayout() {
   const { colors } = useAppTheme();
   return (
     <Stack
@@ -11,8 +11,14 @@ export default function StoreLayout() {
         },
       }}
     >
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="battlepass" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="index"
+        options={{
+          headerTitle: "Battle Pass",
+          headerTitleAlign: "center",
+          presentation: "modal",
+        }}
+      />
     </Stack>
   );
 }
