@@ -16,7 +16,7 @@
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.ndta.valchecker"
+      "package": "com.bjjitaccll01.ValChecker"
     },
     "androidStatusBar": {
       "backgroundColor": "#000000",
