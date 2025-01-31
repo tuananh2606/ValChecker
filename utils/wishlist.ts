@@ -80,9 +80,8 @@ export async function checkShop(wishlist: string[]) {
       }
     }
     const trigger = new Date();
-    trigger.setHours(31);
-    trigger.setMinutes(0);
-    trigger.setSeconds(0);
+    trigger.setHours(7, 0, 0);
+
     if (wishlistSkin.length > 0) {
       await Notifications.scheduleNotificationAsync({
         content: {
@@ -91,7 +90,7 @@ export async function checkShop(wishlist: string[]) {
             displayname: wishlistSkin.join(", "),
           }),
         },
-        trigger,
+        trigger: trigger,
       });
       hit = true;
     }
@@ -100,7 +99,7 @@ export async function checkShop(wishlist: string[]) {
         content: {
           body: i18n.t("wishlist.notification.no_hit"),
         },
-        trigger,
+        trigger: trigger,
       });
     }
   } catch (e) {
@@ -121,7 +120,7 @@ export async function checkShop(wishlist: string[]) {
 export async function initBackgroundFetch() {
   await BackgroundFetch.configure(
     {
-      minimumFetchInterval: 60,
+      minimumFetchInterval: 15,
       stopOnTerminate: false,
       enableHeadless: true,
       startOnBoot: true,
