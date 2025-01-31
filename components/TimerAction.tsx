@@ -1,14 +1,20 @@
-import { View, Text, StyleSheet, useColorScheme } from "react-native";
+import { View, Text, StyleSheet, StyleProp, TextStyle } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useEffect, useState } from "react";
 import { convertSecstoHhMmSs } from "@/utils/misc";
-import { Colors } from "@/constants/Colors";
+import { useAppTheme } from "@/app/_layout";
 interface Props {
   remainingSecs: number;
+  leadIconStyles?: StyleProp<TextStyle>;
+  contentStyles?: StyleProp<TextStyle>;
 }
 
-const TimerAction = ({ remainingSecs }: Props) => {
-  const colorScheme = useColorScheme();
+const TimerAction = ({
+  remainingSecs,
+  leadIconStyles,
+  contentStyles = { fontSize: 16 },
+}: Props) => {
+  const { colors } = useAppTheme();
   const [diff, setDiff] = useState(remainingSecs);
   useEffect(() => {
     const interval = setInterval(() => {
@@ -22,15 +28,18 @@ const TimerAction = ({ remainingSecs }: Props) => {
       <View style={styles.timerContainer}>
         <MaterialIcons
           name="access-time"
+          style={[leadIconStyles]}
           size={18}
-          color={Colors[colorScheme ?? "light"].icon}
+          color={colors.tint}
         />
         <Text
-          style={{
-            fontSize: 16,
-            marginLeft: 2,
-            color: Colors[colorScheme ?? "light"].text,
-          }}
+          style={[
+            contentStyles,
+            {
+              marginLeft: 2,
+              color: colors.text,
+            },
+          ]}
         >
           {convertSecstoHhMmSs(diff)}
         </Text>
@@ -44,7 +53,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginVertical: 8,
   },
   timerContainer: {
     flexDirection: "row",

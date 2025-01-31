@@ -570,6 +570,25 @@ export async function fetchPlayerMMR(
   return res.data;
 }
 
+export async function fetchPlayerXP(
+  accessToken: string,
+  entitlementsToken: string,
+  region: string,
+  userId: string
+) {
+  const res = await axios.request<AccountXPResponse>({
+    url: getUrl("playerXP", region, userId),
+    method: "GET",
+    headers: {
+      ...extraHeaders(),
+      Authorization: `Bearer ${accessToken}`,
+      "X-Riot-Entitlements-JWT": entitlementsToken,
+    },
+  });
+
+  return res.data;
+}
+
 export const reAuth = (version: string) =>
   axios.request({
     url: "https://auth.riotgames.com/api/v1/authorization",
@@ -622,6 +641,7 @@ function getUrl(
     player: `https://pd.${region}.a.pvp.net/personalization/v2/players/${userId}/playerloadout`,
     ownedItem: `https://pd.${region}.a.pvp.net/store/v1/entitlements/${userId}/${itemTypeID}`,
     playerMMR: `https://pd.${region}.a.pvp.net/mmr/v1/players/${userId}`,
+    playerXP: `https://pd.${region}.a.pvp.net/account-xp/v1/players/${userId}`,
     leaderboard: `https://pd.${region}.a.pvp.net/mmr/v1/leaderboards/affinity/${region}/queue/competitive/season/${seasonId}?startIndex=${startIndex}&size=${size}
 `,
   };

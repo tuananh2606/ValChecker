@@ -5,7 +5,7 @@ import {
   Title,
   TouchableRipple,
 } from "react-native-paper";
-import { StyleSheet, View, ToastAndroid } from "react-native";
+import { StyleSheet, View, ToastAndroid, Text } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useUserStore from "@/hooks/useUserStore";
 import { defaultUser } from "@/utils/valorant-api";
@@ -184,6 +184,20 @@ export default function SettingScreen() {
       >
         {t("logout")}
       </Button>
+      <Text
+        style={{
+          textAlign: "center",
+          fontSize: 12,
+          color: "gray",
+          marginTop: 10,
+          paddingHorizontal: 15,
+        }}
+      >
+        VShop is not endorsed by Riot Games in any way.
+        {"\n"}
+        Riot Games, Valorant, and all associated properties are trademarks or
+        registered trademarks of Riot Games, Inc.
+      </Text>
     </View>
   );
 }
@@ -192,6 +206,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 8,
-    paddingBottom: 20,
+    paddingBottom: 8,
   },
 });

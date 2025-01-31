@@ -8,7 +8,7 @@ import {
   FlatList,
 } from "react-native";
 
-import { fetchContracts } from "@/utils/valorant-assets";
+import { fetchContracts, fetchSeasonByID } from "@/utils/valorant-assets";
 import { fetchContractsByPID, parseBattlePass } from "@/utils/valorant-api";
 import { usePagerView } from "react-native-pager-view";
 import * as SecureStore from "expo-secure-store";
@@ -19,6 +19,8 @@ import type { PagerViewOnPageScrollEventData } from "react-native-pager-view";
 import PaginationBattlePass from "@/components/PaginationBattlePass";
 import Loading from "@/components/Loading";
 import { useSharedValue } from "react-native-reanimated";
+import { useNavigation } from "expo-router";
+import { useAppTheme } from "@/app/_layout";
 
 interface BattlePassContract {
   ProgressionLevelReached: number;
@@ -27,12 +29,14 @@ interface BattlePassContract {
 }
 
 const BattlePass = () => {
+  const navigation = useNavigation();
+  const { colors } = useAppTheme();
   const [contracts, setContracts] = useState<BattlePassContract>();
-
   const [loading, setLoading] = useState<string | null>(null);
   const user = useUserStore((state) => state.user);
   const scrollOffsetAnimatedValue = useRef(new Animated.Value(0)).current;
   const postitionAV = useSharedValue(0);
+  const [daysLeft, setDaysLeft] = useState<number>();
   const [activeIndex, setActiveIndex] = useState<number>(postitionAV.value);
   const positionAnimatedValue = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef<FlatList>(null);
@@ -49,48 +53,65 @@ const BattlePass = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading("Fetching battlepass");
       let accessToken = (await SecureStore.getItemAsync(
         "access_token"
       )) as string;
       let entitlementsToken = (await SecureStore.getItemAsync(
         "entitlements_token"
       )) as string;
-      const contracts = fetchContracts();
-      const contract = fetchContractsByPID(
-        accessToken,
-        entitlementsToken,
-        user.region,
-        user.id
+
+      let [contracts, contract] = await Promise.all([
+        fetchContracts(),
+        fetchContractsByPID(
+          accessToken,
+          entitlementsToken,
+          user.region,
+          user.id
+        ),
+      ]);
+
+      const currentBP = filterCurrentBattlePass(contracts);
+      const currentSeason = await fetchSeasonByID(
+        currentBP.content.relationUuid
       );
-      setLoading("Fetching battlepass");
-      Promise.all([contracts, contract])
-        .then(async ([data1, data2]) => {
-          const currentBP = filterCurrentBattlePass(data1);
-          const progressBP = data2.find(
-            (item) => item.ContractDefinitionID === currentBP.uuid
-          );
-          const battlePass = await parseBattlePass(currentBP);
-          positionAnimatedValue.setValue(
-            Math.floor((progressBP as Contract).ProgressionLevelReached / 5)
-          );
-          postitionAV.value = Math.floor(
-            (progressBP as Contract).ProgressionLevelReached / 5
-          );
-          setContracts({
-            ProgressionLevelReached: (progressBP as Contract)
-              .ProgressionLevelReached,
-            ProgressionTowardsNextLevel: (progressBP as Contract)
-              .ProgressionTowardsNextLevel,
-            battlePass: battlePass,
-          });
-          setLoading(null);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+
+      const now = new Date();
+      const endTime = new Date(currentSeason.endTime);
+      const daysLeft = Math.round(
+        (endTime.getTime() - now.getTime()) / (1000 * 3600 * 24)
+      );
+      setDaysLeft(daysLeft);
+      const progressBP = contract.find(
+        (item) => item.ContractDefinitionID === currentBP.uuid
+      );
+      const battlePass = await parseBattlePass(currentBP);
+      positionAnimatedValue.setValue(
+        Math.floor((progressBP as Contract).ProgressionLevelReached / 5)
+      );
+      postitionAV.value = Math.floor(
+        (progressBP as Contract).ProgressionLevelReached / 5
+      );
+      setContracts({
+        ProgressionLevelReached: (progressBP as Contract)
+          .ProgressionLevelReached,
+        ProgressionTowardsNextLevel: (progressBP as Contract)
+          .ProgressionTowardsNextLevel,
+        battlePass: battlePass,
+      });
+      setLoading(null);
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () =>
+        daysLeft ? (
+          <Text style={{ color: "green", fontSize: 16 }}>{daysLeft} days</Text>
+        ) : null,
+    });
+  }, [navigation, daysLeft]);
 
   if (loading) {
     return <Loading msg={loading} />;
@@ -149,7 +170,8 @@ const BattlePass = () => {
                 <View>
                   <Text
                     style={{
-                      fontSize: 14,
+                      fontSize: 12,
+                      color: colors.text,
                       textTransform: "uppercase",
                       marginVertical: 8,
                       opacity: 0.6,

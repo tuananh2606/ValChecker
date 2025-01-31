@@ -4,14 +4,17 @@ import { useEffect, useState } from "react";
 import useUserStore from "@/hooks/useUserStore";
 
 import * as SecureStore from "expo-secure-store";
-import { convertDatetoSeconds, getDeviceWidth } from "@/utils/misc";
+import {
+  convertDatetoSeconds,
+  getDeviceWidth,
+  isSameDayUTC,
+} from "@/utils/misc";
 import { ProgressBar, MD3Colors, Button, Title } from "react-native-paper";
 import TimerAction from "@/components/TimerAction";
-
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
 import { getMissions } from "@/utils/valorant-assets";
-import { getMissionsMetadata } from "@/utils/valorant-api";
+import { fetchPlayerXP, getMissionsMetadata } from "@/utils/valorant-api";
 import { Skeleton } from "@/components/Skeleton";
 import { useAppTheme } from "@/app/_layout";
 
@@ -21,6 +24,9 @@ interface WeeklyMission extends ValorantMission {
 
 export default function MissionScreen() {
   const [expirationTime, setExpirationTime] = useState<string>();
+  const [nextTimeFirstWinAvailable, setNextTimeFirstWinAvailable] =
+    useState<number>(0);
+  const [isFirstWin, setFirstWin] = useState<boolean>(false);
   const [missions, setMissions] = useState<WeeklyMission[]>();
   const [loading, setLoading] = useState<boolean>(false);
   const { colors } = useAppTheme();
@@ -36,7 +42,7 @@ export default function MissionScreen() {
         "entitlements_token"
       )) as string;
 
-      let [missions, missionsMetadata] = await Promise.all([
+      let [missions, missionsMetadata, accountXP] = await Promise.all([
         getMissions(),
         getMissionsMetadata(
           accessToken,
@@ -44,7 +50,17 @@ export default function MissionScreen() {
           user.region,
           user.id
         ),
+        fetchPlayerXP(accessToken, entitlementsToken, user.region, user.id),
       ]);
+      setNextTimeFirstWinAvailable(
+        convertDatetoSeconds(accountXP.NextTimeFirstWinAvailable)
+      );
+
+      const d1 = new Date(accountXP.LastTimeGrantedFirstWin);
+      const d2 = new Date();
+      if (isSameDayUTC(d1, d2)) {
+        setFirstWin(true);
+      }
 
       let weeklyMissions: WeeklyMission[] = [];
       for (let i = 0; i < missionsMetadata.Missions.length; i++) {
@@ -82,6 +98,56 @@ export default function MissionScreen() {
       </Title>
       <View
         style={{
+          marginTop: 16,
+          flexDirection: "row",
+          justifyContent: "space-between",
+          width: "100%",
+        }}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <View style={{ position: "relative" }}>
+            <View
+              style={{
+                width: 20,
+                height: 20,
+                borderWidth: 1,
+                marginRight: 10,
+                borderColor: colors.primary,
+                borderRadius: 4,
+                transform: [{ rotate: "45deg" }],
+              }}
+            ></View>
+            {isFirstWin && (
+              <MaterialIcons
+                name="done"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                }}
+                size={19}
+                color={colors.primary}
+              />
+            )}
+          </View>
+          <View>
+            <Text style={{ color: colors.text }}>First Win of the Day</Text>
+            {nextTimeFirstWinAvailable ? (
+              <TimerAction
+                remainingSecs={nextTimeFirstWinAvailable}
+                leadIconStyles={{
+                  fontSize: 14,
+                }}
+                contentStyles={{
+                  fontSize: 14,
+                }}
+              />
+            ) : null}
+          </View>
+        </View>
+        <Text style={{ color: colors.text, fontSize: 16 }}>+ 1,000 AP</Text>
+      </View>
+      <View
+        style={{
           height: 40,
           flexDirection: "row",
           alignItems: "center",
@@ -104,11 +170,7 @@ export default function MissionScreen() {
         )}
       </View>
       {loading ? (
-        <View
-          style={{
-            marginVertical: 8,
-          }}
-        >
+        <View>
           <View
             style={{
               width: getDeviceWidth() - 60,
@@ -203,7 +265,7 @@ export default function MissionScreen() {
           const progressNumber = +(progress / progressToComplete).toFixed(2);
 
           return (
-            <View key={idx} style={{ marginVertical: 8, width: "100%" }}>
+            <View key={idx} style={{ width: "100%" }}>
               <View
                 style={{
                   flexDirection: "row",

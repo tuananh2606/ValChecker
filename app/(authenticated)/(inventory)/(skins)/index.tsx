@@ -9,13 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  useColorScheme,
-  Pressable,
-} from "react-native";
+import { View, Text, StyleSheet, useColorScheme } from "react-native";
 import { Divider, FAB, Title, TouchableRipple } from "react-native-paper";
 import * as SecureStore from "expo-secure-store";
 import { fetchPlayerOwnedItems } from "@/utils/valorant-api";
