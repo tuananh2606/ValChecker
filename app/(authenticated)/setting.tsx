@@ -1,6 +1,5 @@
 import {
   Button,
-  Divider,
   List,
   Switch,
   Title,
@@ -13,7 +12,6 @@ import { defaultUser } from "@/utils/valorant-api";
 import { router } from "expo-router";
 import CookieManager from "@react-native-cookies/cookies";
 import { useTranslation } from "react-i18next";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { initBackgroundFetch, stopBackgroundFetch } from "@/utils/wishlist";
@@ -22,6 +20,7 @@ import * as Notifications from "expo-notifications";
 import { useDarkMode } from "@/hooks/useDarkMode";
 import { useAppTheme } from "../_layout";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
+import * as SecureStore from "expo-secure-store";
 
 export default function SettingScreen() {
   const { t } = useTranslation();
@@ -39,6 +38,8 @@ export default function SettingScreen() {
   const handleLogout = async () => {
     await CookieManager.clearAll(true);
     await AsyncStorage.removeItem("region");
+    await SecureStore.deleteItemAsync("access_token");
+    await SecureStore.deleteItemAsync("entitlements_token");
     setUser(defaultUser);
     stopBackgroundFetch();
     setNotificationEnabled(false);

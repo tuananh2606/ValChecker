@@ -44,52 +44,23 @@ export default function LoginScreen() {
         await SecureStore.setItemAsync("entitlements_token", entitlementsToken);
         const userId = getUserId(accessToken);
 
-        const username = getUsername(
-          accessToken,
-          entitlementsToken,
-          userId,
-          region as string
-        );
-
-        const shop = getShop(
-          accessToken,
-          entitlementsToken,
-          region as string,
-          userId
-        );
-
-        const progress = getProgress(
-          accessToken,
-          entitlementsToken,
-          region as string,
-          userId
-        );
-
-        const balances = getBalances(
-          accessToken,
-          entitlementsToken,
-          region as string,
-          userId
-        );
-        Promise.all([username, shop, progress, balances])
-          .then(async ([username, shop, progress, balances]) => {
-            const shops = await parseShop(shop);
-            setUser({
-              id: userId,
-              ...username,
-              region: region as string,
-              shops,
-              progress,
-              balances,
-            });
-          })
-          .catch((error) => {
-            console.log(error);
-          })
-          .finally(() => {
-            setLoading(false);
-            router.replace("/(authenticated)/(store)");
-          });
+        let [username, shop, progress, balances] = await Promise.all([
+          getUsername(accessToken, entitlementsToken, userId, region as string),
+          getShop(accessToken, entitlementsToken, region as string, userId),
+          getProgress(accessToken, entitlementsToken, region as string, userId),
+          getBalances(accessToken, entitlementsToken, region as string, userId),
+        ]);
+        const shops = await parseShop(shop);
+        setUser({
+          id: userId,
+          ...username,
+          region: region as string,
+          shops,
+          progress,
+          balances,
+        });
+        setLoading(false);
+        router.replace("/(authenticated)/(store)");
       } catch (e) {
         if (!__DEV__) {
           await CookieManager.clearAll(true);

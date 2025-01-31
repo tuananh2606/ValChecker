@@ -24,55 +24,45 @@ axios.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    console.log(originalRequest);
-    const accessToken = (await SecureStore.getItemAsync(
-      "access_token"
-    )) as string;
-    const decoded = jwtDecode(accessToken as string);
-    if (error.response && error.response.status === 401) {
-      if ((decoded.exp as number) <= Math.floor(Date.now() / 1000)) {
-        try {
-          // Refresh the access token
-          console.log("thu re-auth ");
-          const version = await fetchVersion();
-          const res = await reAuth(version);
-          const accessToken = getAccessTokenFromUri(
-            res.data.response.parameters.uri
+    if (error.response && error.response.status === 400) {
+      try {
+        // Refresh the access token
+        const version = await fetchVersion();
+        const res = await reAuth(version);
+        const accessToken = getAccessTokenFromUri(
+          res.data.response.parameters.uri
+        );
+        const entitlementsToken = await getEntitlementsToken(accessToken);
+        if (accessToken && entitlementsToken) {
+          originalRequest._retry = true;
+          await SecureStore.setItemAsync("access_token", accessToken);
+          await SecureStore.setItemAsync(
+            "entitlements_token",
+            entitlementsToken
           );
-          const entitlementsToken = await getEntitlementsToken(accessToken);
-          if (accessToken && entitlementsToken) {
-            console.log("Da re-auth");
+          // Update the request headers with the new access token
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+          originalRequest.headers["X-Riot-Entitlements-JWT"] =
+            entitlementsToken;
 
-            originalRequest._retry = true;
-            await SecureStore.setItemAsync("access_token", accessToken);
-            await SecureStore.setItemAsync(
-              "entitlements_token",
-              entitlementsToken
-            );
-            // Update the request headers with the new access token
-            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-            originalRequest.headers["X-Riot-Entitlements-JWT"] =
-              entitlementsToken;
+          // Retry all requests in the queue with the new token
+          refreshAndRetryQueue.forEach(({ config, resolve, reject }) => {
+            axios
+              .request(config)
+              .then((response) => resolve(response))
+              .catch((err) => reject(err));
+          });
 
-            // Retry all requests in the queue with the new token
-            refreshAndRetryQueue.forEach(({ config, resolve, reject }) => {
-              axios
-                .request(config)
-                .then((response) => resolve(response))
-                .catch((err) => reject(err));
-            });
+          // Clear the queue
+          refreshAndRetryQueue.length = 0;
 
-            // Clear the queue
-            refreshAndRetryQueue.length = 0;
-
-            // Retry the original request
-            return axios(originalRequest);
-          }
-        } catch (err) {
-          await CookieManager.clearAll(true);
-          await AsyncStorage.removeItem("region");
-          router.replace("/(login)");
+          // Retry the original request
+          return axios(originalRequest);
         }
+      } catch (err) {
+        await CookieManager.clearAll(true);
+        await AsyncStorage.removeItem("region");
+        router.replace("/(login)");
       }
 
       // Add the original request to the queue
