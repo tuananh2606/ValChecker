@@ -12,7 +12,6 @@ import { useWishlistStore } from "@/hooks/useWishlistStore";
 import * as Notifications from "expo-notifications";
 import BackgroundFetch from "react-native-background-fetch";
 import { fetchVersion } from "./valorant-assets";
-import { SchedulableTriggerInputTypes } from "expo-notifications";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -64,7 +63,7 @@ export async function checkShop(wishlist: string[]) {
     const entitlementsToken = await getEntitlementsToken(accessToken);
     const region = (await AsyncStorage.getItem("region")) as string;
     const shop = await getShop(accessToken, entitlementsToken, region, userId);
-    var hit = false;
+
     let wishlistSkin = [];
     for (let i = 0; i < wishlist.length; i++) {
       if (shop.SkinsPanelLayout.SingleItemOffers.includes(wishlist[i])) {
@@ -79,8 +78,6 @@ export async function checkShop(wishlist: string[]) {
         wishlistSkin.push(skinData.data.data.displayName);
       }
     }
-    const trigger = new Date();
-    trigger.setHours(7, 0, 0);
 
     if (wishlistSkin.length > 0) {
       await Notifications.scheduleNotificationAsync({
@@ -90,16 +87,10 @@ export async function checkShop(wishlist: string[]) {
             displayname: wishlistSkin.join(", "),
           }),
         },
-        trigger: trigger,
-      });
-      hit = true;
-    }
-    if (!hit) {
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          body: i18n.t("wishlist.notification.no_hit"),
+        trigger: {
+          channelId: NOTIFICATION_CHANNEL,
+          seconds: 1,
         },
-        trigger: trigger,
       });
     }
   } catch (e) {

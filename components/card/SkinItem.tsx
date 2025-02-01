@@ -12,6 +12,7 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useWishlistStore } from "@/hooks/useWishlistStore";
 import { useAppTheme } from "@/app/_layout";
 import { useTranslation } from "react-i18next";
+import { LinearGradient } from "expo-linear-gradient";
 
 interface Props {
   data: SkinShopItem | ValorantSkin;
@@ -34,6 +35,24 @@ const SkinItem = ({ data }: Props) => {
     }
   };
 
+  const handleBackgroundColor = (uuid: string) => {
+    if (uuid === "e046854e-406c-37f4-6607-19a9ba8426fc") {
+      return "rgba(245, 149, 91, 0.3)";
+    }
+    if (uuid === "0cebb8be-46d7-c12a-d306-e9907bfc5a25") {
+      return "rgba(0, 149, 135, 0.3)";
+    }
+    if (uuid === "60bca009-4182-7998-dee7-b8a2558dc369") {
+      return "rgba(209, 84, 141, 0.3)";
+    }
+    if (uuid === "12683d76-48d7-84a3-4e09-6985794f0445") {
+      return "rgba(90, 159, 226, 0.3)";
+    }
+    if (uuid === "411e4a55-4e59-7757-41f0-86a53f101bb5") {
+      return "rgba(250, 214, 99, 0.3)";
+    }
+  };
+
   return (
     <View>
       <Link
@@ -49,7 +68,32 @@ const SkinItem = ({ data }: Props) => {
             marginVertical: 4,
           }}
         >
-          <Card.Content style={styles.container}>
+          <Card.Content
+            style={[
+              styles.container,
+              {
+                overflow: "hidden",
+                backgroundColor: handleBackgroundColor(
+                  data.contentTierUuid as string
+                ),
+              },
+            ]}
+          >
+            <Image
+              style={{
+                width: 150,
+                height: 150,
+                position: "absolute",
+                left: -20,
+                bottom: -35,
+                opacity: 0.2,
+              }}
+              contentFit="contain"
+              source={{
+                uri: data.contentTier.displayIcon,
+              }}
+            />
+
             <View style={styles.priceContainer}>
               {(data as SkinShopItem).price && (
                 <View
@@ -90,7 +134,14 @@ const SkinItem = ({ data }: Props) => {
               />
             </View>
             <View style={styles.name}>
-              <Text style={{ color: colors.text, marginLeft: 4 }}>
+              <Text
+                style={{
+                  color: colors.text,
+                  marginLeft: 4,
+                  fontSize: 16,
+                  textOverflow: "ellipsis",
+                }}
+              >
                 {data.displayName}
               </Text>
             </View>
@@ -140,11 +191,11 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     alignItems: "center",
-    height: 75,
+    height: 80,
   },
   image: {
     flex: 1,
     resizeMode: "contain",
-    width: "70%",
+    width: "90%",
   },
 });

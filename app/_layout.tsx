@@ -16,6 +16,10 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import merge from "deepmerge";
 import { useWishlistStore } from "@/hooks/useWishlistStore";
 import { initBackgroundFetch, stopBackgroundFetch } from "@/utils/wishlist";
+import * as Notifications from "expo-notifications";
+import { useTranslation } from "react-i18next";
+import { SchedulableTriggerInputTypes } from "expo-notifications";
+import { getCalendars, useCalendars } from "expo-localization";
 
 const { DarkTheme } = adaptNavigationTheme({
   reactNavigationDark: NavigationDarkTheme,
@@ -41,6 +45,7 @@ export const useAppTheme = () => useTheme<AppTheme>();
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const { t } = useTranslation();
   const [appIsReady, setAppIsReady] = useState(false);
 
   useEffect(() => {
@@ -49,8 +54,22 @@ export default function RootLayout() {
         // Pre-load fonts, make any API calls you need to do here
         const notificationEnabled =
           useWishlistStore.getState().notificationEnabled;
-
         if (notificationEnabled) {
+          const d = new Date();
+          d.setUTCHours(0, 0, 0);
+
+          const timeZoneOffset = d.getTimezoneOffset() / 60;
+
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              body: t("wishlist.notification.no_hit"),
+            },
+            trigger: {
+              type: SchedulableTriggerInputTypes.DAILY,
+              hour: d.getUTCHours() - timeZoneOffset,
+              minute: 0,
+            },
+          });
           initBackgroundFetch();
         } else {
           stopBackgroundFetch();

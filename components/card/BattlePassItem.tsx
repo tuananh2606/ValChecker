@@ -1,7 +1,8 @@
-import { StyleSheet, Image, View, Text } from "react-native";
+import { StyleSheet, View, Text } from "react-native";
 import { Card, ProgressBar } from "react-native-paper";
 import { router } from "expo-router";
 import { useAppTheme } from "@/app/_layout";
+import { Image } from "expo-image";
 
 interface IBattlePassItem {
   data: BattlePassLevelsItem | BattlePassItem;
@@ -89,7 +90,8 @@ const BattlePassItem = ({
           (parentIdx + 1) * 5 - (5 - index) + 1 <= ProgressionLevelReached && (
             <View style={styles.completed}>
               <Image
-                resizeMode="contain"
+                placeholder={require("@/assets/images/image-placeholder.png")}
+                contentFit="contain"
                 style={{ width: 70, height: 70 }}
                 source={require("@/assets/images/GreenCompleted.png")}
               />

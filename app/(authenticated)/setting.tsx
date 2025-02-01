@@ -193,7 +193,7 @@ export default function SettingScreen() {
           paddingHorizontal: 15,
         }}
       >
-        VShop is not endorsed by Riot Games in any way.
+        ValChecker is not endorsed by Riot Games in any way.
         {"\n"}
         Riot Games, Valorant, and all associated properties are trademarks or
         registered trademarks of Riot Games, Inc.

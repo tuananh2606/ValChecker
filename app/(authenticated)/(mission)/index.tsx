@@ -58,7 +58,12 @@ export default function MissionScreen() {
 
       const d1 = new Date(accountXP.LastTimeGrantedFirstWin);
       const d2 = new Date();
-      if (isSameDayUTC(d1, d2)) {
+      d2.setDate(d2.getDate() - 1);
+
+      if (
+        isSameDayUTC(d1, d2) &&
+        convertDatetoSeconds(accountXP.NextTimeFirstWinAvailable) > 0
+      ) {
         setFirstWin(true);
       }
 
@@ -131,7 +136,7 @@ export default function MissionScreen() {
           </View>
           <View>
             <Text style={{ color: colors.text }}>First Win of the Day</Text>
-            {nextTimeFirstWinAvailable ? (
+            {nextTimeFirstWinAvailable > 0 ? (
               <TimerAction
                 remainingSecs={nextTimeFirstWinAvailable}
                 leadIconStyles={{
@@ -141,7 +146,11 @@ export default function MissionScreen() {
                   fontSize: 14,
                 }}
               />
-            ) : null}
+            ) : (
+              <Text style={{ color: colors.text, opacity: 0.6 }}>
+                Available
+              </Text>
+            )}
           </View>
         </View>
         <Text style={{ color: colors.text, fontSize: 16 }}>+ 1,000 AP</Text>
@@ -265,7 +274,7 @@ export default function MissionScreen() {
           const progressNumber = +(progress / progressToComplete).toFixed(2);
 
           return (
-            <View key={idx} style={{ width: "100%" }}>
+            <View key={idx} style={{ width: "100%", marginVertical: 8 }}>
               <View
                 style={{
                   flexDirection: "row",
