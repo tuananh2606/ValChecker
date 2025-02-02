@@ -57,14 +57,19 @@ export default function MissionScreen() {
       );
 
       const d1 = new Date(accountXP.LastTimeGrantedFirstWin);
-      const d2 = new Date();
-      d2.setDate(d2.getDate() - 1);
+      const d2 = new Date(accountXP.NextTimeFirstWinAvailable);
+
+      const dayDiff = Math.round(
+        (d2.getTime() - d1.getTime()) / (1000 * 3600 * 24)
+      );
 
       if (
-        isSameDayUTC(d1, d2) &&
+        (isSameDayUTC(d1, d2) || dayDiff === 1) &&
         convertDatetoSeconds(accountXP.NextTimeFirstWinAvailable) > 0
       ) {
         setFirstWin(true);
+      } else {
+        setFirstWin(false);
       }
 
       let weeklyMissions: WeeklyMission[] = [];
