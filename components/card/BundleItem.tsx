@@ -1,4 +1,5 @@
-import { StyleSheet, Image, View, Text, useColorScheme } from "react-native";
+import { StyleSheet, View, Text } from "react-native";
+import { Image } from "expo-image";
 
 interface Props {
   data: BundleShopItem;
@@ -10,7 +11,7 @@ const BundleItem = ({ data }: Props) => {
       <View style={styles.priceContainer}>
         <Image
           style={{ width: 16, height: 16 }}
-          resizeMode="contain"
+          contentFit="contain"
           source={require("@/assets/images/valorantPoints.png")}
         />
         <Text style={{ fontSize: 16, color: "white", marginLeft: 4 }}>
@@ -20,8 +21,8 @@ const BundleItem = ({ data }: Props) => {
       <View>
         <Image
           style={styles.image}
-          resizeMode="stretch"
-          loadingIndicatorSource={require("@/assets/images/valorantPoints.png")}
+          placeholder={require("@/assets/images/image-placeholder.png")}
+          contentFit="fill"
           source={{
             uri: data.displayIcon,
           }}

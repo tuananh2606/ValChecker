@@ -7,7 +7,11 @@ import {
   fetchPlayerMMR,
   parseSeason,
 } from "@/utils/valorant-api";
-import { fetchSeasons, getAssets } from "@/utils/valorant-assets";
+import {
+  fetchSeasons,
+  getAssets,
+  getLevelBorders,
+} from "@/utils/valorant-assets";
 import { Image } from "expo-image";
 import Loading from "@/components/Loading";
 import { useAppTheme } from "@/app/_layout";
@@ -31,6 +35,7 @@ const MineView = () => {
   const user = useUserStore((state) => state.user);
   const { cards, titles, competitiveTiers } = getAssets();
   const [loading, setLoading] = useState<boolean>(false);
+  const [levelBorder, setLevelBorder] = useState<ValorantLevelBorder>();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,16 +46,19 @@ const MineView = () => {
       let entitlementsToken = (await SecureStore.getItemAsync(
         "entitlements_token"
       )) as string;
-      let [playerLoadout, playerMMR, seasons] = await Promise.all([
-        fetchPlayerLoadout(
-          accessToken,
-          entitlementsToken,
-          user.region,
-          user.id
-        ),
-        fetchPlayerMMR(accessToken, entitlementsToken, user.region, user.id),
-        fetchSeasons(),
-      ]);
+      let [playerLoadout, playerMMR, seasons, levelBorders] = await Promise.all(
+        [
+          fetchPlayerLoadout(
+            accessToken,
+            entitlementsToken,
+            user.region,
+            user.id
+          ),
+          fetchPlayerMMR(accessToken, entitlementsToken, user.region, user.id),
+          fetchSeasons(),
+          getLevelBorders(),
+        ]
+      );
       const seasonsAvailabe = parseSeason(seasons);
 
       const prevSeason = seasonsAvailabe[seasonsAvailabe.length - 2];
@@ -60,6 +68,11 @@ const MineView = () => {
         (item) =>
           item.tier === seasonalInfo[`${prevSeason.value}`].CompetitiveTier
       );
+
+      const borderLevel = levelBorders.find(
+        (item) => item.startingLevel + 20 > user.progress.level
+      );
+      setLevelBorder(borderLevel);
 
       setPreviousRank({
         seasonTitle: prevSeason.label,
@@ -117,8 +130,29 @@ const MineView = () => {
       >
         <View
           style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Image
+            style={{
+              width: 60,
+              height: 30,
+              position: "absolute",
+              top: -10,
+              zIndex: 10,
+            }}
+            contentFit="contain"
+            source={{
+              uri: levelBorder?.levelNumberAppearance,
+            }}
+          />
+        </View>
+        <View
+          style={{
             position: "absolute",
-            top: -2,
+            top: -4,
             left: 0,
             right: 0,
             zIndex: 10,
@@ -126,7 +160,7 @@ const MineView = () => {
         >
           <Text
             style={{
-              fontSize: 16,
+              fontSize: 12,
               color: colors.text,
               textAlign: "center",
             }}

@@ -4,10 +4,8 @@ import { getAssets } from "@/utils/valorant-assets";
 import { useEffect, useState } from "react";
 import {
   View,
-  Text,
   Image,
   StyleSheet,
-  StatusBar,
   TouchableWithoutFeedback,
 } from "react-native";
 import { fetchPlayerLoadout } from "@/utils/valorant-api";

@@ -1,6 +1,9 @@
-import TabButtons, { TabButtonType } from "@/components/TabButtons";
+import {
+  TabButtonType,
+  TabButtons,
+  TabImageButtons,
+} from "@/components/TabButtons";
 import { Colors } from "@/constants/Colors";
-import { getDeviceWidth } from "@/utils/misc";
 import { getAssets } from "@/utils/valorant-assets";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useVideoPlayer, VideoView } from "expo-video";
@@ -30,17 +33,15 @@ const DetailsScreen = () => {
       return { title: "Level " + (x + 1) };
     }
   );
-  const chromas: TabButtonType[] = Array.from(
-    Array(skin.chromas.length),
-    (_, x) => {
-      return { title: "Level " + (x + 1) };
-    }
-  );
+  const chromas: TabButtonType[] = Array.from(skin.chromas, (item, idx) => {
+    return { title: "Level " + (idx + 1), source: item.swatch };
+  });
+
   const imageSource = skin.chromas[selectedChroma].displayIcon
     ? (skin.chromas[selectedChroma].displayIcon as string)
     : (skin.chromas[selectedChroma].fullRender as string);
   const videoSource = skin.levels[selectedTab].streamedVideo;
-  const videoChromaSource = skin.chromas[selectedChroma].streamedVideo;
+  const videoChromaSource = skin.chromas[selectedChroma].streamedVideo ?? null;
   const player = useVideoPlayer(videoSrc, (player) => {
     player.loop = true;
     player.play();
@@ -56,11 +57,12 @@ const DetailsScreen = () => {
   }, [navigation]);
 
   useEffect(() => {
-    if (selectedChroma !== 0) setVideoSrc(videoChromaSource as string);
+    if (selectedChroma !== 0 && videoChromaSource)
+      player.replace(videoChromaSource as string);
   }, [selectedChroma]);
 
   useEffect(() => {
-    setVideoSrc(videoSource as string);
+    player.replace(videoSource as string);
   }, [selectedTab]);
 
   return (
@@ -131,7 +133,7 @@ const DetailsScreen = () => {
             width: 300,
           }}
         >
-          <TabButtons
+          <TabImageButtons
             buttons={chromas}
             selectedTab={selectedChroma}
             setSelectedTab={setSelectedChromaTab}

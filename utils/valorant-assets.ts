@@ -261,3 +261,14 @@ export async function getMissions(language?: string) {
 
   return res.data.data;
 }
+
+export async function getLevelBorders(language?: string) {
+  const res = await axios.request<{ data: ValorantLevelBorder[] }>({
+    url: `https://valorant-api.com/v1/levelborders?language=${
+      language ?? getVAPILang()
+    }`,
+    method: "GET",
+  });
+
+  return res.data.data;
+}

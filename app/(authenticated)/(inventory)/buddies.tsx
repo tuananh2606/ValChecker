@@ -2,7 +2,7 @@ import CardItem from "@/components/card/CardItem";
 import useUserStore from "@/hooks/useUserStore";
 import { getAssets } from "@/utils/valorant-assets";
 import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, View, StyleSheet, Text, Animated } from "react-native";
+import { View, StyleSheet, Text, Animated } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { fetchPlayerOwnedItems } from "@/utils/valorant-api";
 import {
@@ -10,7 +10,6 @@ import {
   getDeviceWidth,
   VOwnedItemType,
 } from "@/utils/misc";
-import TabButtons from "@/components/TabButtons";
 import { SwitchTabArray } from "./cards";
 import { Image } from "expo-image";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";

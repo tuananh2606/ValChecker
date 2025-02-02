@@ -38,6 +38,7 @@ interface ISkinChroma {
   fullRender: string;
   streamedVideo: string | null;
   assetPath: string;
+  swatch: string;
 }
 
 interface ValorantBuddyAccessory {
@@ -254,5 +255,14 @@ interface ValorantMission {
     objectiveUuid: string;
     value: number;
   }[];
+  assetPath: string;
+}
+
+interface ValorantLevelBorder {
+  uuid: string;
+  displayName: string;
+  startingLevel: number;
+  levelNumberAppearance: string;
+  smallPlayerCardAppearance: string;
   assetPath: string;
 }
