@@ -11,28 +11,27 @@ const AccessoryView = () => {
   const user = useUserStore((state) => state.user);
   const { setUser } = useUserStore();
   const [refreshing, setRefreshing] = useState(false);
-  const onRefresh = useCallback(() => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    setTimeout(async () => {
-      let accessToken = await SecureStore.getItemAsync("access_token");
-      let entitlementsToken = await SecureStore.getItemAsync(
-        "entitlements_token"
+
+    let accessToken = await SecureStore.getItemAsync("access_token");
+    let entitlementsToken = await SecureStore.getItemAsync(
+      "entitlements_token"
+    );
+    if (accessToken && entitlementsToken) {
+      const shop = await getShop(
+        accessToken,
+        entitlementsToken,
+        user.region,
+        user.id
       );
-      if (accessToken && entitlementsToken) {
-        const shop = await getShop(
-          accessToken,
-          entitlementsToken,
-          user.region,
-          user.id
-        );
-        const shops = await parseShop(shop);
-        setUser({
-          ...user,
-          shops: shops,
-        });
-      }
-      setRefreshing(false);
-    }, 2000);
+      const shops = await parseShop(shop);
+      setUser({
+        ...user,
+        shops: shops,
+      });
+    }
+    setRefreshing(false);
   }, []);
 
   return (

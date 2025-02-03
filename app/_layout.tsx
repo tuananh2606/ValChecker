@@ -47,14 +47,26 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const { t } = useTranslation();
   const [appIsReady, setAppIsReady] = useState(false);
+  const setNotificationEnabled = useWishlistStore(
+    (state) => state.setNotificationEnabled
+  );
 
   useEffect(() => {
     async function prepare() {
       try {
         // Pre-load fonts, make any API calls you need to do here
+        const permission = await Notifications.requestPermissionsAsync();
+        if (permission.granted) {
+          setNotificationEnabled(true);
+        }
         const notificationEnabled =
           useWishlistStore.getState().notificationEnabled;
+
         if (notificationEnabled) {
+          await Notifications.setNotificationChannelAsync("daily", {
+            name: "Daily",
+            importance: Notifications.AndroidImportance.MAX,
+          });
           const d = new Date();
           d.setUTCHours(0, 0, 0);
 
@@ -65,6 +77,7 @@ export default function RootLayout() {
               body: t("wishlist.notification.no_hit"),
             },
             trigger: {
+              channelId: "daily",
               type: SchedulableTriggerInputTypes.DAILY,
               hour: d.getUTCHours() - timeZoneOffset,
               minute: 0,

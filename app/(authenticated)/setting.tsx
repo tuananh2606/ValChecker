@@ -49,7 +49,7 @@ export default function SettingScreen() {
   const toggleNotificationEnabled = async () => {
     if (!notificationEnabled) {
       setNotificationEnabled(true);
-      const permission = await Notifications.requestPermissionsAsync();
+      const permission = await Notifications.getPermissionsAsync();
       if (permission.granted) {
         await initBackgroundFetch();
         ToastAndroid.show(
@@ -57,6 +57,7 @@ export default function SettingScreen() {
           ToastAndroid.SHORT
         );
       } else {
+        setNotificationEnabled(false);
         ToastAndroid.show(
           t("wishlist.notification.no_permission"),
           ToastAndroid.SHORT
