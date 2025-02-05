@@ -77,7 +77,21 @@
   "regions.na": "Bắc Mỹ",
   "screenshot_mode": "Chế độ chụp ảnh màn hình",
   "separate": "tách rời",
-  "settings": "Cài đặt",
+  "settings": {
+    "name": "Cài đặt",
+    "faq": {
+      "name": "FAQ",
+      "details": "Các câu hỏi thường gặp"
+    },
+    "general": {
+      "name": "Chung",
+      "change_time_language": "Thay đổi ngôn ngữ"
+    },
+    "notification": {
+      "name": "Thông báo",
+      "store_reset_notification": "Thông báo cửa hàng làm mới"
+    }
+  },
   "shop": "Cửa hàng",
   "signin": "Đăng nhập bằng Riot ID",
   "signin_info": "Thông tin đăng nhập của bạn sẽ được gửi trực tiếp đến Riot Games.",
@@ -113,5 +127,29 @@
   },
   "xp": "Kinh nghiệm",
   "mine": "Của tôi",
-  "leaderboard": "Bảng xếp hạng"
+  "leaderboard": "Bảng xếp hạng",
+  "store": "Cửa hàng",
+  "accessory": "Phụ kiện",
+  "bundle": "Bộ",
+  "mission": "Nhiệm vụ",
+  "weekly_missions": "Nhiệm vụ hàng tuần",
+  "available": "Sẵn sàng",
+  "first_win_of_the_day": "Trận thắng đầu tiên trong ngày",
+  "career": "Danh vọng",
+  "inventory": "Kho đồ",
+  "weapon_inventory": "Kho skins vũ khí",
+  "weapon_buddies": "Móc treo vũ khí",
+  "card": "Thẻ",
+  "spray": "Hình phun sơn",
+  "match": {
+    "name": "Trận đấu",
+    "history": "Lịch sử trận đấu"
+  },
+  "day": "ngày",
+  "days": "ngày",
+  "free_rewards": "Phần thưởng miễn phí",
+  "owned": "Sở hữu",
+  "not_owned": "Chưa sở hữu",
+  "total_collection_count": "Tổng số bộ sưu tập",
+  "choose_weapon": "Chọn loai vũ khí"
 }

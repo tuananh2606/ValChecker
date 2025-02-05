@@ -589,6 +589,136 @@ export async function fetchPlayerXP(
   return res.data;
 }
 
+export async function fetchMatchHistory(
+  accessToken: string,
+  entitlementsToken: string,
+  region: string,
+  userId: string,
+  startIndex: number = 0,
+  endIndex: number = 20,
+  queue: string = "all"
+) {
+  const res = await axios.request<MatchHistoryResponse>({
+    url: `https://pd.${region}.a.pvp.net/match-history/v1/history/${userId}?startIndex=${startIndex}&endIndex=${endIndex}`,
+    method: "GET",
+    headers: {
+      ...extraHeaders(),
+      Authorization: `Bearer ${accessToken}`,
+      "X-Riot-Entitlements-JWT": entitlementsToken,
+    },
+  });
+
+  return res.data;
+}
+
+export async function fetchCompetitiveUpdates(
+  accessToken: string,
+  entitlementsToken: string,
+  region: string,
+  userId: string,
+  startIndex: number = 0,
+  endIndex: number = 10
+) {
+  const res = await axios.request<CompetitiveUpdatesResponse>({
+    url: `https://pd.${region}.a.pvp.net/mmr/v1/players/${userId}/competitiveupdates?startIndex=${startIndex}&endIndex=${endIndex}&queue=competitive`,
+    method: "GET",
+    headers: {
+      ...extraHeaders(),
+      Authorization: `Bearer ${accessToken}`,
+      "X-Riot-Entitlements-JWT": entitlementsToken,
+    },
+  });
+
+  return res.data;
+}
+
+export async function fetchMatchDetails(
+  accessToken: string,
+  entitlementsToken: string,
+  region: string,
+  matchID: string
+) {
+  const res = await axios.request<MatchDetailsResponse>({
+    url: `https://pd.${region}.a.pvp.net/match-details/v1/matches/${matchID}`,
+    method: "GET",
+    headers: {
+      ...extraHeaders(),
+      Authorization: `Bearer ${accessToken}`,
+      "X-Riot-Entitlements-JWT": entitlementsToken,
+    },
+  });
+
+  return res.data;
+}
+
+export async function parseMatchHistory(
+  accessToken: string,
+  entitlementsToken: string,
+  region: string,
+  userId: string,
+  matchHistory: MatchHistory[]
+) {
+  /* Match History */
+  const { maps, characters, competitiveTiers } = getAssets();
+  const promises = matchHistory.map((match) =>
+    fetchMatchDetails(accessToken, entitlementsToken, region, match.MatchID)
+  );
+  const competitiveUpdates = await fetchCompetitiveUpdates(
+    accessToken,
+    entitlementsToken,
+    region,
+    userId,
+    0,
+    15
+  );
+  const matchDetailsData = await Promise.all(promises);
+  let matchHistoryArr: MatchDetails[] = [];
+  for (let m = 0; m < matchDetailsData.length; m++) {
+    const matchMap = maps.find(
+      (map) => map.mapUrl === matchDetailsData[m].matchInfo.mapId
+    );
+    for (let c = 0; c < matchDetailsData[m].players.length; c++) {
+      const character = characters.find(
+        (item) => item.uuid === matchDetailsData[m].players[c].characterId
+      );
+      if (matchDetailsData[m].matchInfo.isRanked) {
+        const competitiveTier = competitiveTiers.find(
+          (item) => item.tier === matchDetailsData[m].players[c].competitiveTier
+        );
+        if (competitiveTier) {
+          matchDetailsData[m].players[c].competitiveRank = competitiveTier;
+        }
+      }
+      if (character) {
+        matchDetailsData[m].players[c].character = {
+          uuid: character.uuid,
+          displayName: character.displayName,
+          displayIcon: character.displayIcon,
+        };
+      }
+    }
+    const competitiveUpdate = competitiveUpdates.Matches.find(
+      (item) => item.MatchID === matchDetailsData[m].matchInfo.matchId
+    );
+
+    if (matchMap) {
+      matchHistoryArr.push({
+        ...matchDetailsData[m],
+        map: {
+          uuid: matchMap.uuid,
+          displayName: matchMap.displayName,
+          listViewIcon: matchMap.listViewIcon,
+          splash: matchMap.splash,
+          mapUrl: matchMap.mapUrl,
+        },
+        competitiveUpdates: competitiveUpdate,
+      });
+    }
+  }
+
+  return matchHistoryArr;
+}
+
 export const reAuth = (version: string) =>
   axios.request({
     url: "https://auth.riotgames.com/api/v1/authorization",

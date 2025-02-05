@@ -13,6 +13,8 @@ type StoredAssets = {
   contentTiers: ValorantContentTier[];
   currencies: ValorantCurrencies[];
   competitiveTiers: ValorantCompetitiveTier[];
+  maps: ValorantMap[];
+  characters: ValorantCharacter[];
 };
 
 let assets: StoredAssets = {
@@ -24,6 +26,8 @@ let assets: StoredAssets = {
   contentTiers: [],
   currencies: [],
   competitiveTiers: [],
+  maps: [],
+  characters: [],
 };
 export const FILE_LOCATION =
   FileSystem.cacheDirectory + "/valchecker_assets.json";
@@ -60,6 +64,8 @@ export async function loadAssets() {
     titles,
     currencies,
     competitiveTiers,
+    maps,
+    characters,
   ] = await Promise.all([
     fetchSkins(language),
     fetchContentTier(language),
@@ -69,6 +75,8 @@ export async function loadAssets() {
     fetchPlayerTitles(language),
     fetchCurrencies(language),
     fetchCompetitiveTier(language),
+    fetchMaps(language),
+    fetchCharacters(language),
   ]);
 
   let skinsWithContentTier: ValorantSkin[] = [];
@@ -95,6 +103,8 @@ export async function loadAssets() {
   assets.contentTiers = contentTiers;
   assets.currencies = currencies;
   assets.competitiveTiers = competitiveTiers[competitiveTiers.length - 1].tiers;
+  assets.maps = maps;
+  assets.characters = characters;
 
   await FileSystem.writeAsStringAsync(FILE_LOCATION, JSON.stringify(assets));
 }
@@ -265,6 +275,28 @@ export async function getMissions(language?: string) {
 export async function getLevelBorders(language?: string) {
   const res = await axios.request<{ data: ValorantLevelBorder[] }>({
     url: `https://valorant-api.com/v1/levelborders?language=${
+      language ?? getVAPILang()
+    }`,
+    method: "GET",
+  });
+
+  return res.data.data;
+}
+
+export async function fetchMaps(language?: string) {
+  const res = await axios.request<{ data: ValorantMap[] }>({
+    url: `https://valorant-api.com/v1/maps?language=${
+      language ?? getVAPILang()
+    }`,
+    method: "GET",
+  });
+
+  return res.data.data;
+}
+
+export async function fetchCharacters(language?: string) {
+  const res = await axios.request<{ data: ValorantCharacter[] }>({
+    url: `https://valorant-api.com/v1/agents?isPlayableCharacter=true&language=${
       language ?? getVAPILang()
     }`,
     method: "GET",

@@ -266,3 +266,72 @@ interface ValorantLevelBorder {
   smallPlayerCardAppearance: string;
   assetPath: string;
 }
+
+interface ValorantMap {
+  uuid: string;
+  displayName: string;
+  narrativeDescription?: string;
+  tacticalDescription: string;
+  coordinates: string;
+  displayIcon: string;
+  listViewIcon: string;
+  listViewIconTall: string;
+  splash: string;
+  stylizedBackgroundImage: string;
+  premierBackgroundImage: string;
+  assetPath: string;
+  mapUrl: string;
+}
+
+interface ValorantCharacter {
+  uuid: string;
+  displayName: string;
+  description: string;
+  developerName: string;
+  releaseDate: string;
+  characterTags?: string[];
+  displayIcon: string;
+  displayIconSmall: string;
+  bustPortrait: string;
+  fullPortrait: string;
+  fullPortraitV2: string;
+  killfeedPortrait: string;
+  background: string;
+  backgroundGradientColors: string[];
+  assetPath: string;
+  isFullPortraitRightFacing: boolean;
+  isPlayableCharacter: boolean;
+  isAvailableForTest: boolean;
+  isBaseContent: boolean;
+  role: {
+    uuid: string;
+    displayName: string;
+    description: string;
+    displayIcon: string;
+    assetPath: string;
+  };
+  recruitmentData?: {
+    counterId: string;
+    milestoneId: string;
+    milestoneThreshold: number;
+    useLevelVpCostOverride: boolean;
+    levelVpCostOverride: number;
+    startDate: string;
+    endDate: string;
+  };
+  abilities: {
+    slot: string;
+    displayName: string;
+    description: string;
+    displayIcon: string;
+  }[];
+  voiceLine?: {
+    minDuration: number;
+    maxDuration: number;
+    mediaList: {
+      id: number;
+      wwise: string;
+      wave: string;
+    }[];
+  };
+}

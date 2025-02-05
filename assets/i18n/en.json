@@ -31,7 +31,6 @@
     "username": "Fetching username…"
   },
   "gallery": "Gallery",
-  "general": "General",
   "info": "Info",
   "invalid_amount": "Minimum amount is {{amount}}.",
   "language": "Language",
@@ -86,7 +85,21 @@
   },
   "screenshot_mode": "Screenshot Mode",
   "separate": "separate",
-  "settings": "Settings",
+  "settings": {
+    "name": "Settings",
+    "faq": {
+      "name": "FAQ",
+      "details": "Frequently Asked Questions"
+    },
+    "general": {
+      "name": "General",
+      "change_time_language": "Change Time Language"
+    },
+    "notification": {
+      "name": "Notification",
+      "store_reset_notification": "Store Reset Notification"
+    }
+  },
   "shop": "Shop",
   "signin": "Sign In with Riot ID",
   "signin_info": "Your login details will be sent directly to Riot Games.",
@@ -124,5 +137,29 @@
   "accessories": "Accessory Shop",
   "kc": "Kingdom Credits",
   "mine": "Mine",
-  "leaderboard": "Leaderboard"
+  "leaderboard": "Leaderboard",
+  "store": "Store",
+  "accessory": "Accessory",
+  "bundle": "Bundle",
+  "mission": "Mission",
+  "weekly_missions": "Weekly Missions",
+  "available": "Available",
+  "first_win_of_the_day": "First Win of the Day",
+  "career": "Career",
+  "inventory": "Inventory",
+  "weapon_inventory": "Weapon Inventory",
+  "weapon_buddies": "Weapon Buddies",
+  "card": "Card",
+  "spray": "Spray",
+  "match": {
+    "name": "Match",
+    "history": "Match history"
+  },
+  "day": "day",
+  "days": "days",
+  "free_rewards": "Free Rewards",
+  "owned": "Owned",
+  "not_owned": "Not Owned",
+  "total_collection_count": "Total Collection Count",
+  "choose_weapon": "Choose Weapon"
 }

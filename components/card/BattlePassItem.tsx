@@ -100,7 +100,7 @@ const BattlePassItem = ({
 
         <View style={styles.imageContainer}>
           <Image
-            resizeMode="contain"
+            contentFit="contain"
             style={styles.image}
             tintColor={type === "Currency" ? colors.tint : undefined}
             source={hanndleTitleImage(type, displayIcon)}

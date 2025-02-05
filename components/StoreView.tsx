@@ -7,11 +7,9 @@ import SkinItem from "./card/SkinItem";
 import { getShop, parseShop } from "@/utils/valorant-api";
 import CurrencyFooter from "./CurrencyFooter";
 import useUserStore from "@/hooks/useUserStore";
-import { useAppTheme } from "@/app/_layout";
 
 const StoreView = () => {
   const user = useUserStore((state) => state.user);
-  const { colors } = useAppTheme();
   const { setUser } = useUserStore();
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(async () => {

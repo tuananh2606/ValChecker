@@ -79,20 +79,20 @@ export default function SettingScreen() {
           color: colors.text,
         }}
       >
-        Settings
+        {t("settings.name")}
       </Title>
       <List.Section style={{ flex: 1 }}>
-        <List.Subheader>FAQ</List.Subheader>
+        <List.Subheader> {t("settings.faq.name")}</List.Subheader>
         <List.Item
           style={{
             padding: 10,
             borderRadius: 10,
             backgroundColor: "#2E2E2E",
           }}
-          title="FAQ"
+          title={t("settings.faq.details")}
           right={() => <List.Icon color={colors.tint} icon="chevron-right" />}
         />
-        <List.Subheader>General</List.Subheader>
+        <List.Subheader> {t("general")}</List.Subheader>
         <View
           style={{
             backgroundColor: "#2E2E2E",
@@ -138,7 +138,7 @@ export default function SettingScreen() {
                   <AntDesign name="earth" size={24} color={colors.tint} />
                 </View>
               )}
-              title="Change Time Language"
+              title={t("settings.general.change_time_language")}
               right={() => (
                 <List.Icon color={colors.tint} icon="chevron-right" />
               )}
@@ -146,7 +146,7 @@ export default function SettingScreen() {
           </TouchableRipple>
         </View>
 
-        <List.Subheader>NOTIFICATION</List.Subheader>
+        <List.Subheader>{t("settings.notification.name")}</List.Subheader>
         <View
           style={{
             backgroundColor: "#2E2E2E",
@@ -154,7 +154,7 @@ export default function SettingScreen() {
           }}
         >
           <List.Item
-            title="Store Reset Notification"
+            title={t("settings.notification.store_reset_notification")}
             left={() => (
               <View
                 style={{

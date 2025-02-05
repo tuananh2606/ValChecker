@@ -1,7 +1,6 @@
 import { useAppTheme } from "@/app/_layout";
-import { Colors } from "@/constants/Colors";
 import { router } from "expo-router";
-import { StyleSheet, Image, View, Text, useColorScheme } from "react-native";
+import { StyleSheet, Image, View, Text } from "react-native";
 import { Card } from "react-native-paper";
 
 interface Props {

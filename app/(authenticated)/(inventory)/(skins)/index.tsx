@@ -27,6 +27,8 @@ import Loading from "@/components/Loading";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { useAppTheme } from "@/app/_layout";
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
+import i18n from "@/utils/localization";
 
 const noMeleeFilter = [
   "Vandal",
@@ -51,7 +53,7 @@ const noMeleeFilter = [
 
 const filterSelect = [
   {
-    title: "Choose Weapon",
+    title: i18n.t("choose_weapon"),
     data: [
       "Owned",
       "Vandal",
@@ -77,6 +79,7 @@ const filterSelect = [
   },
 ];
 export default function SkinsScreen() {
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const { colors } = useAppTheme();
   const [ownedSkins, setOwnedSkins] = useState<ValorantSkin[]>([]);
@@ -136,10 +139,15 @@ export default function SkinsScreen() {
           !ownedSkin.some((item) => item.uuid === skin.uuid)
       );
       handleTotalCollectionCount(ownedSkin);
-      setFilteredSkins(["Owned", ...ownedSkin, "Not Owned", ...remainingSkin]);
+      setFilteredSkins([
+        t("owned"),
+        ...ownedSkin,
+        t("not_owned"),
+        ...remainingSkin,
+      ]);
     } else if (title === "Owned") {
       handleTotalCollectionCount(ownedSkins);
-      setFilteredSkins(["Owned", ...ownedSkins]);
+      setFilteredSkins([t("owned"), ...ownedSkins]);
     } else {
       const ownedSkin = ownedSkins.filter((skin) =>
         skin.displayName.includes(title)
@@ -151,9 +159,9 @@ export default function SkinsScreen() {
       );
       handleTotalCollectionCount(ownedSkin);
       setFilteredSkins([
-        "Owned",
+        t("owned"),
         ...ownedSkin.sort(customSort()),
-        "Not Owned",
+        t("not_owned"),
         ...remainingSkin.sort(customSort()),
       ]);
     }
@@ -161,7 +169,7 @@ export default function SkinsScreen() {
 
   useEffect(() => {
     handleTotalCollectionCount(ownedSkins);
-    setFilteredSkins(["Owned", ...ownedSkins.sort(customSort())]);
+    setFilteredSkins([t("owned"), ...ownedSkins.sort(customSort())]);
   }, [ownedSkins]);
 
   const stickyHeaderIndices = filteredSkins
@@ -314,7 +322,7 @@ export default function SkinsScreen() {
                 marginTop: 4,
               }}
             >
-              Total Collection Count
+              {t("total_collection_count")}
             </Title>
           </View>
         }

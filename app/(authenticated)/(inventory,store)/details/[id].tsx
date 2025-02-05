@@ -8,6 +8,7 @@ import { getAssets } from "@/utils/valorant-assets";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { useState, useEffect, Fragment } from "react";
+import { useTranslation } from "react-i18next";
 import {
   View,
   StyleSheet,
@@ -18,6 +19,7 @@ import {
 } from "react-native";
 
 const DetailsScreen = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const { id } = useLocalSearchParams();
   const { skins } = getAssets();
@@ -30,11 +32,11 @@ const DetailsScreen = () => {
   const levels: TabButtonType[] = Array.from(
     Array(skin.levels.length),
     (_, x) => {
-      return { title: "Level " + (x + 1) };
+      return { title: t("level") + " " + (x + 1) };
     }
   );
   const chromas: TabButtonType[] = Array.from(skin.chromas, (item, idx) => {
-    return { title: "Level " + (idx + 1), source: item.swatch };
+    return { title: t("level") + " " + (idx + 1), source: item.swatch };
   });
 
   const imageSource = skin.chromas[selectedChroma].displayIcon

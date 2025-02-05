@@ -4,8 +4,9 @@ import { useState } from "react";
 import MineView from "@/components/screens/career/MineView";
 import LeaderboardsView from "@/components/screens/career/LeaderboardsView";
 import i18n from "@/utils/localization";
-import { useAppTheme } from "../_layout";
 import { Title } from "react-native-paper";
+import { useAppTheme } from "@/app/_layout";
+import { useTranslation } from "react-i18next";
 
 const renderScene = SceneMap({
   mine: MineView,
@@ -18,6 +19,7 @@ const routes = [
 ];
 
 export default function CareerScreen() {
+  const { t } = useTranslation();
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
   const { colors } = useAppTheme();
@@ -36,7 +38,9 @@ export default function CareerScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Title style={{ textAlign: "center", fontWeight: 700 }}>Career</Title>
+      <Title style={{ textAlign: "center", fontWeight: 700 }}>
+        {t("career")}
+      </Title>
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}

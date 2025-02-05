@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import useUserStore from "@/hooks/useUserStore";
 import { memo, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
@@ -15,8 +15,12 @@ import {
 import { Image } from "expo-image";
 import Loading from "@/components/Loading";
 import { useAppTheme } from "@/app/_layout";
+import { Button, Text, TouchableRipple } from "react-native-paper";
+import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 const MineView = () => {
+  const { t } = useTranslation();
   const [playerLoadout, setPlayerLoadout] = useState<{
     card: ValorantCardAccessory;
     title: ValorantTitleAccessory;
@@ -295,6 +299,37 @@ const MineView = () => {
             ]}
           >{`${previousRank?.rankPoint} RR`}</Text>
         </View>
+      </View>
+      <View
+        style={{
+          width: "100%",
+          marginTop: 24,
+        }}
+      >
+        <Text
+          variant="labelLarge"
+          style={{
+            textTransform: "uppercase",
+            color: "gray",
+          }}
+        >
+          {t("match.name")}
+        </Text>
+        <TouchableRipple
+          style={{
+            marginTop: 4,
+            borderRadius: 8,
+            padding: 10,
+
+            backgroundColor: colors.primary,
+            justifyContent: "center",
+          }}
+          onPress={() => router.push("/match-history")}
+        >
+          <Text style={{ fontSize: 18, color: colors.text, textAlign: "left" }}>
+            {t("match.history")}
+          </Text>
+        </TouchableRipple>
       </View>
     </View>
   );

@@ -21,6 +21,7 @@ import Loading from "@/components/Loading";
 import { useSharedValue } from "react-native-reanimated";
 import { useNavigation } from "expo-router";
 import { useAppTheme } from "@/app/_layout";
+import { useTranslation } from "react-i18next";
 
 interface BattlePassContract {
   ProgressionLevelReached: number;
@@ -29,6 +30,7 @@ interface BattlePassContract {
 }
 
 const BattlePass = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const { colors } = useAppTheme();
   const [contracts, setContracts] = useState<BattlePassContract>();
@@ -108,7 +110,11 @@ const BattlePass = () => {
     navigation.setOptions({
       headerRight: () =>
         daysLeft ? (
-          <Text style={{ color: "green", fontSize: 16 }}>{daysLeft} days</Text>
+          <Text style={{ color: "green", fontSize: 16 }}>
+            {daysLeft > 1
+              ? `${daysLeft} ${t("days")}`
+              : `${daysLeft} ${t("day")}`}
+          </Text>
         ) : null,
     });
   }, [navigation, daysLeft]);
@@ -177,7 +183,7 @@ const BattlePass = () => {
                       opacity: 0.6,
                     }}
                   >
-                    Free Rewards
+                    {t("free_rewards")}
                   </Text>
                   {battlePass.freeRewards.map((_, idx) => (
                     <BattlePassItem key={`free-rewards-key-${idx}`} data={_} />

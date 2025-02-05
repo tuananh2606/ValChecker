@@ -19,7 +19,10 @@ import { initBackgroundFetch, stopBackgroundFetch } from "@/utils/wishlist";
 import * as Notifications from "expo-notifications";
 import { useTranslation } from "react-i18next";
 import { SchedulableTriggerInputTypes } from "expo-notifications";
-import { getCalendars, useCalendars } from "expo-localization";
+
+export const unstable_settings = {
+  initialRouteName: "loading",
+};
 
 const { DarkTheme } = adaptNavigationTheme({
   reactNavigationDark: NavigationDarkTheme,
@@ -55,10 +58,18 @@ export default function RootLayout() {
     async function prepare() {
       try {
         // Pre-load fonts, make any API calls you need to do here
-        const permission = await Notifications.requestPermissionsAsync();
-        if (permission.granted) {
+        const permission = await Notifications.getPermissionsAsync();
+        if (permission.status && permission.granted) {
           setNotificationEnabled(true);
+        } else {
+          const permission = await Notifications.requestPermissionsAsync();
+          if (permission.granted) {
+            setNotificationEnabled(true);
+          } else {
+            setNotificationEnabled(false);
+          }
         }
+
         const notificationEnabled =
           useWishlistStore.getState().notificationEnabled;
 
@@ -128,8 +139,9 @@ export default function RootLayout() {
               name="(authenticated)"
               options={{ headerShown: false }}
             />
+            <Stack.Screen name="index" redirect />
             <Stack.Screen
-              name="index"
+              name="loading"
               options={{
                 headerShown: false,
                 headerStyle: {

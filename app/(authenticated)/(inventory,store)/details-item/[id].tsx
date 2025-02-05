@@ -34,6 +34,9 @@ const DetailsAccessoryScreen = () => {
           ? buddy?.displayName
           : spray?.displayName,
       headerTitleAlign: "center",
+      headerStyle: {
+        backgroundColor: "black",
+      },
     });
   }, [navigation]);
 

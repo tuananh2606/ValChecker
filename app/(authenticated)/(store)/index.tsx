@@ -7,6 +7,7 @@ import AccessoryView from "@/components/AccessoryView";
 import BundleView from "@/components/BundleView";
 import { Title } from "react-native-paper";
 import { useAppTheme } from "@/app/_layout";
+import i18n from "@/utils/localization";
 
 const renderScene = SceneMap({
   store: StoreView,
@@ -16,8 +17,8 @@ const renderScene = SceneMap({
 
 const routes = [
   { key: "store", title: "Skin" },
-  { key: "accessory", title: "Accessory" },
-  { key: "bundle", title: "Bundle" },
+  { key: "accessory", title: i18n.t("accessory") },
+  { key: "bundle", title: i18n.t("bundle") },
 ];
 
 export default function StoreScreen() {
@@ -45,7 +46,7 @@ export default function StoreScreen() {
           textAlign: "center",
         }}
       >
-        Store
+        {i18n.t("store")}
       </Title>
       <TabView
         navigationState={{ index, routes }}

@@ -67,7 +67,7 @@ export const convertSecstoHhMmSs = (remainingTime: number) => {
   const minutes = Math.floor((remainingTime % 3600) / 60);
   const seconds = remainingTime % 60;
 
-  return `${days >= 1 ? `${days.toString().padStart(2, "0")}:` : ""}${hours
+  return `${days >= 1 ? `${days.toString()}days ` : ""}${hours
     .toString()
     .padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds
     .toString()

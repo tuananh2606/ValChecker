@@ -14,12 +14,14 @@ import { Button, Title } from "react-native-paper";
 import { router } from "expo-router";
 import SprayItem from "@/components/SprayItem";
 import { useAppTheme } from "@/app/_layout";
+import { useTranslation } from "react-i18next";
 
 interface ISprayAccessory extends ValorantSprayAccessory {
   equipSlot: string;
 }
 
 export default function InventoryScreen() {
+  const { t } = useTranslation();
   const [playerLoadout, setPlayerLoadout] = useState<{
     card: ValorantCardAccessory;
     sprays: ISprayAccessory[];
@@ -76,15 +78,16 @@ export default function InventoryScreen() {
       <Title
         style={{ textAlign: "center", color: colors.text, fontWeight: 700 }}
       >
-        Inventory
+        {t("inventory")}
       </Title>
       <View>
         <Title
           style={{
             fontSize: 20,
+            marginBottom: 8,
           }}
         >
-          Card
+          {t("card")}
         </Title>
         <TouchableWithoutFeedback onPress={() => router.push("/cards")}>
           <Image
@@ -96,13 +99,17 @@ export default function InventoryScreen() {
           />
         </TouchableWithoutFeedback>
       </View>
-      <View>
+      <View
+        style={{
+          marginTop: 10,
+        }}
+      >
         <Title
           style={{
             fontSize: 20,
           }}
         >
-          Spray
+          {t("spray")}
         </Title>
         <View style={styles.sprayContainer}>
           <SprayItem
@@ -144,7 +151,7 @@ export default function InventoryScreen() {
           dark
           onPress={() => router.push("/(authenticated)/(inventory)/(skins)")}
         >
-          Weapon Inventory
+          {t("weapon_inventory")}
         </Button>
         <Button
           style={{ marginTop: 10, width: 170 }}
@@ -153,7 +160,7 @@ export default function InventoryScreen() {
           dark
           onPress={() => router.push("/buddies")}
         >
-          Weapon Buddies
+          {t("weapon_buddies")}
         </Button>
       </View>
     </View>

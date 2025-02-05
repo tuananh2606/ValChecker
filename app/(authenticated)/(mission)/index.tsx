@@ -1,15 +1,19 @@
-import { View, Text, StyleSheet, StatusBar } from "react-native";
+import { View, StyleSheet, StatusBar } from "react-native";
 import { useEffect, useState } from "react";
-
 import useUserStore from "@/hooks/useUserStore";
-
 import * as SecureStore from "expo-secure-store";
 import {
   convertDatetoSeconds,
   getDeviceWidth,
   isSameDayUTC,
 } from "@/utils/misc";
-import { ProgressBar, MD3Colors, Button, Title } from "react-native-paper";
+import {
+  ProgressBar,
+  MD3Colors,
+  Button,
+  Title,
+  Text,
+} from "react-native-paper";
 import TimerAction from "@/components/TimerAction";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
@@ -17,17 +21,31 @@ import { getMissions } from "@/utils/valorant-assets";
 import { fetchPlayerXP, getMissionsMetadata } from "@/utils/valorant-api";
 import { Skeleton } from "@/components/Skeleton";
 import { useAppTheme } from "@/app/_layout";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useTranslation } from "react-i18next";
+
+interface Mission {
+  /** UUID */
+  ID: string;
+  Objectives: {
+    [x: string]: number;
+  };
+  Complete: boolean;
+  /** Date in ISO 8601 format */
+  ExpirationTime: string;
+}
 
 interface WeeklyMission extends ValorantMission {
   progress: number;
 }
 
 export default function MissionScreen() {
+  const { t } = useTranslation();
   const [expirationTime, setExpirationTime] = useState<string>();
   const [nextTimeFirstWinAvailable, setNextTimeFirstWinAvailable] =
     useState<number>(0);
   const [isFirstWin, setFirstWin] = useState<boolean>(false);
-  const [missions, setMissions] = useState<WeeklyMission[]>();
+  const [missions, setMissions] = useState<WeeklyMission[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { colors } = useAppTheme();
   const user = useUserStore((state) => state.user);
@@ -72,19 +90,30 @@ export default function MissionScreen() {
         setFirstWin(false);
       }
 
-      let weeklyMissions: WeeklyMission[] = [];
-      for (let i = 0; i < missionsMetadata.Missions.length; i++) {
-        const weeklyMission = missions.find(
-          (mission) => mission.uuid === missionsMetadata.Missions[i].ID
+      if (missionsMetadata.Missions.length > 0) {
+        await AsyncStorage.setItem(
+          "@missions:key",
+          JSON.stringify(missionsMetadata.Missions)
         );
-        if (weeklyMission) {
-          weeklyMissions.push({
-            ...weeklyMission,
-            progress:
-              missionsMetadata.Missions[i].Objectives[
-                Object.keys(missionsMetadata.Missions[i].Objectives)[0]
-              ],
-          });
+      }
+      let weeklyMissions: WeeklyMission[] = [];
+      const missionsJson = await AsyncStorage.getItem("@missions:key");
+      if (missionsJson) {
+        const missionsArr: Mission[] = JSON.parse(missionsJson);
+        for (let i = 0; i < missionsArr.length; i++) {
+          const weeklyMission = missions.find(
+            (mission) => mission.uuid === missionsArr[i].ID
+          );
+
+          if (weeklyMission) {
+            weeklyMissions.push({
+              ...weeklyMission,
+              progress:
+                missionsArr[i].Objectives[
+                  Object.keys(missionsArr[i].Objectives)[0]
+                ],
+            });
+          }
         }
       }
 
@@ -104,7 +133,7 @@ export default function MissionScreen() {
           fontWeight: 700,
         }}
       >
-        Mission
+        {t("mission")}
       </Title>
       <View
         style={{
@@ -140,7 +169,9 @@ export default function MissionScreen() {
             )}
           </View>
           <View>
-            <Text style={{ color: colors.text }}>First Win of the Day</Text>
+            <Text style={{ color: colors.text }}>
+              {t("first_win_of_the_day")}
+            </Text>
             {nextTimeFirstWinAvailable > 0 ? (
               <TimerAction
                 remainingSecs={nextTimeFirstWinAvailable}
@@ -153,7 +184,7 @@ export default function MissionScreen() {
               />
             ) : (
               <Text style={{ color: colors.text, opacity: 0.6 }}>
-                Available
+                {t("available")}
               </Text>
             )}
           </View>
@@ -176,7 +207,7 @@ export default function MissionScreen() {
             fontSize: 16,
           }}
         >
-          Weekly Missions
+          {t("weekly_missions")}
         </Text>
 
         {expirationTime && (
@@ -272,7 +303,6 @@ export default function MissionScreen() {
           </View>
         </View>
       ) : (
-        missions &&
         missions.map((mission, idx) => {
           const { title, progress, progressToComplete, xpGrant } = mission;
 
@@ -305,25 +335,42 @@ export default function MissionScreen() {
           );
         })
       )}
-      <Button
+      <View
         style={{
-          width: "50%",
+          width: "100%",
           marginTop: 24,
         }}
-        buttonColor="#ff4654"
-        dark
-        mode="contained"
-        onPress={() => router.push("/battlepass")}
       >
-        <View
+        <Text
+          variant="labelLarge"
           style={{
-            flexDirection: "row",
-            alignItems: "center",
+            color: "gray",
           }}
         >
-          <Text style={{ fontSize: 16, color: colors.text }}>Battle Pass</Text>
-        </View>
-      </Button>
+          Battle Pass
+        </Text>
+        <Button
+          style={{
+            marginTop: 4,
+            borderRadius: 8,
+          }}
+          buttonColor="#ff4654"
+          dark
+          mode="contained"
+          onPress={() => router.push("/battlepass")}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ fontSize: 16, color: colors.text }}>
+              Battle Pass
+            </Text>
+          </View>
+        </Button>
+      </View>
     </View>
   );
 }

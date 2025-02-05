@@ -4,10 +4,11 @@ import { HapticTab } from "@/components/HapticTab";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useTranslation } from "react-i18next";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-
+  const { t } = useTranslation();
   return (
     <Tabs
       screenOptions={{
@@ -32,7 +33,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="(store)"
         options={{
-          title: "Store",
+          title: t("store"),
           popToTopOnBlur: true,
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="storefront" size={28} color={color} />
@@ -42,16 +43,16 @@ export default function TabLayout() {
       <Tabs.Screen
         name="(mission)"
         options={{
-          title: "Mission",
+          title: t("mission"),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="list-alt" size={28} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="career"
+        name="(career)"
         options={{
-          title: "Career",
+          title: t("career"),
           tabBarIcon: ({ color }) => (
             <MaterialIcons
               name="insert-chart-outlined"
@@ -64,7 +65,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="(inventory)"
         options={{
-          title: "Inventory",
+          title: t("inventory"),
           popToTopOnBlur: true,
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="inventory" size={28} color={color} />
@@ -74,7 +75,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="setting"
         options={{
-          title: "Setting",
+          title: t("settings.name"),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="settings" size={28} color={color} />
           ),

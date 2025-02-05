@@ -129,7 +129,6 @@ const TabImageButtons = ({
   });
 
   const buttonWidth = dimensions.width / buttons.length;
-  const colorScheme = useColorScheme();
   const tabPositionX = useSharedValue(0);
 
   const onTabbarLayout = (e: LayoutChangeEvent) => {
@@ -193,16 +192,28 @@ const TabImageButtons = ({
               }}
               onPress={() => onTabPress(index)}
             >
-              <Image
-                style={{
-                  width: 40,
-                  height: 40,
-                }}
-                contentFit="contain"
-                source={{
-                  uri: button.source,
-                }}
-              />
+              {button.source ? (
+                <Image
+                  style={{
+                    width: 40,
+                    height: 40,
+                  }}
+                  contentFit="contain"
+                  source={{
+                    uri: button.source,
+                  }}
+                />
+              ) : (
+                <Text
+                  style={{
+                    color: "white",
+                    alignSelf: "center",
+                    fontWeight: "600",
+                  }}
+                >
+                  {button.title}
+                </Text>
+              )}
             </Pressable>
           );
         })}
