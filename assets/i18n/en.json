@@ -106,7 +106,7 @@
   "translators": "Translators",
   "update": {
     "available": {
-      "description": "A newer version of VShop is available to download",
+      "description": "A newer version of ValChecker is available to download?",
       "title": "Update available"
     },
     "download_github": "Download on GitHub"
