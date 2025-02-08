@@ -18,7 +18,7 @@ import { initBackgroundFetch, stopBackgroundFetch } from "@/utils/wishlist";
 import { useWishlistStore } from "@/hooks/useWishlistStore";
 import * as Notifications from "expo-notifications";
 import { useDarkMode } from "@/hooks/useDarkMode";
-import { useAppTheme } from "../_layout";
+import { useAppTheme } from "../../_layout";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 import * as SecureStore from "expo-secure-store";
 
@@ -89,7 +89,11 @@ export default function SettingScreen() {
             borderRadius: 10,
             backgroundColor: "#2E2E2E",
           }}
+          onPress={() => router.push("/faq")}
           title={t("settings.faq.details")}
+          left={() => (
+            <AntDesign name="questioncircle" size={24} color={colors.tint} />
+          )}
           right={() => <List.Icon color={colors.tint} icon="chevron-right" />}
         />
         <List.Subheader> {t("general")}</List.Subheader>

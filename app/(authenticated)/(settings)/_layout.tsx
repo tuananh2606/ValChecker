@@ -1,9 +1,7 @@
 import { useAppTheme } from "@/app/_layout";
 import { Stack } from "expo-router";
-import { useTranslation } from "react-i18next";
 
-export default function CareerLayout() {
-  const { t } = useTranslation();
+export default function SettingsLayout() {
   const { colors } = useAppTheme();
   return (
     <Stack
@@ -14,12 +12,12 @@ export default function CareerLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="match-history" options={{ headerShown: false }} />
       <Stack.Screen
-        name="career-summary"
+        name="faq"
         options={{
-          headerTitle: t("match.career_summary"),
+          headerTitle: "FAQ",
           headerTitleAlign: "center",
+          presentation: "modal",
         }}
       />
     </Stack>

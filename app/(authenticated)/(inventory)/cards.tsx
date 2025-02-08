@@ -24,10 +24,11 @@ import { Pressable } from "react-native-gesture-handler";
 import { router } from "expo-router";
 import Pagination from "@/components/Pagination";
 import { FlashList } from "@shopify/flash-list";
+import i18n from "@/utils/localization";
 
 export const SwitchTabArray = [
-  { title: "Owned", id: "owned" },
-  { title: "All", id: "all" },
+  { title: i18n.t("owned"), id: "owned" },
+  { title: i18n.t("all"), id: "all" },
 ];
 
 export default function CardsScreen() {

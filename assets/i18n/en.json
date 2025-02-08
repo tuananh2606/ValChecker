@@ -5,7 +5,7 @@
   "balances": "Balances",
   "battery_optimization_warning": {
     "action": "Disable battery optimization",
-    "description": "Battery optimization is enabled for VShop. This may prevent wishlist notifications from working properly."
+    "description": "Battery optimization is enabled for ValChecker. This may prevent wishlist notifications from working properly."
   },
   "bundles": "Bundles",
   "chromas": "Chromas",
@@ -89,7 +89,17 @@
     "name": "Settings",
     "faq": {
       "name": "FAQ",
-      "details": "Frequently Asked Questions"
+      "details": "Frequently Asked Questions",
+      "can_not_login": "Why i can't login?",
+      "can_not_login_content": "Please check your Riot account or password, the app does not support other social media account login method currently. In order to use ValChecker, you will have to connect your social media account to your Riot account.",
+      "invalid_session_id": "What is INVALID_SESSION_ID error message?",
+      "app_end_date": "Will this app have an end date?",
+      "app_end_date_content": "It's hard to say. If one day Riot stops providing API access to developers, most of the features will become unusable.",
+      "is_account_safe": "Is my account safe?",
+      "is_account_safe_content": "I deeply understand the value you place on privacy. Rest assured, although the source code of my application is not yet open-source, I am committed to preserving and respecting the data security of all users. I assure you that I will not store or use your personal account information without your consent.\n\nI operate with high transparency, with all my personal information, contact details, and social media accounts being public. This is the best testament to my honest and fair operation, free from any illicit activities. My profit model is solely based on advertising revenue within the application and does not involve any improper or illegal ways of obtaining benefits.\n\nHowever, I also understand that each person has different levels of concern for their privacy. Therefore, if you have any concerns about my data protection policy, you can choose not to use this application, or enable two-factor authentication to further secure your account.\n\nThank you for your understanding and support. I look forward to providing you with the safest and most efficient service.",
+      "get_banned": "Do i get banned for using this app?",
+      "get_banned_content": "I understand you might have concerns about the impact of using this app on your Riot account. Please rest assured, this app itself is not necessarily going to result in your Riot account being banned. In fact, other third-party apps installed on your computer, such as Blitz, Valorant Tracker, Discord, and so on, also carry a certain risk of erroneous bans.\n\nThis app does not directly access your game data through your computer but accomplishes corresponding operations by sending Riot's API. The mistaken banning situations could involve many factors, including but not limited to whether you have used internet cafes, whether your computer has installed other cheats or auxiliary programs, among other issues.\n\nI value every user's gaming experience and hope all information can be accurately conveyed. Please ensure the accuracy when sharing information about this app to avoid spreading false rumors, which could inconvenience other users. Thank you for your understanding and cooperation.",
+      "remind": "Using any third-party software comes with risks. There are various reasons your account might be banned, including but not limited to the use of ValChecker. If you choose to use this product, you agree to assume full responsibility for the status of your account. If you have concerns, please refrain from using this service. We deeply appreciate your understanding."
     },
     "general": {
       "name": "General",
@@ -113,7 +123,7 @@
   },
   "videos": "Videos",
   "vp": "Valorant Points",
-  "welcome": "Welcome to VShop",
+  "welcome": "Welcome to ValChecker",
   "welcome_back": "Welcome back",
   "welcome_back_info": "Sit tight, while we log you back in.",
   "wishlist": {
@@ -149,17 +159,36 @@
   "inventory": "Inventory",
   "weapon_inventory": "Weapon Inventory",
   "weapon_buddies": "Weapon Buddies",
+  "buddies": "Buddies",
   "card": "Card",
   "spray": "Spray",
+  "loadout": "Loadout",
   "match": {
     "name": "Match",
-    "history": "Match history"
+    "history": "Match history",
+    "career": "Career",
+    "career_summary": "Career Summary",
+    "personal_style": "Personal Style"
   },
+
   "day": "day",
   "days": "days",
+  "game_win": "game win",
+  "games_win": "games win",
   "free_rewards": "Free Rewards",
   "owned": "Owned",
   "not_owned": "Not Owned",
+  "all": "All",
   "total_collection_count": "Total Collection Count",
-  "choose_weapon": "Choose Weapon"
+  "choose_weapon": "Choose Weapon",
+  "won": "Won",
+  "defeat": "Defeat",
+  "alltime": "All time",
+  "game_mode": {
+    "competitive": "Competitive",
+    "deathmatch": "Deathmatch",
+    "unrated": "Unrated",
+    "spikerush": "Spike Rush",
+    "swiftplay": "Swiftplay"
+  }
 }

@@ -7,9 +7,9 @@ import {
   Image,
   StyleSheet,
   TouchableWithoutFeedback,
+  ScrollView,
 } from "react-native";
 import { fetchPlayerLoadout } from "@/utils/valorant-api";
-import { VSprayEquipSlot } from "@/utils/misc";
 import { Button, Title } from "react-native-paper";
 import { router } from "expo-router";
 import SprayItem from "@/components/SprayItem";
@@ -69,7 +69,7 @@ export default function InventoryScreen() {
   }, []);
 
   return (
-    <View
+    <ScrollView
       style={{
         flex: 1,
         paddingHorizontal: 10,
@@ -102,39 +102,59 @@ export default function InventoryScreen() {
       <View
         style={{
           marginTop: 10,
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
         <Title
           style={{
+            alignSelf: "flex-start",
             fontSize: 20,
           }}
         >
           {t("spray")}
         </Title>
         <View style={styles.sprayContainer}>
+          <View
+            style={{
+              width: 100,
+              height: 100,
+              backgroundColor: "black",
+              borderRadius: 100,
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              zIndex: 10,
+              transform: [{ translateX: -50 }, { translateY: -50 }],
+            }}
+          ></View>
           <SprayItem
-            styleContainer={{ top: 11, width: 160, height: 100 }}
-            style={{ width: 160, height: 100 }}
-            source={require("@/assets/images/top.png")}
+            styleContainer={{ left: 0, top: 0, borderStartStartRadius: 150 }}
+            styleImage={{
+              transform: [{ rotate: "-45deg" }, { translateY: 10 }],
+            }}
             playerLoadout={playerLoadout?.sprays[0]}
           />
           <SprayItem
-            styleContainer={{ left: 54, width: 100, height: 160 }}
-            style={{ width: 100, height: 160 }}
-            source={require("@/assets/images/left.png")}
-            playerLoadout={playerLoadout?.sprays[3]}
-          />
-          <SprayItem
-            styleContainer={{ right: 54, width: 100, height: 160 }}
-            style={{ width: 100, height: 160 }}
-            source={require("@/assets/images/right.png")}
+            styleContainer={{ right: 0, borderEndStartRadius: 150 }}
+            styleImage={{
+              transform: [{ rotate: "-45deg" }, { translateX: -10 }],
+            }}
             playerLoadout={playerLoadout?.sprays[1]}
           />
           <SprayItem
-            source={require("@/assets/images/bottom.png")}
-            styleContainer={{ bottom: 11, width: 160, height: 100 }}
-            style={{ width: 160, height: 100 }}
+            styleContainer={{ bottom: 0, right: 0, borderEndEndRadius: 150 }}
+            styleImage={{
+              transform: [{ rotate: "-45deg" }, { translateY: -10 }],
+            }}
             playerLoadout={playerLoadout?.sprays[2]}
+          />
+          <SprayItem
+            styleContainer={{ bottom: 0, borderStartEndRadius: 150 }}
+            styleImage={{
+              transform: [{ rotate: "-45deg" }, { translateX: 10 }],
+            }}
+            playerLoadout={playerLoadout?.sprays[3]}
           />
         </View>
       </View>
@@ -142,6 +162,7 @@ export default function InventoryScreen() {
         style={{
           justifyContent: "center",
           alignItems: "center",
+          marginBottom: 20,
         }}
       >
         <Button
@@ -163,13 +184,15 @@ export default function InventoryScreen() {
           {t("weapon_buddies")}
         </Button>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   image: {
@@ -177,9 +200,10 @@ const styles = StyleSheet.create({
     height: 110,
   },
   sprayContainer: {
+    marginVertical: 16,
     position: "relative",
-    height: 250,
-    justifyContent: "center",
-    alignItems: "center",
+    height: 300,
+    width: 300,
+    transform: [{ rotate: "45deg" }],
   },
 });

@@ -1,8 +1,9 @@
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import useUserStore from "@/hooks/useUserStore";
 import { memo, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import {
+  fetchCompetitiveUpdates,
   fetchPlayerLoadout,
   fetchPlayerMMR,
   parseSeason,
@@ -15,8 +16,8 @@ import {
 import { Image } from "expo-image";
 import Loading from "@/components/Loading";
 import { useAppTheme } from "@/app/_layout";
-import { Button, Text, TouchableRipple } from "react-native-paper";
-import { router } from "expo-router";
+import { Text, TouchableRipple } from "react-native-paper";
+import { Href, router } from "expo-router";
 import { useTranslation } from "react-i18next";
 
 const MineView = () => {
@@ -50,8 +51,8 @@ const MineView = () => {
       let entitlementsToken = (await SecureStore.getItemAsync(
         "entitlements_token"
       )) as string;
-      let [playerLoadout, playerMMR, seasons, levelBorders] = await Promise.all(
-        [
+      let [playerLoadout, playerMMR, seasons, levelBorders, competitiveUpdate] =
+        await Promise.all([
           fetchPlayerLoadout(
             accessToken,
             entitlementsToken,
@@ -61,8 +62,15 @@ const MineView = () => {
           fetchPlayerMMR(accessToken, entitlementsToken, user.region, user.id),
           fetchSeasons(),
           getLevelBorders(),
-        ]
-      );
+          fetchCompetitiveUpdates(
+            accessToken,
+            entitlementsToken,
+            user.region,
+            user.id,
+            0,
+            1
+          ),
+        ]);
       const seasonsAvailabe = parseSeason(seasons);
 
       const prevSeason = seasonsAvailabe[seasonsAvailabe.length - 2];
@@ -85,12 +93,11 @@ const MineView = () => {
       });
       const currentSeason = seasonsAvailabe[seasonsAvailabe.length - 1];
       const currentRank = competitiveTiers.find(
-        (item) =>
-          item.tier === playerMMR.LatestCompetitiveUpdate.TierAfterUpdate
+        (item) => item.tier === competitiveUpdate.Matches[0].TierAfterUpdate
       );
       setCurrentRank({
         seasonTitle: currentSeason.label,
-        rankPoint: playerMMR.LatestCompetitiveUpdate.RankedRatingAfterUpdate,
+        rankPoint: competitiveUpdate.Matches[0].RankedRatingAfterUpdate,
         rank: currentRank as ValorantCompetitiveTier,
       });
       const myCard = cards.find(
@@ -113,7 +120,9 @@ const MineView = () => {
   }
 
   return (
-    <View style={{ marginTop: 8, paddingHorizontal: 10 }}>
+    <ScrollView
+      style={{ marginTop: 8, paddingHorizontal: 10, marginBottom: 10 }}
+    >
       <View
         style={{
           alignItems: "center",
@@ -222,7 +231,7 @@ const MineView = () => {
               },
             ]}
           >
-            {currentRank?.seasonTitle.replace("-", "/")}
+            {currentRank?.seasonTitle.replace("-", " // ")}
           </Text>
           <Image
             style={{
@@ -268,7 +277,7 @@ const MineView = () => {
               },
             ]}
           >
-            {previousRank?.seasonTitle.replace("-", "/")}
+            {previousRank?.seasonTitle.replace("-", " // ")}
           </Text>
           <Image
             style={{
@@ -300,41 +309,66 @@ const MineView = () => {
           >{`${previousRank?.rankPoint} RR`}</Text>
         </View>
       </View>
-      <View
-        style={{
-          width: "100%",
-          marginTop: 24,
-        }}
-      >
-        <Text
-          variant="labelLarge"
-          style={{
-            textTransform: "uppercase",
-            color: "gray",
-          }}
-        >
-          {t("match.name")}
-        </Text>
-        <TouchableRipple
-          style={{
-            marginTop: 4,
-            borderRadius: 8,
-            padding: 10,
-
-            backgroundColor: colors.primary,
-            justifyContent: "center",
-          }}
-          onPress={() => router.push("/match-history")}
-        >
-          <Text style={{ fontSize: 18, color: colors.text, textAlign: "left" }}>
-            {t("match.history")}
-          </Text>
-        </TouchableRipple>
-      </View>
-    </View>
+      <CareerButtton
+        header={t("match.name")}
+        title={t("match.history")}
+        href={"/match-history"}
+      />
+      <CareerButtton
+        header={t("match.career")}
+        title={t("match.career_summary")}
+        href={"/career-summary"}
+      />
+    </ScrollView>
   );
 };
 export default memo(MineView);
+
+const CareerButtton = ({
+  header,
+  title,
+  href,
+}: {
+  header: string;
+  title: string;
+  href: Href;
+}) => {
+  const { colors } = useAppTheme();
+  return (
+    <View
+      style={{
+        width: "100%",
+        marginTop: 24,
+      }}
+    >
+      <Text
+        variant="labelLarge"
+        style={{
+          textTransform: "uppercase",
+          color: "gray",
+        }}
+      >
+        {header}
+      </Text>
+      <TouchableRipple
+        style={{
+          marginTop: 4,
+          borderRadius: 8,
+          padding: 10,
+
+          backgroundColor: colors.primary,
+          justifyContent: "center",
+        }}
+        onPress={() => router.push(href)}
+      >
+        <Text style={{ fontSize: 18, color: colors.text, textAlign: "left" }}>
+          {title}
+        </Text>
+      </TouchableRipple>
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     height: 180,

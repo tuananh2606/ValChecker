@@ -42,8 +42,27 @@ export async function wishlistBgTask() {
     await checkShop(wishlistStore.skinIds);
     await AsyncStorage.setItem("lastWishlistCheck", now.getTime().toString());
   }
-
   console.log("No wishlist check needed");
+  await Notifications.setNotificationChannelAsync("daily", {
+    name: "Daily",
+    importance: Notifications.AndroidImportance.MAX,
+  });
+  const d = new Date();
+  d.setUTCHours(0, 0, 0);
+
+  const timeZoneOffset = d.getTimezoneOffset() / 60;
+
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      body: i18n.t("wishlist.notification.no_hit"),
+    },
+    trigger: {
+      channelId: "daily",
+      type: Notifications.SchedulableTriggerInputTypes.DAILY,
+      hour: d.getUTCHours() - timeZoneOffset,
+      minute: 0,
+    },
+  });
 }
 
 export async function checkShop(wishlist: string[]) {

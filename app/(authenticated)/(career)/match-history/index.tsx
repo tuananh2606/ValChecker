@@ -42,7 +42,6 @@ const MatchHistory = () => {
         user.id,
         matchHistory.History
       );
-      console.log(matchHistoyDetails);
       setMatchHistory(matchHistoyDetails);
       setLoading(false);
     };

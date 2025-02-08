@@ -1,5 +1,6 @@
 import { Dimensions } from "react-native";
 import { getAssets } from "./valorant-assets";
+import i18n from "./localization";
 
 export const TypeBattlePass = "Season";
 
@@ -67,7 +68,7 @@ export const convertSecstoHhMmSs = (remainingTime: number) => {
   const minutes = Math.floor((remainingTime % 3600) / 60);
   const seconds = remainingTime % 60;
 
-  return `${days >= 1 ? `${days.toString()}days ` : ""}${hours
+  return `${days >= 1 ? `${days.toString()}${i18n.t("days")} ` : ""}${hours
     .toString()
     .padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds
     .toString()

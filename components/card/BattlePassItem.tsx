@@ -31,6 +31,7 @@ const BattlePassItem = ({
       router.push({
         pathname: "/modal",
         params: {
+          title: data.displayName,
           source: data.largeArt || data.fullTransparentIcon || data.displayIcon,
         },
       });

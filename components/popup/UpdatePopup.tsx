@@ -63,7 +63,16 @@ export default function UpdatePopup() {
               <Paragraph>{t("update.available.description")}</Paragraph>
             </Card.Content>
             <Card.Actions style={{ justifyContent: "flex-end" }}>
-              <Button onPress={() => setVisible(false)}>{t("no")}</Button>
+              <Button onPress={() => setVisible(false)}>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    color: "white",
+                  }}
+                >
+                  {t("no")}
+                </Text>
+              </Button>
               <Button
                 onPress={() =>
                   Linking.openURL(
@@ -73,6 +82,7 @@ export default function UpdatePopup() {
               >
                 <Text
                   style={{
+                    fontSize: 12,
                     color: "white",
                   }}
                 >
@@ -89,7 +99,6 @@ export default function UpdatePopup() {
 
 function compareVersions(githubTag: string) {
   if (!Application.nativeApplicationVersion) return 0;
-  console.log(Application.nativeApplicationVersion);
 
   const versionParts = Application.nativeApplicationVersion.split(".");
   const githubTagParts = githubTag.replace("v", "").split(".");

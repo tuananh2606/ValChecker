@@ -204,7 +204,6 @@ export default function MissionScreen() {
             flex: 1,
             color: colors.text,
             textTransform: "uppercase",
-            fontSize: 16,
           }}
         >
           {t("weekly_missions")}

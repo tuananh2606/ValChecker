@@ -18,7 +18,6 @@ import { useWishlistStore } from "@/hooks/useWishlistStore";
 import { initBackgroundFetch, stopBackgroundFetch } from "@/utils/wishlist";
 import * as Notifications from "expo-notifications";
 import { useTranslation } from "react-i18next";
-import { SchedulableTriggerInputTypes } from "expo-notifications";
 
 export const unstable_settings = {
   initialRouteName: "loading",
@@ -74,26 +73,6 @@ export default function RootLayout() {
           useWishlistStore.getState().notificationEnabled;
 
         if (notificationEnabled) {
-          await Notifications.setNotificationChannelAsync("daily", {
-            name: "Daily",
-            importance: Notifications.AndroidImportance.MAX,
-          });
-          const d = new Date();
-          d.setUTCHours(0, 0, 0);
-
-          const timeZoneOffset = d.getTimezoneOffset() / 60;
-
-          await Notifications.scheduleNotificationAsync({
-            content: {
-              body: t("wishlist.notification.no_hit"),
-            },
-            trigger: {
-              channelId: "daily",
-              type: SchedulableTriggerInputTypes.DAILY,
-              hour: d.getUTCHours() - timeZoneOffset,
-              minute: 0,
-            },
-          });
           initBackgroundFetch();
         } else {
           stopBackgroundFetch();

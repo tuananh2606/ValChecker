@@ -65,7 +65,7 @@ const MatchHistoryDetails = () => {
 
         <Text
           style={{
-            width: 50,
+            width: 100,
             position: "absolute",
             top: 10,
             left: 10,
@@ -156,16 +156,18 @@ const MatchHistoryDetails = () => {
                       uri: player.character.displayIcon,
                     }}
                   />
-                  <Image
-                    style={{
-                      height: 30,
-                      width: 30,
-                    }}
-                    contentFit="contain"
-                    source={{
-                      uri: player.competitiveRank.smallIcon,
-                    }}
-                  />
+                  {player.competitiveRank && (
+                    <Image
+                      style={{
+                        height: 30,
+                        width: 30,
+                      }}
+                      contentFit="contain"
+                      source={{
+                        uri: player.competitiveRank.smallIcon,
+                      }}
+                    />
+                  )}
                   <Text
                     numberOfLines={1}
                     style={{

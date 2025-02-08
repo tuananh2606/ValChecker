@@ -8,12 +8,14 @@ import useUserStore from "@/hooks/useUserStore";
 import { useMatchHistory } from "@/context/MatchHistoryContext";
 import { router } from "expo-router";
 import { BlurView } from "expo-blur";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   data: MatchDetails;
 }
 
 const MatchHistoryItem = ({ data }: Props) => {
+  const { t } = useTranslation();
   const { colors } = useAppTheme();
   const { setMatch } = useMatchHistory();
   const user = useUserStore((state) => state.user);
@@ -37,7 +39,7 @@ const MatchHistoryItem = ({ data }: Props) => {
     const isWon = data?.teams!.find(
       (item) => item.teamId === player!.teamId
     )?.won;
-    return isWon ? "Won" : "Defeat";
+    return isWon ? t("won") : t("defeat");
   };
 
   const player = data.players.find((p) => p.subject === user.id);
@@ -93,7 +95,6 @@ const MatchHistoryItem = ({ data }: Props) => {
             <Text
               style={{
                 color: "red",
-
                 fontWeight: "bold",
               }}
             >
@@ -226,7 +227,7 @@ const MatchHistoryItem = ({ data }: Props) => {
                   textAlign: "right",
                 }}
               >
-                {data.competitiveUpdates?.RankedRatingBeforeUpdate}
+                {data.competitiveUpdates?.RankedRatingAfterUpdate}
               </Text>
             </View>
             <Image
@@ -283,7 +284,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     alignSelf: "center",
     top: 30,
-    width: 100,
+    width: 160,
     height: 40,
     backgroundColor: "white",
   },

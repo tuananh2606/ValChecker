@@ -1,29 +1,28 @@
-import { getDeviceWidth } from "@/utils/misc";
+import { useAppTheme } from "@/app/_layout";
 import { router } from "expo-router";
-import {
-  ImageBackground,
-  Pressable,
-  StyleSheet,
-  Image,
-  ImageSourcePropType,
-} from "react-native";
+import { StyleSheet, Image, TouchableHighlight } from "react-native";
+
 interface ISprayAccessory extends ValorantSprayAccessory {
   equipSlot: string;
 }
 
 type Props = {
   styleContainer?: any;
-  style: any;
-  source: ImageSourcePropType;
+  styleImage: any;
   playerLoadout?: ISprayAccessory;
 };
 
-const SprayItem = ({ styleContainer, style, source, playerLoadout }: Props) => {
+const SprayItem = ({ styleContainer, styleImage, playerLoadout }: Props) => {
+  const { colors } = useAppTheme();
+
   return (
-    <Pressable
+    <TouchableHighlight
+      activeOpacity={0.6}
+      underlayColor="#413D45"
       style={[
         styles.sprayContainer,
         {
+          backgroundColor: colors.card,
           ...styleContainer,
         },
       ]}
@@ -37,47 +36,30 @@ const SprayItem = ({ styleContainer, style, source, playerLoadout }: Props) => {
         })
       }
     >
-      <ImageBackground
-        source={source}
+      <Image
+        style={{
+          width: 90,
+          height: 90,
+          ...styleImage,
+        }}
         resizeMode="contain"
-        style={[
-          styles.sprayContainer,
-          {
-            ...style,
-          },
-        ]}
-      >
-        <Image
-          style={styles.sprayImage}
-          resizeMode="contain"
-          source={{
-            uri: playerLoadout?.fullTransparentIcon,
-          }}
-        />
-      </ImageBackground>
-    </Pressable>
+        source={{
+          uri: playerLoadout?.fullTransparentIcon,
+        }}
+      />
+    </TouchableHighlight>
   );
 };
 
 export default SprayItem;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-
-  image: {
-    width: getDeviceWidth(),
-    height: 130,
-  },
   sprayContainer: {
-    display: "flex",
+    position: "absolute",
     justifyContent: "center",
     alignItems: "center",
-    position: "absolute",
-  },
-  sprayImage: {
-    width: 60,
-    height: 70,
+    width: 150,
+    height: 150,
+    margin: -4,
   },
 });

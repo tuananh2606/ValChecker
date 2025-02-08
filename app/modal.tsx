@@ -1,11 +1,19 @@
 import { Image } from "expo-image";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { StyleSheet, View } from "react-native";
 import { useAppTheme } from "./_layout";
+import { useEffect } from "react";
 
 export default function Modal() {
   const { colors } = useAppTheme();
-  const { source } = useLocalSearchParams();
+  const { source, title } = useLocalSearchParams();
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerTitle: title,
+    });
+  }, [navigation]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>

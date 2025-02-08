@@ -81,7 +81,17 @@
     "name": "Cài đặt",
     "faq": {
       "name": "FAQ",
-      "details": "Các câu hỏi thường gặp"
+      "details": "Các câu hỏi thường gặp",
+      "can_not_login": "Tại sao tôi không thể đăng nhập?",
+      "can_not_login_content": "Vui lòng kiểm tra tài khoản Riot hoặc mật khẩu của bạn, ứng dụng hiện không hỗ trợ phương thức đăng nhập tài khoản mạng xã hội khác. Để sử dụng ValChecker, bạn sẽ phải kết nối tài khoản mạng xã hội của mình với tài khoản Riot.",
+      "invalid_session_id": "Thông báo lỗi INVALID_SESSION_ID là gì?",
+      "app_end_date": "Ứng dụng này có ngày kết thúc không?",
+      "app_end_date_content": "Thật khó để nói. Nếu một ngày nào đó Riot ngừng cung cấp quyền truy cập API cho các nhà phát triển, hầu hết các tính năng sẽ trở nên không sử dụng được.",
+      "is_account_safe": "Tài khoản của tôi có an toàn không?",
+      "is_account_safe_content": "Tôi hiểu sự lo lắng của bạn về quyền riêng tư. Hãy yên tâm, mặc dù mã nguồn của ứng dụng của tôi vẫn chưa phải là mã nguồn mở, nhưng tôi cam kết bảo vệ và tôn trọng tính bảo mật dữ liệu của tất cả người dùng. Tôi đảm bảo rằng tôi sẽ không lưu trữ hoặc sử dụng thông tin tài khoản cá nhân của bạn mà không có sự đồng ý của bạn.\n\nTôi hoạt động với tính minh bạch cao, với tất cả thông tin cá nhân, thông tin liên lạc và tài khoản mạng xã hội của tôi đều được công khai. Đây là minh chứng tốt nhất cho hoạt động trung thực và công bằng của tôi, không có bất kỳ hoạt động bất hợp pháp nào. Mô hình lợi nhuận của tôi chỉ dựa trên doanh thu quảng cáo trong ứng dụng và không liên quan đến bất kỳ cách thức không phù hợp hoặc bất hợp pháp nào để kiếm lợi nhuận.\n\nTuy nhiên, tôi cũng hiểu rằng mỗi người có mức độ quan tâm khác nhau đến quyền riêng tư của họ. Do đó, nếu bạn có bất kỳ lo ngại nào về chính sách bảo vệ dữ liệu của tôi, bạn có thể chọn không sử dụng ứng dụng này hoặc bật xác thực hai yếu tố để bảo mật tài khoản của mình hơn nữa.\n\nCảm ơn sự thông cảm và hỗ trợ của bạn. Tôi mong muốn cung cấp cho bạn dịch vụ an toàn và hiệu quả nhất.",
+      "get_banned": "Tôi có bị BAN vì sử dụng ứng dụng này không?",
+      "get_banned_content": "Tôi hiểu bạn có thể lo ngại về tác động của việc sử dụng ứng dụng này đối với tài khoản Riot của mình. Xin hãy yên tâm, bản thân ứng dụng này không nhất thiết sẽ khiến tài khoản Riot của bạn bị cấm. Trên thực tế, các ứng dụng của bên thứ ba khác được cài đặt trên máy tính của bạn, chẳng hạn như Blitz, Valorant Tracker, Discord, v.v., cũng có một số rủi ro nhất định về lệnh cấm nhầm.\n\nỨng dụng này không truy cập trực tiếp vào dữ liệu trò chơi của bạn thông qua máy tính mà thực hiện các hoạt động tương ứng bằng cách gửi API của Riot. Các tình huống cấm nhầm có thể liên quan đến nhiều yếu tố, bao gồm nhưng không giới hạn ở việc bạn có sử dụng quán cà phê internet hay không, máy tính của bạn có cài đặt các chương trình gian lận hoặc chương trình phụ trợ khác hay không, trong số các vấn đề khác.\n\nTôi coi trọng trải nghiệm chơi game của mọi người dùng và hy vọng mọi thông tin có thể được truyền tải chính xác. Vui lòng đảm bảo tính chính xác khi chia sẻ thông tin về ứng dụng này để tránh phát tán tin đồn sai sự thật, có thể gây bất tiện cho người dùng khác. Cảm ơn sự thông cảm và hợp tác của bạn.",
+      "remind": "Sử dụng bất kỳ phần mềm của bên thứ ba nào cũng đi kèm với rủi ro. Có nhiều lý do khiến tài khoản của bạn có thể bị cấm, bao gồm nhưng không giới hạn ở việc sử dụng ValChecker. Nếu bạn chọn sử dụng sản phẩm này, bạn đồng ý chịu toàn bộ trách nhiệm về trạng thái tài khoản của mình. Nếu bạn có thắc mắc, vui lòng không sử dụng dịch vụ này. Chúng tôi vô cùng trân trọng sự thông cảm của bạn."
     },
     "general": {
       "name": "Chung",
@@ -130,26 +140,44 @@
   "leaderboard": "Bảng xếp hạng",
   "store": "Cửa hàng",
   "accessory": "Phụ kiện",
-  "bundle": "Bộ",
+  "bundle": "Bộ sưu tập",
   "mission": "Nhiệm vụ",
-  "weekly_missions": "Nhiệm vụ hàng tuần",
-  "available": "Sẵn sàng",
-  "first_win_of_the_day": "Trận thắng đầu tiên trong ngày",
+  "weekly_missions": "Nhiệm vụ tuần",
+  "available": "Khả dụng",
+  "first_win_of_the_day": "Trận thắng đầu trong ngày",
   "career": "Danh vọng",
   "inventory": "Kho đồ",
   "weapon_inventory": "Kho skins vũ khí",
   "weapon_buddies": "Móc treo vũ khí",
+  "buddies": "Móc treo",
   "card": "Thẻ",
   "spray": "Hình phun sơn",
+  "loadout": "Trang bị",
   "match": {
     "name": "Trận đấu",
-    "history": "Lịch sử trận đấu"
+    "career": "Sự nghiệp",
+    "history": "Lịch sử trận đấu",
+    "career_summary": "Tóm tắt sự nghiệp",
+    "personal_style": "Phong cách cá nhân"
   },
   "day": "ngày",
   "days": "ngày",
+  "game_win": "trận thắng",
+  "games_win": "trận thắng",
   "free_rewards": "Phần thưởng miễn phí",
   "owned": "Sở hữu",
   "not_owned": "Chưa sở hữu",
+  "all": "Tất cả",
   "total_collection_count": "Tổng số bộ sưu tập",
-  "choose_weapon": "Chọn loai vũ khí"
+  "choose_weapon": "Chọn loại vũ khí",
+  "won": "Chiến Thắng",
+  "defeat": "Thất bại",
+  "alltime": "Toàn thời gian",
+  "game_mode": {
+    "competitive": "Đấu xếp hạng",
+    "deathmatch": "Sinh tử",
+    "unrated": "Đấu thường",
+    "spikerush": "Đặt Spike nhanh",
+    "swiftplay": "Siêu tốc"
+  }
 }
