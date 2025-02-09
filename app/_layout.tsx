@@ -74,6 +74,26 @@ export default function RootLayout() {
 
         if (notificationEnabled) {
           initBackgroundFetch();
+          await Notifications.setNotificationChannelAsync("daily", {
+            name: "Daily",
+            importance: Notifications.AndroidImportance.MAX,
+          });
+          const d = new Date();
+          d.setUTCHours(4, 0, 0);
+
+          const timeZoneOffset = d.getTimezoneOffset() / 60;
+
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              body: t("wishlist.notification.no_hit"),
+            },
+            trigger: {
+              channelId: "daily",
+              type: Notifications.SchedulableTriggerInputTypes.DAILY,
+              hour: d.getUTCHours() - timeZoneOffset,
+              minute: 38,
+            },
+          });
         } else {
           stopBackgroundFetch();
         }
