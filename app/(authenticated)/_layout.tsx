@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import UpdatePopup from "@/components/popup/UpdatePopup";
 import { Fragment, useEffect, useRef } from "react";
 import { AppOpenAd, TestIds } from "react-native-google-mobile-ads";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const adUnitId = __DEV__
   ? TestIds.APP_OPEN
@@ -16,21 +17,30 @@ const adUnitId = __DEV__
 const appOpenAd = AppOpenAd.createForAdRequest(adUnitId, {
   requestNonPersonalizedAdsOnly: true,
 });
+const AD_INTERVAL = 30 * 60 * 1000;
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { t } = useTranslation();
   const appState = useRef(AppState.currentState);
-  const showAdIfAvailable = () => {
+  const showAdIfAvailable = async () => {
     if (appOpenAd.loaded) {
+      const now = new Date();
+      await AsyncStorage.setItem("lastOpenAds", now.getTime().toString());
       appOpenAd.show();
     }
   };
 
   useEffect(() => {
-    appOpenAd.load();
     // Lắng nghe khi ứng dụng quay lại foreground
-    const subscription = AppState.addEventListener("change", (state) => {
+    const subscription = AppState.addEventListener("change", async (state) => {
+      const now = Date.now();
+      const lastAds = Number.parseInt(
+        (await AsyncStorage.getItem("lastOpenAds")) || "0"
+      );
+
+      if (now - lastAds < AD_INTERVAL) return;
+      appOpenAd.load();
       if (appState.current.match(/inactive|background/) && state === "active") {
         showAdIfAvailable();
       }
