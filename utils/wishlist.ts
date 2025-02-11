@@ -86,6 +86,18 @@ export async function checkShop(wishlist: string[]) {
             displayname: wishlistSkin.join(", "),
           }),
         },
+
+        trigger: {
+          channelId: NOTIFICATION_CHANNEL,
+          seconds: 1,
+        },
+      });
+    } else {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: i18n.t("wishlist.name"),
+          body: i18n.t("wishlist.notification.no_hit"),
+        },
         trigger: {
           channelId: NOTIFICATION_CHANNEL,
           seconds: 1,

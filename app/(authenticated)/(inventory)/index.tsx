@@ -1,7 +1,7 @@
 import * as SecureStore from "expo-secure-store";
 import useUserStore from "@/hooks/useUserStore";
 import { getAssets } from "@/utils/valorant-assets";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
   View,
   Image,
@@ -69,122 +69,124 @@ export default function InventoryScreen() {
   }, []);
 
   return (
-    <ScrollView
-      style={{
-        flex: 1,
-        paddingHorizontal: 10,
-      }}
-    >
+    <Fragment>
       <Title
         style={{ textAlign: "center", color: colors.text, fontWeight: 700 }}
       >
         {t("inventory")}
       </Title>
-      <View>
-        <Title
-          style={{
-            fontSize: 20,
-            marginBottom: 8,
-          }}
-        >
-          {t("card")}
-        </Title>
-        <TouchableWithoutFeedback onPress={() => router.push("/cards")}>
-          <Image
-            style={styles.image}
-            resizeMode="contain"
-            source={{
-              uri: playerLoadout?.card.wideArt,
-            }}
-          />
-        </TouchableWithoutFeedback>
-      </View>
-      <View
+      <ScrollView
         style={{
-          marginTop: 10,
-          justifyContent: "center",
-          alignItems: "center",
+          flex: 1,
+          paddingHorizontal: 10,
         }}
       >
-        <Title
-          style={{
-            alignSelf: "flex-start",
-            fontSize: 20,
-          }}
-        >
-          {t("spray")}
-        </Title>
-        <View style={styles.sprayContainer}>
-          <View
+        <View>
+          <Title
             style={{
-              width: 100,
-              height: 100,
-              backgroundColor: "black",
-              borderRadius: 100,
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              zIndex: 10,
-              transform: [{ translateX: -50 }, { translateY: -50 }],
+              fontSize: 20,
+              marginBottom: 8,
             }}
-          ></View>
-          <SprayItem
-            styleContainer={{ left: 0, top: 0, borderStartStartRadius: 150 }}
-            styleImage={{
-              transform: [{ rotate: "-45deg" }, { translateY: 10 }],
-            }}
-            playerLoadout={playerLoadout?.sprays[0]}
-          />
-          <SprayItem
-            styleContainer={{ right: 0, borderEndStartRadius: 150 }}
-            styleImage={{
-              transform: [{ rotate: "-45deg" }, { translateX: -10 }],
-            }}
-            playerLoadout={playerLoadout?.sprays[1]}
-          />
-          <SprayItem
-            styleContainer={{ bottom: 0, right: 0, borderEndEndRadius: 150 }}
-            styleImage={{
-              transform: [{ rotate: "-45deg" }, { translateY: -10 }],
-            }}
-            playerLoadout={playerLoadout?.sprays[2]}
-          />
-          <SprayItem
-            styleContainer={{ bottom: 0, borderStartEndRadius: 150 }}
-            styleImage={{
-              transform: [{ rotate: "-45deg" }, { translateX: 10 }],
-            }}
-            playerLoadout={playerLoadout?.sprays[3]}
-          />
+          >
+            {t("card")}
+          </Title>
+          <TouchableWithoutFeedback onPress={() => router.push("/cards")}>
+            <Image
+              style={styles.image}
+              resizeMode="contain"
+              source={{
+                uri: playerLoadout?.card.wideArt,
+              }}
+            />
+          </TouchableWithoutFeedback>
         </View>
-      </View>
-      <View
-        style={{
-          justifyContent: "center",
-          alignItems: "center",
-          marginBottom: 20,
-        }}
-      >
-        <Button
-          style={{ marginTop: 10, width: 170 }}
-          mode="contained"
-          buttonColor="#ff4654"
-          dark
-          onPress={() => router.push("/(authenticated)/(inventory)/(skins)")}
+        <View
+          style={{
+            marginTop: 10,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
         >
-          {t("weapon_inventory")}
-        </Button>
-        <Button
-          style={{ marginTop: 10, width: 170 }}
-          mode="contained"
-          buttonColor="#ff4654"
-          dark
-          onPress={() => router.push("/buddies")}
+          <Title
+            style={{
+              alignSelf: "flex-start",
+              fontSize: 20,
+            }}
+          >
+            {t("spray")}
+          </Title>
+          <View style={styles.sprayContainer}>
+            <View
+              style={{
+                width: 100,
+                height: 100,
+                backgroundColor: "black",
+                borderRadius: 100,
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                zIndex: 10,
+                transform: [{ translateX: -50 }, { translateY: -50 }],
+              }}
+            ></View>
+            <SprayItem
+              styleContainer={{ left: 0, top: 0, borderStartStartRadius: 150 }}
+              styleImage={{
+                transform: [{ rotate: "-45deg" }, { translateY: 10 }],
+              }}
+              playerLoadout={playerLoadout?.sprays[0]}
+            />
+            <SprayItem
+              styleContainer={{ right: 0, borderEndStartRadius: 150 }}
+              styleImage={{
+                transform: [{ rotate: "-45deg" }, { translateX: -10 }],
+              }}
+              playerLoadout={playerLoadout?.sprays[1]}
+            />
+            <SprayItem
+              styleContainer={{ bottom: 0, right: 0, borderEndEndRadius: 150 }}
+              styleImage={{
+                transform: [{ rotate: "-45deg" }, { translateY: -10 }],
+              }}
+              playerLoadout={playerLoadout?.sprays[2]}
+            />
+            <SprayItem
+              styleContainer={{ bottom: 0, borderStartEndRadius: 150 }}
+              styleImage={{
+                transform: [{ rotate: "-45deg" }, { translateX: 10 }],
+              }}
+              playerLoadout={playerLoadout?.sprays[3]}
+            />
+          </View>
+        </View>
+        <View
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            marginBottom: 20,
+          }}
         >
-          {t("weapon_buddies")}
-        </Button>
-      </View>
-    </ScrollView>
+          <Button
+            style={{ marginTop: 10, width: 170 }}
+            mode="contained"
+            buttonColor="#ff4654"
+            dark
+            onPress={() => router.push("/(authenticated)/(inventory)/(skins)")}
+          >
+            {t("weapon_inventory")}
+          </Button>
+          <Button
+            style={{ marginTop: 10, width: 170 }}
+            mode="contained"
+            buttonColor="#ff4654"
+            dark
+            onPress={() => router.push("/buddies")}
+          >
+            {t("weapon_buddies")}
+          </Button>
+        </View>
+      </ScrollView>
+    </Fragment>
   );
 }
 

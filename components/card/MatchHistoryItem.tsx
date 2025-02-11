@@ -39,7 +39,27 @@ const MatchHistoryItem = ({ data }: Props) => {
     const isWon = data?.teams!.find(
       (item) => item.teamId === player!.teamId
     )?.won;
-    return isWon ? t("won") : t("defeat");
+    return data.matchInfo.queueID === "deathmatch" ? null : isWon ? (
+      <Text
+        style={{
+          color: "green",
+          textAlign: "center",
+          textTransform: "uppercase",
+        }}
+      >
+        {t("won")}
+      </Text>
+    ) : (
+      <Text
+        style={{
+          color: "red",
+          textAlign: "center",
+          textTransform: "uppercase",
+        }}
+      >
+        {t("defeat")}
+      </Text>
+    );
   };
 
   const player = data.players.find((p) => p.subject === user.id);
@@ -70,36 +90,42 @@ const MatchHistoryItem = ({ data }: Props) => {
           <View
             style={{
               alignItems: "center",
-              flexDirection: "row",
+              justifyContent: "center",
             }}
           >
-            <Text
+            {renderStatusMatch()}
+            <View
               style={{
-                textAlign: "right",
-                color: "green",
-                fontWeight: "bold",
+                alignItems: "center",
+                justifyContent: "center",
+                flexDirection: "row",
               }}
             >
-              {data!.teams[0].roundsWon}
-            </Text>
-            <Text
-              style={{
-                flex: 1,
-                color: colors.text,
-                textAlign: "center",
-                textTransform: "uppercase",
-              }}
-            >
-              {renderStatusMatch()}
-            </Text>
-            <Text
-              style={{
-                color: "red",
-                fontWeight: "bold",
-              }}
-            >
-              {data!.teams[1].roundsWon}
-            </Text>
+              <Text
+                style={{
+                  fontWeight: "bold",
+                }}
+              >
+                {data.matchInfo.queueID === "deathmatch"
+                  ? data.teams.find((p) => p.teamId === player?.teamId)
+                      ?.numPoints
+                  : data.matchInfo.queueID === "hurm"
+                  ? data!.teams[0].numPoints
+                  : data!.teams[0].roundsWon}
+              </Text>
+              <Text>{`  -  `}</Text>
+              <Text
+                style={{
+                  fontWeight: "bold",
+                }}
+              >
+                {data.matchInfo.queueID === "deathmatch"
+                  ? data.teams.find((p) => p.won === true)?.numPoints
+                  : data.matchInfo.queueID === "hurm"
+                  ? data!.teams[1].numPoints
+                  : data!.teams[1].roundsWon}
+              </Text>
+            </View>
           </View>
         </BlurView>
       ) : null}
@@ -114,13 +140,12 @@ const MatchHistoryItem = ({ data }: Props) => {
           variant="titleMedium"
           style={{
             color: "white",
-            textTransform: "capitalize",
             textShadowColor: "rgba(0, 0, 0, 0.75)",
             textShadowOffset: { width: -1, height: 1 },
             textShadowRadius: 20,
           }}
         >
-          {data.matchInfo.queueID}
+          {t(`game_mode.${data.matchInfo.queueID}`)}
         </Text>
       </View>
       <View
@@ -219,7 +244,11 @@ const MatchHistoryItem = ({ data }: Props) => {
                       : "green",
                 }}
               >
-                {data.competitiveUpdates?.RankedRatingEarned}
+                {`${
+                  (data.competitiveUpdates?.RankedRatingEarned as number) < 0
+                    ? "-"
+                    : "+"
+                }${data.competitiveUpdates?.RankedRatingEarned}`}
               </Text>
               <Text
                 style={{
@@ -245,7 +274,6 @@ const MatchHistoryItem = ({ data }: Props) => {
                   ? styles.upgradeArrow
                   : styles.downgradeArrow,
                 {
-                  transform: [{ rotate: "180deg" }],
                   position: "absolute",
                   right: 0,
                   bottom: 0,
@@ -284,8 +312,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     alignSelf: "center",
     top: 30,
-    width: 160,
-    height: 40,
+    width: 120,
+    height: 50,
     backgroundColor: "white",
   },
 });

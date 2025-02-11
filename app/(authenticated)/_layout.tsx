@@ -1,16 +1,46 @@
 import { Tabs } from "expo-router";
-import { Platform, useColorScheme } from "react-native";
+import { AppState, Platform, useColorScheme } from "react-native";
 import { HapticTab } from "@/components/HapticTab";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useTranslation } from "react-i18next";
 import UpdatePopup from "@/components/popup/UpdatePopup";
-import { Fragment } from "react";
+import { Fragment, useEffect, useRef } from "react";
+import { AppOpenAd, TestIds } from "react-native-google-mobile-ads";
+
+const adUnitId = __DEV__
+  ? TestIds.APP_OPEN
+  : "ca-app-pub-8908355189535475/9067961950";
+
+const appOpenAd = AppOpenAd.createForAdRequest(adUnitId, {
+  requestNonPersonalizedAdsOnly: true,
+});
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { t } = useTranslation();
+  const appState = useRef(AppState.currentState);
+  const showAdIfAvailable = () => {
+    if (appOpenAd.loaded) {
+      appOpenAd.show();
+    }
+  };
+
+  useEffect(() => {
+    appOpenAd.load();
+    // Lắng nghe khi ứng dụng quay lại foreground
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (appState.current.match(/inactive|background/) && state === "active") {
+        showAdIfAvailable();
+      }
+      appState.current = state;
+    });
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
   return (
     <Fragment>
       <Tabs

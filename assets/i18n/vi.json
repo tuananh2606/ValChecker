@@ -85,8 +85,8 @@
       "can_not_login": "Tại sao tôi không thể đăng nhập?",
       "can_not_login_content": "Vui lòng kiểm tra tài khoản Riot hoặc mật khẩu của bạn, ứng dụng hiện không hỗ trợ phương thức đăng nhập tài khoản mạng xã hội khác. Để sử dụng ValChecker, bạn sẽ phải kết nối tài khoản mạng xã hội của mình với tài khoản Riot.",
       "invalid_session_id": "Thông báo lỗi INVALID_SESSION_ID là gì?",
-      "app_end_date": "Ứng dụng này có ngày kết thúc không?",
-      "app_end_date_content": "Thật khó để nói. Nếu một ngày nào đó Riot ngừng cung cấp quyền truy cập API cho các nhà phát triển, hầu hết các tính năng sẽ trở nên không sử dụng được.",
+      "app_end_date": "Ứng dụng này có ngày dừng hoạt động không?",
+      "app_end_date_content": "Rất khó để nói. Nếu một ngày nào đó Riot ngừng cung cấp quyền truy cập API cho các nhà phát triển, hầu hết các tính năng sẽ trở nên không sử dụng được.",
       "is_account_safe": "Tài khoản của tôi có an toàn không?",
       "is_account_safe_content": "Tôi hiểu sự lo lắng của bạn về quyền riêng tư. Hãy yên tâm, mặc dù mã nguồn của ứng dụng của tôi vẫn chưa phải là mã nguồn mở, nhưng tôi cam kết bảo vệ và tôn trọng tính bảo mật dữ liệu của tất cả người dùng. Tôi đảm bảo rằng tôi sẽ không lưu trữ hoặc sử dụng thông tin tài khoản cá nhân của bạn mà không có sự đồng ý của bạn.\n\nTôi hoạt động với tính minh bạch cao, với tất cả thông tin cá nhân, thông tin liên lạc và tài khoản mạng xã hội của tôi đều được công khai. Đây là minh chứng tốt nhất cho hoạt động trung thực và công bằng của tôi, không có bất kỳ hoạt động bất hợp pháp nào. Mô hình lợi nhuận của tôi chỉ dựa trên doanh thu quảng cáo trong ứng dụng và không liên quan đến bất kỳ cách thức không phù hợp hoặc bất hợp pháp nào để kiếm lợi nhuận.\n\nTuy nhiên, tôi cũng hiểu rằng mỗi người có mức độ quan tâm khác nhau đến quyền riêng tư của họ. Do đó, nếu bạn có bất kỳ lo ngại nào về chính sách bảo vệ dữ liệu của tôi, bạn có thể chọn không sử dụng ứng dụng này hoặc bật xác thực hai yếu tố để bảo mật tài khoản của mình hơn nữa.\n\nCảm ơn sự thông cảm và hỗ trợ của bạn. Tôi mong muốn cung cấp cho bạn dịch vụ an toàn và hiệu quả nhất.",
       "get_banned": "Tôi có bị BAN vì sử dụng ứng dụng này không?",
@@ -178,6 +178,8 @@
     "deathmatch": "Sinh tử",
     "unrated": "Đấu thường",
     "spikerush": "Đặt Spike nhanh",
-    "swiftplay": "Siêu tốc"
-  }
+    "swiftplay": "Siêu tốc",
+    "hurm": "Sinh tử đội"
+  },
+  "missions_completed": "Bạn đã hoàn thành tất cả nhiệm vụ."
 }

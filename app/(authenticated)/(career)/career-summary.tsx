@@ -8,6 +8,7 @@ import * as SecureStore from "expo-secure-store";
 import { fetchPlayerMMR, parseSeason } from "@/utils/valorant-api";
 import { fetchSeasons } from "@/utils/valorant-assets";
 import { useTranslation } from "react-i18next";
+import Loading from "@/components/Loading";
 
 interface QueueSkills {
   competitive: {
@@ -206,6 +207,7 @@ const CareerSummary = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       let accessToken = (await SecureStore.getItemAsync(
         "access_token"
       )) as string;
@@ -342,9 +344,15 @@ const CareerSummary = () => {
         }
         setQueueSkills(queueSkills);
       }
+      setLoading(false);
     };
+
     fetchData();
   }, []);
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <ScrollView style={styles.flex}>
@@ -371,6 +379,15 @@ const CareerSummary = () => {
         {t("game_mode.unrated")}
       </Text>
       <QueueSection label={currentSeason.label} data={queueSkills.unrated} />
+      <Text
+        variant="titleMedium"
+        style={{
+          marginTop: 16,
+        }}
+      >
+        {t("game_mode.hurm")}
+      </Text>
+      <QueueSection label={currentSeason.label} data={queueSkills.hurm} />
       <Text
         variant="titleMedium"
         style={{

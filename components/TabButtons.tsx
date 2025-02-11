@@ -168,9 +168,9 @@ const TabImageButtons = ({
             position: "absolute",
             backgroundColor: "#8f8f8f",
             borderRadius: 8,
-            marginHorizontal: 10,
-            height: dimensions.height - 10,
-            width: buttonWidth - 20,
+            marginHorizontal: buttons.length > 4 ? 5 : 13,
+            height: dimensions.height - 14,
+            width: buttons.length > 4 ? buttonWidth - 10 : buttonWidth - 25,
           },
         ]}
       />

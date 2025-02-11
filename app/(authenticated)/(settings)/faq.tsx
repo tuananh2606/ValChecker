@@ -22,7 +22,7 @@ export default function FAQScreen() {
             {t("settings.faq.can_not_login_content")}
           </Text>
         </View>
-        <List.Subheader>{t("settings.faq.invalid_session_id")}</List.Subheader>
+        {/* <List.Subheader>{t("settings.faq.invalid_session_id")}</List.Subheader> */}
         <List.Subheader>{t("settings.faq.app_end_date")}</List.Subheader>
         <View
           style={{

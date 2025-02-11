@@ -189,6 +189,8 @@
     "deathmatch": "Deathmatch",
     "unrated": "Unrated",
     "spikerush": "Spike Rush",
-    "swiftplay": "Swiftplay"
-  }
+    "swiftplay": "Swiftplay",
+    "hurm": "Team Deathmatch"
+  },
+  "missions_completed": "You have completed all the missions."
 }

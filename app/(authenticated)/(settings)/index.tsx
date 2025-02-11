@@ -21,11 +21,24 @@ import { useDarkMode } from "@/hooks/useDarkMode";
 import { useAppTheme } from "../../_layout";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 import * as SecureStore from "expo-secure-store";
+import {
+  BannerAd,
+  BannerAdSize,
+  TestIds,
+} from "react-native-google-mobile-ads";
+import { useRevenueCat } from "@/providers/RevenueCatProvider";
+import Purchases from "react-native-purchases";
+import { useEffect } from "react";
+
+const adUnitId = __DEV__
+  ? TestIds.BANNER
+  : "ca-app-pub-8908355189535475/5108310300";
 
 export default function SettingScreen() {
   const { t } = useTranslation();
   const { setUser } = useUserStore();
   const { colors } = useAppTheme();
+
   const notificationEnabled = useWishlistStore(
     (state) => state.notificationEnabled
   );
@@ -46,10 +59,17 @@ export default function SettingScreen() {
     router.replace("/(login)");
   };
 
+  const loadOfferings = async () => {
+    const offerings = await Purchases.getOfferings();
+    if (offerings.current) {
+      console.log(offerings.current);
+    }
+  };
+
   const toggleNotificationEnabled = async () => {
     if (!notificationEnabled) {
       setNotificationEnabled(true);
-      const permission = await Notifications.getPermissionsAsync();
+      const permission = await Notifications.requestPermissionsAsync();
       if (permission.granted) {
         await initBackgroundFetch();
         ToastAndroid.show(
@@ -69,41 +89,49 @@ export default function SettingScreen() {
       ToastAndroid.show(t("wishlist.notification.disabled"), ToastAndroid.LONG);
     }
   };
+  useEffect(() => {
+    loadOfferings;
+  }, []);
 
   return (
-    <View style={styles.container}>
-      <Title
-        style={{
-          textAlign: "center",
-          fontWeight: 700,
-          color: colors.text,
-        }}
-      >
-        {t("settings.name")}
-      </Title>
-      <List.Section style={{ flex: 1 }}>
-        <List.Subheader> {t("settings.faq.name")}</List.Subheader>
-        <List.Item
+    <View
+      style={{
+        flex: 1,
+      }}
+    >
+      <View style={styles.container}>
+        <Title
           style={{
-            padding: 10,
-            borderRadius: 10,
-            backgroundColor: "#2E2E2E",
-          }}
-          onPress={() => router.push("/faq")}
-          title={t("settings.faq.details")}
-          left={() => (
-            <AntDesign name="questioncircle" size={24} color={colors.tint} />
-          )}
-          right={() => <List.Icon color={colors.tint} icon="chevron-right" />}
-        />
-        <List.Subheader> {t("general")}</List.Subheader>
-        <View
-          style={{
-            backgroundColor: "#2E2E2E",
-            borderRadius: 10,
+            textAlign: "center",
+            fontWeight: 700,
+            color: colors.text,
           }}
         >
-          {/* <List.Item
+          {t("settings.name")}
+        </Title>
+        <List.Section style={{ flex: 1 }}>
+          <List.Subheader> {t("settings.faq.name")}</List.Subheader>
+          <List.Item
+            style={{
+              padding: 10,
+              borderRadius: 10,
+              backgroundColor: "#2E2E2E",
+            }}
+            onPress={() => router.push("/faq")}
+            title={t("settings.faq.details")}
+            left={() => (
+              <AntDesign name="questioncircle" size={24} color={colors.tint} />
+            )}
+            right={() => <List.Icon color={colors.tint} icon="chevron-right" />}
+          />
+          <List.Subheader> {t("general")}</List.Subheader>
+          <View
+            style={{
+              backgroundColor: "#2E2E2E",
+              borderRadius: 10,
+            }}
+          >
+            {/* <List.Item
             left={() => (
               <View
                 style={{
@@ -127,82 +155,95 @@ export default function SettingScreen() {
             )}
           />
           <Divider /> */}
-          <TouchableRipple
-            onPress={() => {
-              startActivityAsync(ActivityAction.LOCALE_SETTINGS);
+            <TouchableRipple
+              onPress={() => {
+                startActivityAsync(ActivityAction.LOCALE_SETTINGS);
+              }}
+            >
+              <List.Item
+                left={() => (
+                  <View
+                    style={{
+                      marginLeft: 8,
+                    }}
+                  >
+                    <AntDesign name="earth" size={24} color={colors.tint} />
+                  </View>
+                )}
+                title={t("settings.general.change_time_language")}
+                right={() => (
+                  <List.Icon color={colors.tint} icon="chevron-right" />
+                )}
+              />
+            </TouchableRipple>
+          </View>
+
+          <List.Subheader>{t("settings.notification.name")}</List.Subheader>
+          <View
+            style={{
+              backgroundColor: "#2E2E2E",
+              borderRadius: 10,
             }}
           >
             <List.Item
+              title={t("settings.notification.store_reset_notification")}
               left={() => (
                 <View
                   style={{
                     marginLeft: 8,
                   }}
                 >
-                  <AntDesign name="earth" size={24} color={colors.tint} />
+                  <SimpleLineIcons name="bell" size={24} color={colors.tint} />
                 </View>
               )}
-              title={t("settings.general.change_time_language")}
               right={() => (
-                <List.Icon color={colors.tint} icon="chevron-right" />
+                <Switch
+                  color="green"
+                  value={notificationEnabled}
+                  onValueChange={toggleNotificationEnabled}
+                />
               )}
             />
-          </TouchableRipple>
-        </View>
-
-        <List.Subheader>{t("settings.notification.name")}</List.Subheader>
-        <View
+          </View>
+        </List.Section>
+        <Button
+          onPress={handleLogout}
           style={{
-            backgroundColor: "#2E2E2E",
-            borderRadius: 10,
+            borderRadius: 8,
+          }}
+          buttonColor="#ff4654"
+          dark
+          mode="contained"
+        >
+          {t("logout")}
+        </Button>
+        <Text
+          style={{
+            textAlign: "center",
+            fontSize: 12,
+            color: "gray",
+            marginTop: 10,
+            paddingHorizontal: 15,
+            marginBottom: 12,
           }}
         >
-          <List.Item
-            title={t("settings.notification.store_reset_notification")}
-            left={() => (
-              <View
-                style={{
-                  marginLeft: 8,
-                }}
-              >
-                <SimpleLineIcons name="bell" size={24} color={colors.tint} />
-              </View>
-            )}
-            right={() => (
-              <Switch
-                color="green"
-                value={notificationEnabled}
-                onValueChange={toggleNotificationEnabled}
-              />
-            )}
-          />
-        </View>
-      </List.Section>
-      <Button
-        onPress={handleLogout}
-        style={{
-          borderRadius: 8,
+          ValChecker is not endorsed by Riot Games in any way.
+          {"\n"}
+          Riot Games, Valorant, and all associated properties are trademarks or
+          registered trademarks of Riot Games, Inc.
+        </Text>
+      </View>
+
+      <BannerAd
+        unitId={adUnitId}
+        size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+        requestOptions={{
+          requestNonPersonalizedAdsOnly: true,
+          networkExtras: {
+            collapsible: "bottom",
+          },
         }}
-        buttonColor="#ff4654"
-        dark
-        mode="contained"
-      >
-        {t("logout")}
-      </Button>
-      <Text
-        style={{
-          textAlign: "center",
-          fontSize: 12,
-          color: "gray",
-          marginTop: 10,
-          paddingHorizontal: 15,
-        }}
-      >
-        ValChecker is not endorsed by Riot Games in any way.
-        {"\n"}
-        Riot Games, Valorant, and all associated properties are trademarks or
-        registered trademarks of Riot Games, Inc.
-      </Text>
+      />
     </View>
   );
 }
@@ -211,6 +252,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 8,
-    paddingBottom: 8,
   },
 });

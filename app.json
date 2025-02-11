@@ -52,7 +52,14 @@
           }
         }
       ],
-      "react-native-background-fetch"
+      "react-native-background-fetch",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-8908355189535475~5839163381",
+          "iosAppId": ""
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

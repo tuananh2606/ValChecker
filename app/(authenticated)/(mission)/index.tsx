@@ -21,23 +21,20 @@ import { getMissions } from "@/utils/valorant-assets";
 import { fetchPlayerXP, getMissionsMetadata } from "@/utils/valorant-api";
 import { Skeleton } from "@/components/Skeleton";
 import { useAppTheme } from "@/app/_layout";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from "react-i18next";
-
-interface Mission {
-  /** UUID */
-  ID: string;
-  Objectives: {
-    [x: string]: number;
-  };
-  Complete: boolean;
-  /** Date in ISO 8601 format */
-  ExpirationTime: string;
-}
+import {
+  BannerAd,
+  BannerAdSize,
+  TestIds,
+} from "react-native-google-mobile-ads";
 
 interface WeeklyMission extends ValorantMission {
   progress: number;
 }
+
+const adUnitId = __DEV__
+  ? TestIds.BANNER
+  : "ca-app-pub-8908355189535475/8525036473";
 
 export default function MissionScreen() {
   const { t } = useTranslation();
@@ -90,30 +87,21 @@ export default function MissionScreen() {
         setFirstWin(false);
       }
 
-      if (missionsMetadata.Missions.length > 0) {
-        await AsyncStorage.setItem(
-          "@missions:key",
-          JSON.stringify(missionsMetadata.Missions)
-        );
-      }
       let weeklyMissions: WeeklyMission[] = [];
-      const missionsJson = await AsyncStorage.getItem("@missions:key");
-      if (missionsJson) {
-        const missionsArr: Mission[] = JSON.parse(missionsJson);
-        for (let i = 0; i < missionsArr.length; i++) {
-          const weeklyMission = missions.find(
-            (mission) => mission.uuid === missionsArr[i].ID
-          );
 
-          if (weeklyMission) {
-            weeklyMissions.push({
-              ...weeklyMission,
-              progress:
-                missionsArr[i].Objectives[
-                  Object.keys(missionsArr[i].Objectives)[0]
-                ],
-            });
-          }
+      for (let i = 0; i < missionsMetadata.Missions.length; i++) {
+        const weeklyMission = missions.find(
+          (mission) => mission.uuid === missionsMetadata.Missions[i].ID
+        );
+
+        if (weeklyMission) {
+          weeklyMissions.push({
+            ...weeklyMission,
+            progress:
+              missionsMetadata.Missions[i].Objectives[
+                Object.keys(missionsMetadata.Missions[i].Objectives)[0]
+              ],
+          });
         }
       }
 
@@ -301,12 +289,11 @@ export default function MissionScreen() {
             />
           </View>
         </View>
-      ) : (
+      ) : missions.length > 0 ? (
         missions.map((mission, idx) => {
           const { title, progress, progressToComplete, xpGrant } = mission;
 
           const progressNumber = +(progress / progressToComplete).toFixed(2);
-
           return (
             <View key={idx} style={{ width: "100%", marginVertical: 8 }}>
               <View
@@ -333,6 +320,14 @@ export default function MissionScreen() {
             </View>
           );
         })
+      ) : (
+        <Text
+          style={{
+            marginTop: 16,
+          }}
+        >
+          {t("missions_completed")}
+        </Text>
       )}
       <View
         style={{
@@ -369,6 +364,23 @@ export default function MissionScreen() {
             </Text>
           </View>
         </Button>
+      </View>
+      <View
+        style={{
+          position: "absolute",
+          bottom: 0,
+        }}
+      >
+        <BannerAd
+          unitId={adUnitId}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: true,
+            networkExtras: {
+              collapsible: "bottom",
+            },
+          }}
+        />
       </View>
     </View>
   );

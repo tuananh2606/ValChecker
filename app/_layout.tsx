@@ -16,8 +16,6 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import merge from "deepmerge";
 import { useWishlistStore } from "@/hooks/useWishlistStore";
 import { initBackgroundFetch, stopBackgroundFetch } from "@/utils/wishlist";
-import * as Notifications from "expo-notifications";
-import { useTranslation } from "react-i18next";
 
 export const unstable_settings = {
   initialRouteName: "loading",
@@ -47,53 +45,17 @@ export const useAppTheme = () => useTheme<AppTheme>();
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const { t } = useTranslation();
   const [appIsReady, setAppIsReady] = useState(false);
-  const setNotificationEnabled = useWishlistStore(
-    (state) => state.setNotificationEnabled
-  );
 
   useEffect(() => {
     async function prepare() {
       try {
         // Pre-load fonts, make any API calls you need to do here
-        const permission = await Notifications.getPermissionsAsync();
-        if (permission.status && permission.granted) {
-          setNotificationEnabled(true);
-        } else {
-          const permission = await Notifications.requestPermissionsAsync();
-          if (permission.granted) {
-            setNotificationEnabled(true);
-          } else {
-            setNotificationEnabled(false);
-          }
-        }
-
         const notificationEnabled =
           useWishlistStore.getState().notificationEnabled;
 
         if (notificationEnabled) {
           initBackgroundFetch();
-          await Notifications.setNotificationChannelAsync("daily", {
-            name: "Daily",
-            importance: Notifications.AndroidImportance.MAX,
-          });
-          const d = new Date();
-          d.setUTCHours(4, 0, 0);
-
-          const timeZoneOffset = d.getTimezoneOffset() / 60;
-
-          await Notifications.scheduleNotificationAsync({
-            content: {
-              body: t("wishlist.notification.no_hit"),
-            },
-            trigger: {
-              channelId: "daily",
-              type: Notifications.SchedulableTriggerInputTypes.DAILY,
-              hour: d.getUTCHours() - timeZoneOffset,
-              minute: 38,
-            },
-          });
         } else {
           stopBackgroundFetch();
         }

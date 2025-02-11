@@ -1,6 +1,12 @@
 import "expo-router/entry";
 import BackgroundFetch from "react-native-background-fetch";
 import { wishlistBgTask } from "./utils/wishlist";
+import mobileAds from "react-native-google-mobile-ads";
+
+// Initialize on app start
+mobileAds()
+  .initialize()
+  .then((adapterStatuses) => console.log(adapterStatuses));
 
 BackgroundFetch.registerHeadlessTask(async (event) => {
   let taskId = event.taskId;
