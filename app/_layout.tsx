@@ -18,6 +18,7 @@ import { useWishlistStore } from "@/hooks/useWishlistStore";
 import { initBackgroundFetch, stopBackgroundFetch } from "@/utils/wishlist";
 import * as Notifications from "expo-notifications";
 import { useTranslation } from "react-i18next";
+import { StatusBar } from "expo-status-bar";
 
 export const unstable_settings = {
   initialRouteName: "loading",
@@ -117,6 +118,7 @@ export default function RootLayout() {
     >
       <PaperProvider theme={CombinedDarkTheme}>
         <ThemeProvider value={CombinedDarkTheme}>
+          <StatusBar style="light" />
           <Stack>
             <Stack.Screen
               name="(authenticated)"

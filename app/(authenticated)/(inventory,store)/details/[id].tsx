@@ -1,29 +1,22 @@
+import { useAppTheme } from "@/app/_layout";
 import {
   TabButtonType,
   TabButtons,
   TabImageButtons,
 } from "@/components/TabButtons";
-import { Colors } from "@/constants/Colors";
 import { getAssets } from "@/utils/valorant-assets";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { useState, useEffect, Fragment } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  View,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  Image,
-  ScrollView,
-} from "react-native";
+import { View, StyleSheet, Text, Image, ScrollView } from "react-native";
 
 const DetailsScreen = () => {
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
   const navigation = useNavigation();
   const { id } = useLocalSearchParams();
   const { skins } = getAssets();
-  const colorScheme = useColorScheme();
   const skin = skins.find((_skin) => _skin.uuid === id) as ValorantSkin;
   const [selectedTab, setSelectedTab] = useState<number>(0);
   const [videoSrc, setVideoSrc] = useState<string>("");
@@ -71,7 +64,7 @@ const DetailsScreen = () => {
     <ScrollView
       style={{
         flex: 1,
-        backgroundColor: Colors[colorScheme ?? "light"].background,
+        backgroundColor: colors.surface,
       }}
     >
       <View

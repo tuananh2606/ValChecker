@@ -22,7 +22,6 @@
       "package": "com.bjjitaccll01.ValChecker"
     },
     "androidStatusBar": {
-      "backgroundColor": "#000000",
       "translucent": false
     },
     "web": {

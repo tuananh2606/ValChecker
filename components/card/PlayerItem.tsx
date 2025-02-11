@@ -1,5 +1,4 @@
-import { Colors } from "@/constants/Colors";
-import { StyleSheet, View, Text, useColorScheme } from "react-native";
+import { StyleSheet, View, Text } from "react-native";
 import { Image } from "expo-image";
 import { getAssets } from "@/utils/valorant-assets";
 import { Divider } from "react-native-paper";
@@ -11,7 +10,6 @@ interface Props {
 
 const PlayerItem = ({ data }: Props) => {
   const { cards } = getAssets();
-  const colorScheme = useColorScheme();
   const card = cards.find((card) => card.uuid === data.PlayerCardID);
 
   return (

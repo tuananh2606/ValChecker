@@ -1,26 +1,21 @@
-import {
-  StyleSheet,
-  View,
-  Text,
-  Pressable,
-  useColorScheme,
-} from "react-native";
+import { StyleSheet, View, Text, Pressable } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { useState } from "react";
 import { router } from "expo-router";
-import { Colors } from "@/constants/Colors";
 import { useTranslation } from "react-i18next";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAppTheme } from "../_layout";
 
 export default function RegionScreen() {
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
   const region = [
     { label: "Asia Pacific", value: "ap" },
     { label: "Europe", value: "eu" },
     { label: "Korea", value: "kr" },
     { label: "North America", value: "na" },
   ];
-  const colorScheme = useColorScheme();
+
   const [value, setValue] = useState("ap");
   const [isFocus, setIsFocus] = useState(false);
 
@@ -34,10 +29,7 @@ export default function RegionScreen() {
           },
         ]}
         placeholderStyle={styles.placeholderStyle}
-        selectedTextStyle={[
-          styles.selectedTextStyle,
-          { color: Colors[colorScheme ?? "light"].text },
-        ]}
+        selectedTextStyle={[styles.selectedTextStyle, { color: colors.text }]}
         inputSearchStyle={styles.inputSearchStyle}
         iconStyle={styles.iconStyle}
         data={region}

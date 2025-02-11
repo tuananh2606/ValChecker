@@ -8,6 +8,9 @@ import BundleView from "@/components/BundleView";
 import { Title } from "react-native-paper";
 import { useAppTheme } from "@/app/_layout";
 import i18n from "@/utils/localization";
+import { Image } from "expo-image";
+import { router } from "expo-router";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 const renderScene = SceneMap({
   store: StoreView,
@@ -39,15 +42,41 @@ export default function StoreScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Title
+      <View
         style={{
-          fontWeight: 700,
-          color: colors.text,
-          textAlign: "center",
+          width: "100%",
+          flexDirection: "row",
+          position: "relative",
         }}
       >
-        {i18n.t("store")}
-      </Title>
+        <Title
+          style={{
+            flex: 1,
+            fontWeight: 700,
+            color: colors.text,
+            textAlign: "center",
+          }}
+        >
+          {i18n.t("store")}
+        </Title>
+        <TouchableOpacity
+          style={{
+            zIndex: 20,
+
+            right: 20,
+            position: "absolute",
+          }}
+          onPress={() => router.push("/night-market")}
+        >
+          <Image
+            style={{
+              width: 30,
+              height: 30,
+            }}
+            source={require("@/assets/images/Night_Market_Icon.png")}
+          />
+        </TouchableOpacity>
+      </View>
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}

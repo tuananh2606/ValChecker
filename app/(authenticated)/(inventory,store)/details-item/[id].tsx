@@ -1,15 +1,15 @@
-import { Colors } from "@/constants/Colors";
 import { getAssets } from "@/utils/valorant-assets";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect } from "react";
-import { View, StyleSheet, useColorScheme } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { Image } from "expo-image";
+import { useAppTheme } from "@/app/_layout";
 
 const DetailsAccessoryScreen = () => {
   const navigation = useNavigation();
+  const { colors } = useAppTheme();
   const { id, type } = useLocalSearchParams();
   const { buddies, sprays, cards } = getAssets();
-  const colorScheme = useColorScheme();
 
   let card: ValorantCardAccessory | undefined,
     buddy: ValorantBuddyAccessory | undefined,
@@ -45,7 +45,7 @@ const DetailsAccessoryScreen = () => {
       style={[
         styles.container,
         {
-          backgroundColor: Colors[colorScheme ?? "light"].background,
+          backgroundColor: colors.surface,
         },
       ]}
     >
