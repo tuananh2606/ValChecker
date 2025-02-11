@@ -16,6 +16,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import merge from "deepmerge";
 import { useWishlistStore } from "@/hooks/useWishlistStore";
 import { initBackgroundFetch, stopBackgroundFetch } from "@/utils/wishlist";
+import * as Notifications from "expo-notifications";
+import { useTranslation } from "react-i18next";
 
 export const unstable_settings = {
   initialRouteName: "loading",
@@ -46,7 +48,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [appIsReady, setAppIsReady] = useState(false);
-
+  const { t } = useTranslation();
   useEffect(() => {
     async function prepare() {
       try {
@@ -56,6 +58,26 @@ export default function RootLayout() {
 
         if (notificationEnabled) {
           initBackgroundFetch();
+          await Notifications.setNotificationChannelAsync("daily", {
+            name: "Daily",
+            importance: Notifications.AndroidImportance.MAX,
+          });
+          const d = new Date();
+          d.setUTCHours(0, 0, 0);
+
+          const timeZoneOffset = d.getTimezoneOffset() / 60;
+          await Notifications.cancelAllScheduledNotificationsAsync();
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              body: t("wishlist.notification.no_hit"),
+            },
+            trigger: {
+              channelId: "daily",
+              type: Notifications.SchedulableTriggerInputTypes.DAILY,
+              hour: d.getUTCHours() - timeZoneOffset,
+              minute: 0,
+            },
+          });
         } else {
           stopBackgroundFetch();
         }
