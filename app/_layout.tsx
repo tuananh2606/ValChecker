@@ -118,7 +118,7 @@ export default function RootLayout() {
     >
       <PaperProvider theme={CombinedDarkTheme}>
         <ThemeProvider value={CombinedDarkTheme}>
-          <StatusBar style="light" />
+          <StatusBar style="light" translucent={false} />
           <Stack>
             <Stack.Screen
               name="(authenticated)"

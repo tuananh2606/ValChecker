@@ -47,11 +47,8 @@ export const VSprayEquipSlot = {
 
 export const regions = ["eu", "na", "ap", "kr"];
 export const getAccessTokenFromUri = (uri: string) => {
-  return (
-    uri.match(
-      /access_token=((?:[a-zA-Z]|\d|\.|-|_)*).*id_token=((?:[a-zA-Z]|\d|\.|-|_)*).*expires_in=(\d*)/
-    ) as any
-  )[1];
+  const match = uri.match(/access_token=([^&]+)/);
+  return match ? match[1] : "";
 };
 
 export const isSameDayUTC = (d1: Date, d2: Date) => {

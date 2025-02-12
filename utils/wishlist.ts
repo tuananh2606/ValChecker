@@ -93,18 +93,6 @@ export async function checkShop(wishlist: string[]) {
         },
       });
     }
-    // } else {
-    //   await Notifications.scheduleNotificationAsync({
-    //     content: {
-    //       title: i18n.t("wishlist.name"),
-    //       body: i18n.t("wishlist.notification.no_hit"),
-    //     },
-    //     trigger: {
-    //       channelId: NOTIFICATION_CHANNEL,
-    //       seconds: 1,
-    //     },
-    //   });
-    // }
   } catch (e) {
     console.log(e);
     await Notifications.scheduleNotificationAsync({
