@@ -67,18 +67,23 @@ export default function RootLayout() {
           d.setUTCHours(0, 0, 0);
 
           const timeZoneOffset = d.getTimezoneOffset() / 60;
-          await Notifications.cancelAllScheduledNotificationsAsync();
-          await Notifications.scheduleNotificationAsync({
-            content: {
-              body: t("wishlist.notification.no_hit"),
-            },
-            trigger: {
-              channelId: "daily",
-              type: Notifications.SchedulableTriggerInputTypes.DAILY,
-              hour: d.getUTCHours() - timeZoneOffset,
-              minute: 0,
-            },
-          });
+
+          const allScheduled =
+            await Notifications.getAllScheduledNotificationsAsync();
+
+          if (allScheduled.length < 1) {
+            await Notifications.scheduleNotificationAsync({
+              content: {
+                body: t("wishlist.notification.no_hit"),
+              },
+              trigger: {
+                channelId: "daily",
+                type: Notifications.SchedulableTriggerInputTypes.DAILY,
+                hour: d.getUTCHours() - timeZoneOffset,
+                minute: 0,
+              },
+            });
+          }
         } else {
           stopBackgroundFetch();
         }

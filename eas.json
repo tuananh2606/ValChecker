@@ -6,8 +6,7 @@
   "build": {
     "development": {
       "android": {
-        "buildType": "apk",
-        "image": "ubuntu-18.04-jdk-11-ndk-r19c"
+        "buildType": "apk"
       },
       "developmentClient": true,
       "distribution": "internal"

@@ -19,7 +19,9 @@
       "permissions": [
         "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"
       ],
-      "blockedPermissions": ["FOREGROUND_SERVICE_MEDIA_PLAYBACK"],
+      "blockedPermissions": [
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ],
       "package": "com.bjjitaccll01.ValChecker"
     },
     "web": {
