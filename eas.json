@@ -11,10 +11,11 @@
       "developmentClient": true,
       "distribution": "internal"
     },
-    "production": {
+    "production-github": {
       "android": {
         "buildType": "apk"
       }
-    }
+    },
+    "production": {}
   }
 }
