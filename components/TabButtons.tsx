@@ -3,7 +3,6 @@ import { Image } from "expo-image";
 import { useState } from "react";
 import {
   Pressable,
-  StyleSheet,
   View,
   Text,
   LayoutChangeEvent,
@@ -118,34 +117,28 @@ const TabButtons = ({
   );
 };
 
+const BUTTON_SIZE: number = 40;
+const SPACING: number = 20;
+
 const TabImageButtons = ({
   buttons,
   selectedTab,
   setSelectedTab,
 }: TabButtonsType) => {
-  const [dimensions, setDimensions] = useState({
-    height: 40,
-    width: 40,
-  });
-
-  const buttonWidth = dimensions.width / buttons.length;
   const tabPositionX = useSharedValue(0);
-
-  const onTabbarLayout = (e: LayoutChangeEvent) => {
-    setDimensions({
-      height: e.nativeEvent.layout.height,
-      width: e.nativeEvent.layout.width,
-    });
-  };
 
   const handlePress = (index: number) => {
     setSelectedTab(index);
   };
 
   const onTabPress = (index: number) => {
-    tabPositionX.value = withTiming(buttonWidth * index, {}, () => {
-      runOnJS(handlePress)(index);
-    });
+    tabPositionX.value = withTiming(
+      index === 0 ? BUTTON_SIZE * index : BUTTON_SIZE * index + SPACING * index,
+      {},
+      () => {
+        runOnJS(handlePress)(index);
+      }
+    );
   };
 
   const animtedStyle = useAnimatedStyle(() => {
@@ -157,6 +150,7 @@ const TabImageButtons = ({
   return (
     <View
       style={{
+        width: "100%",
         borderRadius: 12,
         justifyContent: "center",
       }}
@@ -168,15 +162,15 @@ const TabImageButtons = ({
             position: "absolute",
             backgroundColor: "#8f8f8f",
             borderRadius: 8,
-            marginHorizontal: buttons.length > 4 ? 5 : 13,
-            height: dimensions.height - 14,
-            width: buttons.length > 4 ? buttonWidth - 10 : buttonWidth - 25,
+            height: BUTTON_SIZE + SPACING / 2,
+            width: BUTTON_SIZE + SPACING / 2,
           },
         ]}
       />
       <View
-        onLayout={onTabbarLayout}
         style={{
+          marginHorizontal: SPACING / 4,
+          justifyContent: "space-between",
           flexDirection: "row",
         }}
       >
@@ -185,7 +179,7 @@ const TabImageButtons = ({
             <Pressable
               key={index}
               style={{
-                flex: 1,
+                marginLeft: index === 0 ? 0 : SPACING,
                 paddingVertical: 12,
                 justifyContent: "center",
                 alignItems: "center",
@@ -195,8 +189,8 @@ const TabImageButtons = ({
               {button.source ? (
                 <Image
                   style={{
-                    width: 40,
-                    height: 40,
+                    width: BUTTON_SIZE,
+                    height: BUTTON_SIZE,
                   }}
                   contentFit="contain"
                   source={{
@@ -223,4 +217,3 @@ const TabImageButtons = ({
 };
 
 export { TabImageButtons, TabButtons };
-const styles = StyleSheet.create({});

@@ -125,7 +125,7 @@ const DetailsScreen = () => {
         </View>
         <View
           style={{
-            width: 300,
+            marginTop: 20,
           }}
         >
           <TabImageButtons
