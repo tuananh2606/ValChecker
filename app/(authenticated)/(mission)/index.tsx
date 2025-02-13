@@ -1,5 +1,11 @@
-import { View, StyleSheet, StatusBar } from "react-native";
-import { useEffect, useState } from "react";
+import {
+  View,
+  StyleSheet,
+  StatusBar,
+  ScrollView,
+  RefreshControl,
+} from "react-native";
+import { useCallback, useEffect, useState } from "react";
 import useUserStore from "@/hooks/useUserStore";
 import * as SecureStore from "expo-secure-store";
 import {
@@ -46,6 +52,65 @@ export default function MissionScreen() {
   const [loading, setLoading] = useState<boolean>(false);
   const { colors } = useAppTheme();
   const user = useUserStore((state) => state.user);
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setLoading(true);
+    setRefreshing(true);
+    let accessToken = (await SecureStore.getItemAsync(
+      "access_token"
+    )) as string;
+    let entitlementsToken = (await SecureStore.getItemAsync(
+      "entitlements_token"
+    )) as string;
+
+    let [missions, missionsMetadata, accountXP] = await Promise.all([
+      getMissions(),
+      getMissionsMetadata(accessToken, entitlementsToken, user.region, user.id),
+      fetchPlayerXP(accessToken, entitlementsToken, user.region, user.id),
+    ]);
+    setNextTimeFirstWinAvailable(
+      convertDatetoSeconds(accountXP.NextTimeFirstWinAvailable)
+    );
+
+    const d1 = new Date(accountXP.LastTimeGrantedFirstWin);
+    const d2 = new Date(accountXP.NextTimeFirstWinAvailable);
+
+    const dayDiff = Math.round(
+      (d2.getTime() - d1.getTime()) / (1000 * 3600 * 24)
+    );
+
+    if (
+      (isSameDayUTC(d1, d2) || dayDiff === 1) &&
+      convertDatetoSeconds(accountXP.NextTimeFirstWinAvailable) > 0
+    ) {
+      setFirstWin(true);
+    } else {
+      setFirstWin(false);
+    }
+
+    let weeklyMissions: WeeklyMission[] = [];
+
+    for (let i = 0; i < missionsMetadata.Missions.length; i++) {
+      const weeklyMission = missions.find(
+        (mission) => mission.uuid === missionsMetadata.Missions[i].ID
+      );
+
+      if (weeklyMission) {
+        weeklyMissions.push({
+          ...weeklyMission,
+          progress:
+            missionsMetadata.Missions[i].Objectives[
+              Object.keys(missionsMetadata.Missions[i].Objectives)[0]
+            ],
+        });
+      }
+    }
+
+    setExpirationTime(missionsMetadata.MissionMetadata.WeeklyRefillTime);
+    setMissions(weeklyMissions);
+    setRefreshing(false);
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -113,7 +178,13 @@ export default function MissionScreen() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ alignItems: "center", flex: 1 }}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <Title
         style={{
           textAlign: "center",
@@ -304,9 +375,9 @@ export default function MissionScreen() {
               >
                 <Text style={{ color: colors.text }}>{title}</Text>
                 <Text style={{ color: colors.text, fontSize: 16 }}>
-                  {new Intl.NumberFormat("en", { notation: "standard" }).format(
-                    xpGrant
-                  ) + " XP"}
+                  {new Intl.NumberFormat("en", {
+                    notation: "standard",
+                  }).format(xpGrant) + " XP"}
                 </Text>
               </View>
               <ProgressBar
@@ -382,14 +453,12 @@ export default function MissionScreen() {
           }}
         />
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     paddingHorizontal: 30,
-    alignItems: "center",
   },
 });

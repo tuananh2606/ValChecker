@@ -1,4 +1,4 @@
-import { ScrollView, View } from "react-native";
+import { RefreshControl, ScrollView, View } from "react-native";
 import { useCallback, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 
@@ -13,32 +13,35 @@ const BundleView = () => {
   const user = useUserStore((state) => state.user);
   const { setUser } = useUserStore();
   const [refreshing, setRefreshing] = useState(false);
-  const onRefresh = useCallback(() => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    setTimeout(async () => {
-      let accessToken = await SecureStore.getItemAsync("access_token");
-      let entitlementsToken = await SecureStore.getItemAsync(
-        "entitlements_token"
+    let accessToken = await SecureStore.getItemAsync("access_token");
+    let entitlementsToken = await SecureStore.getItemAsync(
+      "entitlements_token"
+    );
+    if (accessToken && entitlementsToken) {
+      const shop = await getShop(
+        accessToken,
+        entitlementsToken,
+        user.region,
+        user.id
       );
-      if (accessToken && entitlementsToken) {
-        const shop = await getShop(
-          accessToken,
-          entitlementsToken,
-          user.region,
-          user.id
-        );
-        const shops = await parseShop(shop);
-        setUser({
-          ...user,
-          shops: shops,
-        });
-      }
-      setRefreshing(false);
-    }, 2000);
+      const shops = await parseShop(shop);
+      setUser({
+        ...user,
+        shops: shops,
+      });
+    }
+    setRefreshing(false);
   }, []);
 
   return (
-    <ScrollView style={{ marginTop: 8, paddingHorizontal: 16 }}>
+    <ScrollView
+      style={{ marginTop: 8, paddingHorizontal: 16 }}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       {user.shops.bundles.map((bundle, idx) => {
         return (
           <View key={idx} style={{ marginBottom: 8 }}>
