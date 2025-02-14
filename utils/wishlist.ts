@@ -34,14 +34,17 @@ export async function wishlistBgTask() {
   );
   const lastWishlistCheck = new Date(lastWishlistCheckTs);
   const now = new Date();
+  const allScheduled = await Notifications.getAllScheduledNotificationsAsync();
+  console.log(allScheduled);
   console.log(
     `Last wishlist check ${lastWishlistCheck}, current date: ${now.getTime()}`
   );
-  if (!isSameDayUTC(lastWishlistCheck, now) || lastWishlistCheckTs === 0) {
-    console.log("New day, checking shop in the background");
-    await checkShop(wishlistStore.skinIds);
-    await AsyncStorage.setItem("lastWishlistCheck", now.getTime().toString());
-  }
+  await checkShop(wishlistStore.skinIds);
+  // if (!isSameDayUTC(lastWishlistCheck, now) || lastWishlistCheckTs === 0) {
+  //   console.log("New day, checking shop in the background");
+  //   await checkShop(wishlistStore.skinIds);
+  //   await AsyncStorage.setItem("lastWishlistCheck", now.getTime().toString());
+  // }
   console.log("No wishlist check needed");
 }
 

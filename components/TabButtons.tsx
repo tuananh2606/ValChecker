@@ -203,9 +203,10 @@ const TabImageButtons = ({
                     color: "white",
                     alignSelf: "center",
                     fontWeight: "600",
+                    fontSize: 12,
                   }}
                 >
-                  {button.title}
+                  Default
                 </Text>
               )}
             </Pressable>

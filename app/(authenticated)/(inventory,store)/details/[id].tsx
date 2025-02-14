@@ -123,17 +123,19 @@ const DetailsScreen = () => {
             }}
           />
         </View>
-        <View
-          style={{
-            marginTop: 20,
-          }}
-        >
-          <TabImageButtons
-            buttons={chromas}
-            selectedTab={selectedChroma}
-            setSelectedTab={setSelectedChromaTab}
-          />
-        </View>
+        {skin.chromas.length > 1 && (
+          <View
+            style={{
+              marginTop: 20,
+            }}
+          >
+            <TabImageButtons
+              buttons={chromas}
+              selectedTab={selectedChroma}
+              setSelectedTab={setSelectedChromaTab}
+            />
+          </View>
+        )}
       </View>
     </ScrollView>
   );
@@ -142,7 +144,7 @@ export default DetailsScreen;
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 20,
   },
   video: {
     width: 300,

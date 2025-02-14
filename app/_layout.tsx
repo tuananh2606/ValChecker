@@ -70,20 +70,20 @@ export default function RootLayout() {
 
           const allScheduled =
             await Notifications.getAllScheduledNotificationsAsync();
+          console.log(allScheduled);
 
-          if (allScheduled.length < 1) {
-            await Notifications.scheduleNotificationAsync({
-              content: {
-                body: t("wishlist.notification.no_hit"),
-              },
-              trigger: {
-                channelId: "daily",
-                type: Notifications.SchedulableTriggerInputTypes.DAILY,
-                hour: d.getUTCHours() - timeZoneOffset,
-                minute: 0,
-              },
-            });
-          }
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              body: t("wishlist.notification.no_hit"),
+            },
+            identifier: "daily-notification",
+            trigger: {
+              channelId: "daily",
+              type: Notifications.SchedulableTriggerInputTypes.DAILY,
+              hour: d.getUTCHours() - timeZoneOffset,
+              minute: 0,
+            },
+          });
         } else {
           stopBackgroundFetch();
         }
