@@ -1,10 +1,4 @@
-import {
-  View,
-  StyleSheet,
-  StatusBar,
-  ScrollView,
-  RefreshControl,
-} from "react-native";
+import { View, StyleSheet, ScrollView, RefreshControl } from "react-native";
 import { useCallback, useEffect, useState } from "react";
 import useUserStore from "@/hooks/useUserStore";
 import * as SecureStore from "expo-secure-store";
@@ -31,16 +25,28 @@ import { useTranslation } from "react-i18next";
 import {
   BannerAd,
   BannerAdSize,
+  InterstitialAd,
   TestIds,
 } from "react-native-google-mobile-ads";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface WeeklyMission extends ValorantMission {
   progress: number;
 }
 
+const AD_INTERVAL = 15 * 60 * 1000;
+
 const adUnitId = __DEV__
   ? TestIds.BANNER
   : "ca-app-pub-8908355189535475/8525036473";
+
+const interstitialAdUnitId = __DEV__
+  ? TestIds.INTERSTITIAL
+  : "ca-app-pub-8908355189535475/1173375666";
+
+const interstitial = InterstitialAd.createForAdRequest(interstitialAdUnitId, {
+  requestNonPersonalizedAdsOnly: true,
+});
 
 export default function MissionScreen() {
   const { t } = useTranslation();
@@ -51,6 +57,7 @@ export default function MissionScreen() {
   const [missions, setMissions] = useState<WeeklyMission[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { colors } = useAppTheme();
+
   const user = useUserStore((state) => state.user);
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(async () => {
@@ -112,6 +119,20 @@ export default function MissionScreen() {
     setLoading(false);
   }, []);
 
+  const handlePress = async () => {
+    if (interstitial.loaded) {
+      const now = new Date();
+      await AsyncStorage.setItem(
+        "lastInterstitialAd",
+        now.getTime().toString()
+      );
+      setTimeout(() => {
+        interstitial.show();
+      }, 3000);
+    }
+    router.push("/battlepass");
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -169,12 +190,21 @@ export default function MissionScreen() {
           });
         }
       }
-
       setExpirationTime(missionsMetadata.MissionMetadata.WeeklyRefillTime);
       setMissions(weeklyMissions);
       setLoading(false);
+      const now = Date.now();
+      const lastAds = Number.parseInt(
+        (await AsyncStorage.getItem("lastInterstitialAd")) || "0"
+      );
+
+      // Start loading the interstitial straight away
+      if (now - lastAds < AD_INTERVAL) return;
+      interstitial.load();
     };
     fetchData();
+
+    // Unsubscribe from events on unmount
   }, []);
 
   return (
@@ -422,7 +452,7 @@ export default function MissionScreen() {
           buttonColor="#ff4654"
           dark
           mode="contained"
-          onPress={() => router.push("/battlepass")}
+          onPress={handlePress}
         >
           <View
             style={{
