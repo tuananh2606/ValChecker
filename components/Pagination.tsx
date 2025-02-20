@@ -11,19 +11,19 @@ const Pagination = ({
 }: {
   width?: number;
   height?: number;
-  buttons: { title: string; id: string }[];
+  buttons?: { title: string; id: string }[];
   setPage: (page: number) => void;
   scrollOffsetAnimatedValue: Animated.Value;
   positionAnimatedValue: Animated.Value;
 }) => {
   const { colors } = useAppTheme();
-  const inputRange = [0, buttons.length];
+  const inputRange = [0, 10];
   const translateX = Animated.add(
     scrollOffsetAnimatedValue,
     positionAnimatedValue
   ).interpolate({
     inputRange,
-    outputRange: [0, buttons.length * (width / buttons.length)],
+    outputRange: [0, 10 * (width / 10)],
   });
 
   const onTabPress = (index: number) => {
@@ -48,12 +48,12 @@ const Pagination = ({
           backgroundColor: "#8f8f8f",
           borderRadius: 8,
           marginHorizontal: 5,
-          width: width / buttons.length - 10,
+          width: width / 10 - 10,
           height: height - 10,
           transform: [{ translateX: translateX }, { translateY: 5 }],
         }}
       />
-      {buttons.map((item, index) => {
+      {Array(11).map((item, index) => {
         return (
           <Pressable
             key={item.id}
@@ -70,7 +70,7 @@ const Pagination = ({
                 fontWeight: "600",
               }}
             >
-              {item.title}
+              {index + 1}
             </Text>
           </Pressable>
         );

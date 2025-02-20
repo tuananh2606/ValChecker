@@ -136,7 +136,8 @@ export default function SkinsScreen() {
       const remainingSkin = skins.filter(
         (skin) =>
           !noMeleeFilter.some((s) => skin.displayName.includes(s)) &&
-          !ownedSkin.some((item) => item.uuid === skin.uuid)
+          !ownedSkin.some((item) => item.uuid === skin.uuid) &&
+          skin.contentTierUuid
       );
       handleTotalCollectionCount(ownedSkin);
       setFilteredSkins([
@@ -253,7 +254,12 @@ export default function SkinsScreen() {
       if (typeof a === "string" || typeof b === "string") {
         return 10;
       } else {
-        return b.contentTier.rank - a.contentTier.rank;
+        if (a.contentTier && b.contentTier) {
+          return (
+            (b.contentTier as ValorantContentTier).rank -
+            (a.contentTier as ValorantContentTier).rank
+          );
+        } else return 0;
       }
     };
   };

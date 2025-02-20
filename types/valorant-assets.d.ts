@@ -3,7 +3,7 @@ interface ValorantSkin {
   displayName: string;
   themeUuid: string;
   contentTierUuid?: string;
-  contentTier: ValorantContentTier;
+  contentTier?: ValorantContentTier;
   displayIcon?: string;
   wallpaper?: string;
   assetPath: string;

@@ -1,55 +1,16 @@
 import { Tabs } from "expo-router";
-import { AppState, Platform, useColorScheme } from "react-native";
+import { Platform, useColorScheme } from "react-native";
 import { HapticTab } from "@/components/HapticTab";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useTranslation } from "react-i18next";
 import UpdatePopup from "@/components/popup/UpdatePopup";
-import { Fragment, useEffect, useRef } from "react";
-import { AppOpenAd, TestIds } from "react-native-google-mobile-ads";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-const adUnitId = __DEV__
-  ? TestIds.APP_OPEN
-  : "ca-app-pub-8908355189535475/9067961950";
-
-const appOpenAd = AppOpenAd.createForAdRequest(adUnitId, {
-  requestNonPersonalizedAdsOnly: true,
-});
-const AD_INTERVAL = 30 * 60 * 1000;
+import { Fragment } from "react";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { t } = useTranslation();
-  const appState = useRef(AppState.currentState);
-  const showAdIfAvailable = async () => {
-    if (appOpenAd.loaded) {
-      const now = new Date();
-      await AsyncStorage.setItem("lastOpenAds", now.getTime().toString());
-      appOpenAd.show();
-    }
-  };
-
-  useEffect(() => {
-    // Lắng nghe khi ứng dụng quay lại foreground
-    const subscription = AppState.addEventListener("change", async (state) => {
-      const now = Date.now();
-      const lastAds = Number.parseInt(
-        (await AsyncStorage.getItem("lastOpenAds")) || "0"
-      );
-
-      if (now - lastAds < AD_INTERVAL) return;
-      appOpenAd.load();
-      if (appState.current.match(/inactive|background/) && state === "active") {
-        showAdIfAvailable();
-      }
-      appState.current = state;
-    });
-    return () => {
-      subscription.remove();
-    };
-  }, []);
 
   return (
     <Fragment>
@@ -87,6 +48,7 @@ export default function TabLayout() {
           name="(mission)"
           options={{
             title: t("mission"),
+            popToTopOnBlur: true,
             tabBarIcon: ({ color }) => (
               <MaterialIcons name="list-alt" size={28} color={color} />
             ),

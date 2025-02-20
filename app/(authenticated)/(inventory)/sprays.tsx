@@ -1,7 +1,7 @@
 import CardItem from "@/components/card/CardItem";
 import useUserStore from "@/hooks/useUserStore";
 import { getAssets } from "@/utils/valorant-assets";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { View, StyleSheet, Text, Animated } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { fetchPlayerOwnedItems } from "@/utils/valorant-api";
@@ -42,8 +42,8 @@ export default function SpraysScreen() {
   );
   const scrollOffsetAnimatedValue = React.useRef(new Animated.Value(0)).current;
   const positionAnimatedValue = React.useRef(new Animated.Value(0)).current;
-
   const user = useUserStore((state) => state.user);
+
   useEffect(() => {
     const fetchSprays = async () => {
       let accessToken = (await SecureStore.getItemAsync(
@@ -60,6 +60,7 @@ export default function SpraysScreen() {
         VOwnedItemType.Sprays
       );
       const newSprays = convertOwnedItemIDToItem(ownedSprays);
+
       setOwnedSprays(newSprays as ValorantSprayAccessory[]);
     };
     fetchSprays();

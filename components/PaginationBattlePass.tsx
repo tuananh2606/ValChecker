@@ -1,76 +1,66 @@
 import {
-  FlatList,
   StyleSheet,
   View,
   Text,
   TouchableOpacity,
+  Animated,
 } from "react-native";
 import { getDeviceWidth } from "@/utils/misc";
-import { forwardRef, useState } from "react";
-import {
-  interpolateColor,
-  SharedValue,
-  useAnimatedStyle,
-} from "react-native-reanimated";
 import { useAppTheme } from "@/app/_layout";
 
-const DOT_SIZE = 40;
-
-const PaginationBattlePass = (
-  {
-    activeIndex,
-    setPage,
-  }: {
-    activeIndex: SharedValue<number>;
-    setPage: (page: number) => void;
-  },
-  ref: any
-) => {
-  const [act, setAct] = useState(activeIndex.value);
+const PaginationBattlePass = ({
+  scrollOffsetAnimatedValue,
+  positionAnimatedValue,
+  setPage,
+}: {
+  scrollOffsetAnimatedValue: Animated.Value;
+  positionAnimatedValue: Animated.Value;
+  setPage: (page: number) => void;
+}) => {
   const { colors } = useAppTheme();
+  const inputRange = [0, 10];
+  const translateX = Animated.add(
+    scrollOffsetAnimatedValue,
+    positionAnimatedValue
+  ).interpolate({
+    inputRange,
+    outputRange: [0, 10 * (getDeviceWidth() / 11)],
+  });
   return (
     <View style={[styles.pagination]}>
-      <FlatList
-        ref={ref}
-        style={{
-          width: getDeviceWidth(),
-        }}
-        bounces={false}
-        horizontal
-        data={Array(11)}
-        keyExtractor={(_, index) => index + ""}
-        renderItem={({ index }) => {
-          return (
-            <TouchableOpacity
-              onPress={() => {
-                ref.current?.scrollToIndex({
-                  index: index,
-                  animated: true,
-                  viewPosition: 0.5,
-                });
-                setAct(index);
-                setPage(index);
-              }}
-              style={{ width: DOT_SIZE }}
-            >
-              <Text
-                style={[
-                  {
-                    color: colors.text,
-                    textAlign: "center",
-                  },
-                ]}
-              >
-                {index + 1 + ""}
-              </Text>
-            </TouchableOpacity>
-          );
-        }}
+      <Animated.View
+        style={[
+          styles.paginationIndicator,
+          {
+            position: "absolute",
+            transform: [{ translateX: translateX }],
+          },
+        ]}
       />
+      {Array.from(Array(11)).map((_, index) => (
+        <TouchableOpacity
+          key={index}
+          onPress={() => {
+            setPage(index);
+          }}
+          style={{ width: getDeviceWidth() / 11 }}
+        >
+          <Text
+            style={[
+              {
+                color: colors.text,
+                textAlign: "center",
+              },
+            ]}
+          >
+            {index + 1 + ""}
+          </Text>
+        </TouchableOpacity>
+      ))}
     </View>
   );
 };
-export default forwardRef(PaginationBattlePass);
+export default PaginationBattlePass;
 
 const styles = StyleSheet.create({
   pagination: {
@@ -79,10 +69,11 @@ const styles = StyleSheet.create({
     left: 0,
     top: 10,
     zIndex: 10,
+    width: "100%",
     flexDirection: "row",
   },
   paginationIndicator: {
-    width: DOT_SIZE,
+    width: getDeviceWidth() / 11,
     height: 25,
     borderBottomWidth: 2,
     borderColor: "red",

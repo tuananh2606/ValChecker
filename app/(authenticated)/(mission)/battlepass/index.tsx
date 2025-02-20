@@ -34,7 +34,7 @@ const BattlePass = () => {
   const navigation = useNavigation();
   const { colors } = useAppTheme();
   const [contracts, setContracts] = useState<BattlePassContract>();
-  const [loading, setLoading] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const user = useUserStore((state) => state.user);
   const scrollOffsetAnimatedValue = useRef(new Animated.Value(0)).current;
   const postitionAV = useSharedValue(0);
@@ -55,7 +55,7 @@ const BattlePass = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading("Fetching battlepass");
+      setLoading(true);
       let accessToken = (await SecureStore.getItemAsync(
         "access_token"
       )) as string;
@@ -89,11 +89,10 @@ const BattlePass = () => {
       );
       const battlePass = await parseBattlePass(currentBP);
       positionAnimatedValue.setValue(
-        Math.floor((progressBP as Contract).ProgressionLevelReached / 5)
+        Math.ceil((progressBP as Contract).ProgressionLevelReached / 5) - 1
       );
-      postitionAV.value = Math.floor(
-        (progressBP as Contract).ProgressionLevelReached / 5
-      );
+      postitionAV.value =
+        Math.ceil((progressBP as Contract).ProgressionLevelReached / 5) - 1;
       setContracts({
         ProgressionLevelReached: (progressBP as Contract)
           .ProgressionLevelReached,
@@ -101,7 +100,7 @@ const BattlePass = () => {
           .ProgressionTowardsNextLevel,
         battlePass: battlePass,
       });
-      setLoading(null);
+      setLoading(false);
     };
     fetchData();
   }, []);
@@ -120,19 +119,19 @@ const BattlePass = () => {
   }, [navigation, daysLeft]);
 
   if (loading) {
-    return <Loading msg={loading} />;
+    return <Loading />;
   }
 
   return (
     <View style={styles.flex}>
       <PaginationBattlePass
-        activeIndex={postitionAV}
-        ref={flatListRef}
         setPage={setPage}
+        scrollOffsetAnimatedValue={scrollOffsetAnimatedValue}
+        positionAnimatedValue={positionAnimatedValue}
       />
       {contracts && (
         <AnimatedPagerView
-          initialPage={Math.floor(contracts.ProgressionLevelReached / 5)}
+          initialPage={Math.ceil(contracts.ProgressionLevelReached / 5) - 1}
           testID="pager-view"
           ref={ref}
           onPageScroll={Animated.event<PagerViewOnPageScrollEventData>(
@@ -147,13 +146,8 @@ const BattlePass = () => {
             {
               listener: ({ nativeEvent: { offset, position } }) => {
                 postitionAV.value = position;
-                flatListRef.current?.scrollToIndex({
-                  index: position,
-                  animated: true,
-                  viewPosition: 0.5,
-                });
               },
-              useNativeDriver: false,
+              useNativeDriver: true,
             }
           )}
           style={[styles.flex, { marginTop: 30 }]}
@@ -205,7 +199,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    marginVertical: 10,
+    marginTop: 10,
     marginHorizontal: 16,
   },
 

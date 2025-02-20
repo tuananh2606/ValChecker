@@ -12,7 +12,7 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useWishlistStore } from "@/hooks/useWishlistStore";
 import { useAppTheme } from "@/app/_layout";
 import { useTranslation } from "react-i18next";
-import { LinearGradient } from "expo-linear-gradient";
+import { Fragment } from "react";
 
 interface Props {
   data: SkinShopItem | ValorantSkin;
@@ -79,50 +79,58 @@ const SkinItem = ({ data }: Props) => {
               },
             ]}
           >
-            <Image
-              style={{
-                width: 150,
-                height: 150,
-                position: "absolute",
-                left: -20,
-                bottom: -35,
-                opacity: 0.2,
-              }}
-              contentFit="contain"
-              source={{
-                uri: data.contentTier.displayIcon,
-              }}
-            />
-
-            <View style={styles.priceContainer}>
-              {(data as SkinShopItem).price && (
-                <View
+            {data.contentTier && (
+              <Fragment>
+                <Image
                   style={{
-                    flexDirection: "row",
-                    alignItems: "center",
+                    width: 150,
+                    height: 150,
+                    position: "absolute",
+                    left: -20,
+                    bottom: -35,
+                    opacity: 0.2,
                   }}
-                >
+                  contentFit="contain"
+                  source={{
+                    uri: data.contentTier.displayIcon,
+                  }}
+                />
+
+                <View style={styles.priceContainer}>
+                  {(data as SkinShopItem).price && (
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Image
+                        style={{ width: 16, height: 16 }}
+                        contentFit="contain"
+                        tintColor={colors.tint}
+                        source={require("@/assets/images/valorantPoints.png")}
+                      />
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          color: colors.text,
+                          marginLeft: 4,
+                        }}
+                      >
+                        {(data as SkinShopItem).price}
+                      </Text>
+                    </View>
+                  )}
                   <Image
-                    style={{ width: 16, height: 16 }}
+                    style={{ width: 24, height: 24, marginLeft: 8 }}
                     contentFit="contain"
-                    tintColor={colors.tint}
-                    source={require("@/assets/images/valorantPoints.png")}
+                    source={{
+                      uri: data.contentTier.displayIcon,
+                    }}
                   />
-                  <Text
-                    style={{ fontSize: 16, color: colors.text, marginLeft: 4 }}
-                  >
-                    {(data as SkinShopItem).price}
-                  </Text>
                 </View>
-              )}
-              <Image
-                style={{ width: 24, height: 24, marginLeft: 8 }}
-                contentFit="contain"
-                source={{
-                  uri: data.contentTier.displayIcon,
-                }}
-              />
-            </View>
+              </Fragment>
+            )}
 
             <View style={styles.imageContainer}>
               <Image

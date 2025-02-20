@@ -9,43 +9,62 @@ import { useAppTheme } from "@/app/_layout";
 import { FlashList } from "@shopify/flash-list";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import MatchHistoryItem from "@/components/card/MatchHistoryItem";
+import { useCacheStore } from "@/hooks/useCacheStore";
 
 const MatchHistory = () => {
   const { colors } = useAppTheme();
   const [matchHistory, setMatchHistory] = useState<MatchDetails[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const user = useUserStore((state) => state.user);
+  const { setData, getData, clearData } = useCacheStore();
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    let accessToken = (await SecureStore.getItemAsync(
+      "access_token"
+    )) as string;
+    let entitlementsToken = (await SecureStore.getItemAsync(
+      "entitlements_token"
+    )) as string;
+
+    const matchHistory = await fetchMatchHistory(
+      accessToken,
+      entitlementsToken,
+      user.region,
+      user.id,
+      0,
+      15
+    );
+
+    const matchHistoyDetails = await parseMatchHistory(
+      accessToken,
+      entitlementsToken,
+      user.region,
+      user.id,
+      matchHistory.History
+    );
+    setData("match-history", {
+      data: matchHistoyDetails,
+      timestamp: new Date().getTime(),
+    });
+    setMatchHistory(matchHistoyDetails);
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      let accessToken = (await SecureStore.getItemAsync(
-        "access_token"
-      )) as string;
-      let entitlementsToken = (await SecureStore.getItemAsync(
-        "entitlements_token"
-      )) as string;
-
-      const matchHistory = await fetchMatchHistory(
-        accessToken,
-        entitlementsToken,
-        user.region,
-        user.id,
-        0,
-        15
-      );
-
-      const matchHistoyDetails = await parseMatchHistory(
-        accessToken,
-        entitlementsToken,
-        user.region,
-        user.id,
-        matchHistory.History
-      );
-      setMatchHistory(matchHistoyDetails);
-      setLoading(false);
-    };
-    fetchData();
+    const cachedData = getData("match-history");
+    const now = new Date().getTime();
+    if (cachedData) {
+      const { data, timestamp } = cachedData;
+      if (now - timestamp < 15 * 60 * 1000) {
+        setMatchHistory(data);
+      } else {
+        clearData("match-history");
+        fetchData();
+      }
+    } else {
+      fetchData();
+    }
   }, []);
 
   const renderItem = useCallback(

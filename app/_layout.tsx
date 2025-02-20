@@ -14,9 +14,6 @@ import {
 } from "react-native-paper";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import merge from "deepmerge";
-import { useWishlistStore } from "@/hooks/useWishlistStore";
-import { initBackgroundFetch, stopBackgroundFetch } from "@/utils/wishlist";
-import * as Notifications from "expo-notifications";
 import { useTranslation } from "react-i18next";
 import { StatusBar } from "expo-status-bar";
 
@@ -54,39 +51,6 @@ export default function RootLayout() {
     async function prepare() {
       try {
         // Pre-load fonts, make any API calls you need to do here
-        const notificationEnabled =
-          useWishlistStore.getState().notificationEnabled;
-
-        if (notificationEnabled) {
-          initBackgroundFetch();
-          await Notifications.setNotificationChannelAsync("daily", {
-            name: "Daily",
-            importance: Notifications.AndroidImportance.MAX,
-          });
-          const d = new Date();
-          d.setUTCHours(0, 0, 0);
-
-          const timeZoneOffset = d.getTimezoneOffset() / 60;
-
-          const allScheduled =
-            await Notifications.getAllScheduledNotificationsAsync();
-          console.log(allScheduled);
-
-          await Notifications.scheduleNotificationAsync({
-            content: {
-              body: t("wishlist.notification.no_hit"),
-            },
-            identifier: "daily-notification",
-            trigger: {
-              channelId: "daily",
-              type: Notifications.SchedulableTriggerInputTypes.DAILY,
-              hour: d.getUTCHours() - timeZoneOffset,
-              minute: 0,
-            },
-          });
-        } else {
-          stopBackgroundFetch();
-        }
       } catch (e) {
         console.warn(e);
       } finally {

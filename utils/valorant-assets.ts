@@ -85,11 +85,11 @@ export async function loadAssets() {
       const contierTierSkin = contentTiers.find(
         (_contentTier) => _contentTier.uuid === skins[i]?.contentTierUuid
       );
-      if (contierTierSkin)
-        skinsWithContentTier.push({
-          ...skins[i],
-          contentTier: contierTierSkin,
-        });
+
+      skinsWithContentTier.push({
+        ...skins[i],
+        contentTier: contierTierSkin,
+      });
     }
   }
 

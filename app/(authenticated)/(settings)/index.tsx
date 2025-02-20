@@ -29,6 +29,7 @@ import {
 import { useRevenueCat } from "@/providers/RevenueCatProvider";
 import Purchases from "react-native-purchases";
 import { useEffect } from "react";
+import { useCacheStore } from "@/hooks/useCacheStore";
 
 const adUnitId = __DEV__
   ? TestIds.BANNER
@@ -38,7 +39,7 @@ export default function SettingScreen() {
   const { t } = useTranslation();
   const { setUser } = useUserStore();
   const { colors } = useAppTheme();
-
+  const { clearAll } = useCacheStore();
   const notificationEnabled = useWishlistStore(
     (state) => state.notificationEnabled
   );
@@ -56,6 +57,7 @@ export default function SettingScreen() {
     setUser(defaultUser);
     stopBackgroundFetch();
     setNotificationEnabled(false);
+    clearAll();
     router.replace("/(login)");
   };
 
@@ -90,8 +92,37 @@ export default function SettingScreen() {
     }
   };
   useEffect(() => {
-    loadOfferings;
-  }, []);
+    const setupNotification = async () => {
+      if (notificationEnabled) {
+        initBackgroundFetch();
+        await Notifications.setNotificationChannelAsync("daily", {
+          name: "Daily",
+          importance: Notifications.AndroidImportance.MAX,
+        });
+        const d = new Date();
+        d.setUTCHours(0, 0, 0);
+
+        const timeZoneOffset = d.getTimezoneOffset() / 60;
+
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            body: t("wishlist.notification.no_hit"),
+          },
+          identifier: "daily-notification",
+          trigger: {
+            channelId: "daily",
+            type: Notifications.SchedulableTriggerInputTypes.DAILY,
+            hour: d.getUTCHours() - timeZoneOffset,
+            minute: 0,
+          },
+        });
+      } else {
+        await Notifications.cancelAllScheduledNotificationsAsync();
+        stopBackgroundFetch();
+      }
+    };
+    setupNotification();
+  }, [notificationEnabled]);
 
   return (
     <View

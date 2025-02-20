@@ -1,14 +1,14 @@
 import { View, StyleSheet, ScrollView } from "react-native";
 import useUserStore from "@/hooks/useUserStore";
-import { useAppTheme } from "@/app/_layout";
 import Pie from "@/components/circle-progress/Pie";
 import { Card, Text } from "react-native-paper";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import { fetchPlayerMMR, parseSeason } from "@/utils/valorant-api";
 import { fetchSeasons } from "@/utils/valorant-assets";
 import { useTranslation } from "react-i18next";
 import Loading from "@/components/Loading";
+import { useCacheStore } from "@/hooks/useCacheStore";
 
 interface QueueSkills {
   competitive: {
@@ -105,7 +105,7 @@ interface QueueSkills {
 
 const CareerSummary = () => {
   const { t } = useTranslation();
-  const { colors } = useAppTheme();
+  const { setData, getData, clearData } = useCacheStore();
   const user = useUserStore((state) => state.user);
   const [loading, setLoading] = useState<boolean>(false);
   const [queueSkills, setQueueSkills] = useState<QueueSkills>({
@@ -205,149 +205,162 @@ const CareerSummary = () => {
     value: string;
   }>({ label: "", value: "" });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      let accessToken = (await SecureStore.getItemAsync(
-        "access_token"
-      )) as string;
-      let entitlementsToken = (await SecureStore.getItemAsync(
-        "entitlements_token"
-      )) as string;
-      let [playerMMR, seasons] = await Promise.all([
-        fetchPlayerMMR(accessToken, entitlementsToken, user.region, user.id),
-        fetchSeasons(),
-      ]);
-      const seasonsAvailabe = parseSeason(seasons);
-      const currentSeason = seasonsAvailabe[seasonsAvailabe.length - 1];
-      setCurrentSeason(currentSeason);
-      let queueSkills = {
-        competitive: {
-          currentSeason: {
-            numberOfGames: 0,
-            numberOfWin: 0,
-          },
-          allTime: {
-            numberOfGames: 0,
-            numberOfWin: 0,
-          },
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    let accessToken = (await SecureStore.getItemAsync(
+      "access_token"
+    )) as string;
+    let entitlementsToken = (await SecureStore.getItemAsync(
+      "entitlements_token"
+    )) as string;
+    let [playerMMR, seasons] = await Promise.all([
+      fetchPlayerMMR(accessToken, entitlementsToken, user.region, user.id),
+      fetchSeasons(),
+    ]);
+    const seasonsAvailabe = parseSeason(seasons);
+    const currentSeason = seasonsAvailabe[seasonsAvailabe.length - 1];
+    setCurrentSeason(currentSeason);
+    let queueSkills = {
+      competitive: {
+        currentSeason: {
+          numberOfGames: 0,
+          numberOfWin: 0,
         },
-        deathmatch: {
-          currentSeason: {
-            numberOfGames: 0,
-            numberOfWin: 0,
-          },
-          allTime: {
-            numberOfGames: 0,
-            numberOfWin: 0,
-          },
+        allTime: {
+          numberOfGames: 0,
+          numberOfWin: 0,
         },
-        ggteam: {
-          currentSeason: {
-            numberOfGames: 0,
-            numberOfWin: 0,
-          },
-          allTime: {
-            numberOfGames: 0,
-            numberOfWin: 0,
-          },
+      },
+      deathmatch: {
+        currentSeason: {
+          numberOfGames: 0,
+          numberOfWin: 0,
         },
-        hurm: {
-          currentSeason: {
-            numberOfGames: 0,
-            numberOfWin: 0,
-          },
-          allTime: {
-            numberOfGames: 0,
-            numberOfWin: 0,
-          },
+        allTime: {
+          numberOfGames: 0,
+          numberOfWin: 0,
         },
-        newmap: {
-          currentSeason: {
-            numberOfGames: 0,
-            numberOfWin: 0,
-          },
-          allTime: {
-            numberOfGames: 0,
-            numberOfWin: 0,
-          },
+      },
+      ggteam: {
+        currentSeason: {
+          numberOfGames: 0,
+          numberOfWin: 0,
         },
-        seeding: {
-          currentSeason: {
-            numberOfGames: 0,
-            numberOfWin: 0,
-          },
-          allTime: {
-            numberOfGames: 0,
-            numberOfWin: 0,
-          },
+        allTime: {
+          numberOfGames: 0,
+          numberOfWin: 0,
         },
-        spikerush: {
-          currentSeason: {
-            numberOfGames: 0,
-            numberOfWin: 0,
-          },
-          allTime: {
-            numberOfGames: 0,
-            numberOfWin: 0,
-          },
+      },
+      hurm: {
+        currentSeason: {
+          numberOfGames: 0,
+          numberOfWin: 0,
         },
-        swiftplay: {
-          currentSeason: {
-            numberOfGames: 0,
-            numberOfWin: 0,
-          },
-          allTime: {
-            numberOfGames: 0,
-            numberOfWin: 0,
-          },
+        allTime: {
+          numberOfGames: 0,
+          numberOfWin: 0,
         },
-        unrated: {
-          currentSeason: {
-            numberOfGames: 0,
-            numberOfWin: 0,
-          },
-          allTime: {
-            numberOfGames: 0,
-            numberOfWin: 0,
-          },
+      },
+      newmap: {
+        currentSeason: {
+          numberOfGames: 0,
+          numberOfWin: 0,
         },
-      };
-      for (let key in playerMMR.QueueSkills) {
-        for (let key1 in playerMMR.QueueSkills[key].SeasonalInfoBySeasonID) {
-          queueSkills[key as keyof typeof queueSkills].allTime.numberOfGames =
-            queueSkills[key as keyof typeof queueSkills].allTime.numberOfGames +
-            playerMMR.QueueSkills[key].SeasonalInfoBySeasonID[key1]
-              .NumberOfGames;
-
-          queueSkills[key as keyof typeof queueSkills].allTime.numberOfWin =
-            queueSkills[key as keyof typeof queueSkills].allTime.numberOfWin +
-            playerMMR.QueueSkills[key].SeasonalInfoBySeasonID[key1]
-              .NumberOfWinsWithPlacements;
-        }
-        for (let keySeason in playerMMR.QueueSkills[key]
-          .SeasonalInfoBySeasonID) {
-          if (currentSeason.value === keySeason) {
-            queueSkills[
-              key as keyof typeof queueSkills
-            ].currentSeason.numberOfGames =
-              playerMMR.QueueSkills[key].SeasonalInfoBySeasonID[
-                currentSeason.value
-              ].NumberOfGames;
-            queueSkills[
-              key as keyof typeof queueSkills
-            ].currentSeason.numberOfWin =
-              playerMMR.QueueSkills[key].SeasonalInfoBySeasonID[
-                currentSeason.value
-              ].NumberOfWinsWithPlacements;
-          }
-        }
-        setQueueSkills(queueSkills);
-      }
-      setLoading(false);
+        allTime: {
+          numberOfGames: 0,
+          numberOfWin: 0,
+        },
+      },
+      seeding: {
+        currentSeason: {
+          numberOfGames: 0,
+          numberOfWin: 0,
+        },
+        allTime: {
+          numberOfGames: 0,
+          numberOfWin: 0,
+        },
+      },
+      spikerush: {
+        currentSeason: {
+          numberOfGames: 0,
+          numberOfWin: 0,
+        },
+        allTime: {
+          numberOfGames: 0,
+          numberOfWin: 0,
+        },
+      },
+      swiftplay: {
+        currentSeason: {
+          numberOfGames: 0,
+          numberOfWin: 0,
+        },
+        allTime: {
+          numberOfGames: 0,
+          numberOfWin: 0,
+        },
+      },
+      unrated: {
+        currentSeason: {
+          numberOfGames: 0,
+          numberOfWin: 0,
+        },
+        allTime: {
+          numberOfGames: 0,
+          numberOfWin: 0,
+        },
+      },
     };
+    for (let key in playerMMR.QueueSkills) {
+      for (let key1 in playerMMR.QueueSkills[key].SeasonalInfoBySeasonID) {
+        queueSkills[key as keyof typeof queueSkills].allTime.numberOfGames =
+          queueSkills[key as keyof typeof queueSkills].allTime.numberOfGames +
+          playerMMR.QueueSkills[key].SeasonalInfoBySeasonID[key1].NumberOfGames;
 
-    fetchData();
+        queueSkills[key as keyof typeof queueSkills].allTime.numberOfWin =
+          queueSkills[key as keyof typeof queueSkills].allTime.numberOfWin +
+          playerMMR.QueueSkills[key].SeasonalInfoBySeasonID[key1]
+            .NumberOfWinsWithPlacements;
+      }
+      for (let keySeason in playerMMR.QueueSkills[key].SeasonalInfoBySeasonID) {
+        if (currentSeason.value === keySeason) {
+          queueSkills[
+            key as keyof typeof queueSkills
+          ].currentSeason.numberOfGames =
+            playerMMR.QueueSkills[key].SeasonalInfoBySeasonID[
+              currentSeason.value
+            ].NumberOfGames;
+          queueSkills[
+            key as keyof typeof queueSkills
+          ].currentSeason.numberOfWin =
+            playerMMR.QueueSkills[key].SeasonalInfoBySeasonID[
+              currentSeason.value
+            ].NumberOfWinsWithPlacements;
+        }
+      }
+      setData("career-summary", {
+        data: queueSkills,
+        timestamp: new Date().getTime(),
+      });
+      setQueueSkills(queueSkills);
+    }
+    setLoading(false);
+  }, []);
+  const cachedData = getData("career-summary");
+  useEffect(() => {
+    const now = new Date().getTime();
+    if (cachedData) {
+      const { data, timestamp } = cachedData;
+      if (now - timestamp < 15 * 60 * 1000) {
+        setQueueSkills(data);
+      } else {
+        clearData("career-summary");
+        fetchData();
+      }
+    } else {
+      fetchData();
+    }
   }, []);
 
   if (loading) {

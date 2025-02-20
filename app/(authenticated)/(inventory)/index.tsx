@@ -184,6 +184,15 @@ export default function InventoryScreen() {
           >
             {t("weapon_buddies")}
           </Button>
+          <Button
+            style={{ marginTop: 10, width: 170 }}
+            mode="contained"
+            buttonColor="#ff4654"
+            dark
+            onPress={() => router.push("/equipment")}
+          >
+            {t("equipment_skins")}
+          </Button>
         </View>
       </ScrollView>
     </Fragment>

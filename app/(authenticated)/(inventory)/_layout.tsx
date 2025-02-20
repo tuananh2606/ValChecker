@@ -1,4 +1,3 @@
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Stack } from "expo-router";
 import { useTranslation } from "react-i18next";
 export default function StoreLayout() {
@@ -16,6 +15,10 @@ export default function StoreLayout() {
       <Stack.Screen name="sprays" options={{ headerTitle: t("spray") }} />
       <Stack.Screen name="(skins)" options={{ headerShown: false }} />
       <Stack.Screen name="buddies" options={{ headerTitle: t("buddies") }} />
+      <Stack.Screen
+        name="equipment"
+        options={{ headerTitle: t("equipment_skins") }}
+      />
     </Stack>
   );
 }

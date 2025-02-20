@@ -95,7 +95,7 @@ export function convertOwnedItemIDToItem(payload: OwnedItemsResponse) {
       );
       if (onwedCard) newCardArr.push(onwedCard);
     }
-    return newCardArr;
+    return [...new Set(newCardArr)];
   }
   if (payload.ItemTypeID === VOwnedItemType.Buddies) {
     let newBuddiesArr = [];
@@ -105,7 +105,7 @@ export function convertOwnedItemIDToItem(payload: OwnedItemsResponse) {
       );
       if (onwedBuddie) newBuddiesArr.push(onwedBuddie);
     }
-    return newBuddiesArr;
+    return [...new Set(newBuddiesArr)];
   }
   if (payload.ItemTypeID === VOwnedItemType.Skins) {
     let newSkinsArr: ValorantSkin[] = [];
@@ -129,6 +129,10 @@ export function convertOwnedItemIDToItem(payload: OwnedItemsResponse) {
       );
       if (onwedSpray) newSpraysArr.push(onwedSpray);
     }
-    return newSpraysArr;
+    return [...new Set(newSpraysArr)];
   }
+}
+
+export function isEmpty(obj: Record<string, any>): boolean {
+  return Object.keys(obj).length === 0;
 }
