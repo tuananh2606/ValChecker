@@ -87,7 +87,7 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-      {Platform.OS === "android" && <UpdatePopup />}
+      {/* {Platform.OS === "android" && <UpdatePopup />} */}
     </Fragment>
   );
 }

@@ -2,6 +2,14 @@ import "expo-router/entry";
 import BackgroundFetch from "react-native-background-fetch";
 import { wishlistBgTask } from "./utils/wishlist";
 import mobileAds from "react-native-google-mobile-ads";
+import { onlineManager } from "@tanstack/react-query";
+import NetInfo from "@react-native-community/netinfo";
+
+onlineManager.setEventListener((setOnline) => {
+  return NetInfo.addEventListener((state) => {
+    setOnline(!!state.isConnected);
+  });
+});
 
 // Initialize on app start
 mobileAds()
