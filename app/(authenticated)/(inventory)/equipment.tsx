@@ -1,5 +1,4 @@
 import { getAssets } from "@/utils/valorant-assets";
-import React, { Fragment, useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView, TouchableHighlight } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { fetchPlayerLoadout } from "@/utils/valorant-api";
@@ -8,6 +7,7 @@ import { isEmpty } from "@/utils/misc";
 import { router } from "expo-router";
 import { Card, Text } from "react-native-paper";
 import { Image } from "expo-image";
+import { useQuery } from "@tanstack/react-query";
 
 interface IEquipment {
   index: number;
@@ -19,7 +19,6 @@ interface IEquipment {
 
 export default function EquipmentScreen() {
   const { skins, buddies } = getAssets();
-  const [equipment, setEquipment] = useState<IEquipment[]>([]);
   const user = useUserStore((state) => state.user);
 
   const sortEquipment = (displayName: string, assetPath: string) => {
@@ -191,61 +190,64 @@ export default function EquipmentScreen() {
     };
   };
 
-  useEffect(() => {
-    const fetchCards = async () => {
-      let accessToken = (await SecureStore.getItemAsync(
-        "access_token"
-      )) as string;
-      let entitlementsToken = (await SecureStore.getItemAsync(
-        "entitlements_token"
-      )) as string;
-      const playerLoadout = await fetchPlayerLoadout(
-        accessToken,
-        entitlementsToken,
-        user.region,
-        user.id
+  const fetchEquipments = async () => {
+    let accessToken = (await SecureStore.getItemAsync(
+      "access_token"
+    )) as string;
+    let entitlementsToken = (await SecureStore.getItemAsync(
+      "entitlements_token"
+    )) as string;
+    const playerLoadout = await fetchPlayerLoadout(
+      accessToken,
+      entitlementsToken,
+      user.region,
+      user.id
+    );
+
+    const equipment: any[] = [];
+
+    playerLoadout.Guns.map((item) => {
+      let newEquipment = {
+        index: 0,
+        title: "",
+        chromaId: item.ChromaID,
+        skin: {},
+        buddy: {},
+      };
+
+      const skin = skins.find((skin) => skin.uuid === item.SkinID);
+      if (skin) {
+        newEquipment.skin = skin;
+        newEquipment.index = sortEquipment(
+          skin.displayName,
+          skin.assetPath
+        ).index;
+        newEquipment.title = sortEquipment(
+          skin.displayName,
+          skin.assetPath
+        ).title;
+      }
+      const buddy = buddies.find(
+        (buddy) => buddy.levels[0].uuid === item.CharmLevelID
       );
+      if (buddy) newEquipment.buddy = buddy;
 
-      const equipment: any[] = [];
-
-      playerLoadout.Guns.map((item) => {
-        let newEquipment = {
-          index: 0,
-          title: "",
-          chromaId: item.ChromaID,
-          skin: {},
-          buddy: {},
-        };
-
-        const skin = skins.find((skin) => skin.uuid === item.SkinID);
-        if (skin) {
-          newEquipment.skin = skin;
-          newEquipment.index = sortEquipment(
-            skin.displayName,
-            skin.assetPath
-          ).index;
-          newEquipment.title = sortEquipment(
-            skin.displayName,
-            skin.assetPath
-          ).title;
-        }
-        const buddy = buddies.find(
-          (buddy) => buddy.levels[0].uuid === item.CharmLevelID
-        );
-        if (buddy) newEquipment.buddy = buddy;
-
-        equipment.push(newEquipment);
-      });
-      setEquipment(equipment);
-    };
-    fetchCards();
-  }, []);
+      equipment.push(newEquipment);
+    });
+    return equipment as IEquipment[];
+    //setEquipment(equipment);
+  };
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["equipment"],
+    queryFn: fetchEquipments,
+    staleTime: 60000,
+  });
 
   return (
     <ScrollView style={styles.container}>
-      {equipment &&
-        equipment.length > 0 &&
-        equipment
+      {data &&
+        data.length > 0 &&
+        data
           .sort((a, b) => a.index - b.index)
           .map((skin, index) => <Item key={index} data={skin} />)}
     </ScrollView>

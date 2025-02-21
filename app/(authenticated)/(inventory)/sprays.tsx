@@ -1,8 +1,14 @@
 import CardItem from "@/components/card/CardItem";
 import useUserStore from "@/hooks/useUserStore";
 import { getAssets } from "@/utils/valorant-assets";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { View, StyleSheet, Text, Animated } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  StyleSheet,
+  Text,
+  Animated,
+  TouchableOpacity,
+} from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { fetchPlayerOwnedItems } from "@/utils/valorant-api";
 import {
@@ -20,11 +26,10 @@ import {
   usePagerView,
 } from "react-native-pager-view";
 import { FlashList } from "@shopify/flash-list";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { useQuery } from "@tanstack/react-query";
 
 export default function SpraysScreen() {
   const { source, title } = useLocalSearchParams();
-  const [ownedSprays, setOwnedSprays] = useState<ValorantSprayAccessory[]>([]);
   const [spray, setSpray] = useState<{
     source: string;
     title: string;
@@ -44,27 +49,29 @@ export default function SpraysScreen() {
   const positionAnimatedValue = React.useRef(new Animated.Value(0)).current;
   const user = useUserStore((state) => state.user);
 
-  useEffect(() => {
-    const fetchSprays = async () => {
-      let accessToken = (await SecureStore.getItemAsync(
-        "access_token"
-      )) as string;
-      let entitlementsToken = (await SecureStore.getItemAsync(
-        "entitlements_token"
-      )) as string;
-      const ownedSprays = await fetchPlayerOwnedItems(
-        accessToken,
-        entitlementsToken,
-        user.region,
-        user.id,
-        VOwnedItemType.Sprays
-      );
-      const newSprays = convertOwnedItemIDToItem(ownedSprays);
+  const fetchSprays = async () => {
+    let accessToken = (await SecureStore.getItemAsync(
+      "access_token"
+    )) as string;
+    let entitlementsToken = (await SecureStore.getItemAsync(
+      "entitlements_token"
+    )) as string;
+    const ownedSprays = await fetchPlayerOwnedItems(
+      accessToken,
+      entitlementsToken,
+      user.region,
+      user.id,
+      VOwnedItemType.Sprays
+    );
+    const newSprays = convertOwnedItemIDToItem(ownedSprays);
+    return newSprays as ValorantSprayAccessory[];
+  };
 
-      setOwnedSprays(newSprays as ValorantSprayAccessory[]);
-    };
-    fetchSprays();
-  }, []);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["sprays"],
+    queryFn: fetchSprays,
+    staleTime: 60000,
+  });
 
   const renderItem = ({
     item,
@@ -74,7 +81,7 @@ export default function SpraysScreen() {
     index: number;
   }) => {
     return (
-      <TouchableWithoutFeedback
+      <TouchableOpacity
         onPress={() => {
           setSpray({
             title: item.displayName,
@@ -83,7 +90,7 @@ export default function SpraysScreen() {
         }}
       >
         <CardItem data={item} />
-      </TouchableWithoutFeedback>
+      </TouchableOpacity>
     );
   };
 
@@ -164,7 +171,7 @@ export default function SpraysScreen() {
                 }}
               ></View>
             )}
-            data={ownedSprays}
+            data={data}
             renderItem={renderItem}
             estimatedItemSize={getDeviceWidth() / 5}
           />

@@ -16,6 +16,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import merge from "deepmerge";
 import { useTranslation } from "react-i18next";
 import { StatusBar } from "expo-status-bar";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const unstable_settings = {
   initialRouteName: "loading",
@@ -40,7 +41,7 @@ const CombinedDarkTheme = {
 export type AppTheme = typeof CombinedDarkTheme;
 
 export const useAppTheme = () => useTheme<AppTheme>();
-
+const queryClient = new QueryClient();
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
@@ -88,35 +89,37 @@ export default function RootLayout() {
       <PaperProvider theme={CombinedDarkTheme}>
         <ThemeProvider value={CombinedDarkTheme}>
           <StatusBar style="light" translucent={false} />
-          <Stack>
-            <Stack.Screen
-              name="(authenticated)"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen name="index" redirect />
-            <Stack.Screen
-              name="loading"
-              options={{
-                headerShown: false,
-                headerStyle: {
-                  backgroundColor: CombinedDarkTheme.colors.background,
-                },
-              }}
-            />
-            <Stack.Screen name="(login)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="modal"
-              options={{
-                headerTitle: "",
-                headerStyle: {
-                  backgroundColor: "black",
-                },
-                animation: "default",
-                presentation: "modal",
-              }}
-            />
-            <Stack.Screen name="+not-found" />
-          </Stack>
+          <QueryClientProvider client={queryClient}>
+            <Stack>
+              <Stack.Screen
+                name="(authenticated)"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen name="index" redirect />
+              <Stack.Screen
+                name="loading"
+                options={{
+                  headerShown: false,
+                  headerStyle: {
+                    backgroundColor: CombinedDarkTheme.colors.background,
+                  },
+                }}
+              />
+              <Stack.Screen name="(login)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="modal"
+                options={{
+                  headerTitle: "",
+                  headerStyle: {
+                    backgroundColor: "black",
+                  },
+                  animation: "default",
+                  presentation: "modal",
+                }}
+              />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+          </QueryClientProvider>
         </ThemeProvider>
       </PaperProvider>
     </GestureHandlerRootView>

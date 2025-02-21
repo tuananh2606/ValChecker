@@ -8,6 +8,7 @@ export default function CareerLayout() {
   return (
     <Stack
       screenOptions={{
+        animation: "ios_from_right",
         headerStyle: {
           backgroundColor: colors.background,
         },

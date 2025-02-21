@@ -16,7 +16,11 @@ export default function StoreLayout() {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen
         name="night-market"
-        options={{ headerTitle: t("night_market"), headerTitleAlign: "center" }}
+        options={{
+          headerTitle: t("night_market"),
+          headerTitleAlign: "center",
+          animation: "ios_from_right",
+        }}
       />
     </Stack>
   );

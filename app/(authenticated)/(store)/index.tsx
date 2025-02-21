@@ -1,4 +1,4 @@
-import { useWindowDimensions, View } from "react-native";
+import { TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 import { useState } from "react";
 
@@ -10,7 +10,6 @@ import { useAppTheme } from "@/app/_layout";
 import i18n from "@/utils/localization";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { TouchableOpacity } from "react-native-gesture-handler";
 
 const renderScene = SceneMap({
   store: StoreView,

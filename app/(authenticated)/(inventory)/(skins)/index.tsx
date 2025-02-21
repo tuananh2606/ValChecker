@@ -29,6 +29,7 @@ import { useAppTheme } from "@/app/_layout";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import i18n from "@/utils/localization";
+import { useQuery } from "@tanstack/react-query";
 
 const noMeleeFilter = [
   "Vandal",
@@ -82,8 +83,6 @@ export default function SkinsScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const { colors } = useAppTheme();
-  const [ownedSkins, setOwnedSkins] = useState<ValorantSkin[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
   const { skins } = getAssets();
   const [filteredSkins, setFilteredSkins] = useState<(string | ValorantSkin)[]>(
     []
@@ -101,77 +100,80 @@ export default function SkinsScreen() {
 
   const colorScheme = useColorScheme();
   const user = useUserStore((state) => state.user);
-  useEffect(() => {
-    setLoading(true);
-    const fetchSkins = async () => {
-      let accessToken = (await SecureStore.getItemAsync(
-        "access_token"
-      )) as string;
-      let entitlementsToken = (await SecureStore.getItemAsync(
-        "entitlements_token"
-      )) as string;
-      const ownedSkins = await fetchPlayerOwnedItems(
-        accessToken,
-        entitlementsToken,
-        user.region,
-        user.id,
-        VOwnedItemType.Skins
-      );
 
-      const newSkins = convertOwnedItemIDToItem(ownedSkins);
-
-      setOwnedSkins(newSkins as ValorantSkin[]);
-      setLoading(false);
-    };
-    fetchSkins();
-  }, []);
+  const fetchSkins = async () => {
+    let accessToken = (await SecureStore.getItemAsync(
+      "access_token"
+    )) as string;
+    let entitlementsToken = (await SecureStore.getItemAsync(
+      "entitlements_token"
+    )) as string;
+    const ownedSkins = await fetchPlayerOwnedItems(
+      accessToken,
+      entitlementsToken,
+      user.region,
+      user.id,
+      VOwnedItemType.Skins
+    );
+    const newSkins = convertOwnedItemIDToItem(ownedSkins);
+    return newSkins as ValorantSkin[];
+  };
+  const { data, isLoading, error } = useQuery<ValorantSkin[], Error>({
+    queryKey: ["skins"],
+    queryFn: fetchSkins,
+    staleTime: 60000,
+  });
 
   const handleChangeWeapon = (title: string) => {
     sheetRef.current?.close();
     flashListRef.current?.scrollToOffset({ animated: false, offset: 0 });
-    if (title === "Melee") {
-      const ownedSkin = ownedSkins.filter(
-        (skin) => !noMeleeFilter.some((s) => skin.displayName.includes(s))
-      );
-      const remainingSkin = skins.filter(
-        (skin) =>
-          !noMeleeFilter.some((s) => skin.displayName.includes(s)) &&
-          !ownedSkin.some((item) => item.uuid === skin.uuid) &&
-          skin.contentTierUuid
-      );
-      handleTotalCollectionCount(ownedSkin);
-      setFilteredSkins([
-        t("owned"),
-        ...ownedSkin,
-        t("not_owned"),
-        ...remainingSkin,
-      ]);
-    } else if (title === "Owned") {
-      handleTotalCollectionCount(ownedSkins);
-      setFilteredSkins([t("owned"), ...ownedSkins]);
-    } else {
-      const ownedSkin = ownedSkins.filter((skin) =>
-        skin.displayName.includes(title)
-      );
-      const remainingSkin = skins.filter(
-        (skin) =>
-          skin.displayName.includes(title) &&
-          !ownedSkin.some((item) => item.uuid === skin.uuid)
-      );
-      handleTotalCollectionCount(ownedSkin);
-      setFilteredSkins([
-        t("owned"),
-        ...ownedSkin.sort(customSort()),
-        t("not_owned"),
-        ...remainingSkin.sort(customSort()),
-      ]);
+    if (data) {
+      if (title === "Melee") {
+        const ownedSkin = data.filter(
+          (skin) => !noMeleeFilter.some((s) => skin.displayName.includes(s))
+        );
+        const remainingSkin = skins.filter(
+          (skin) =>
+            !noMeleeFilter.some((s) => skin.displayName.includes(s)) &&
+            !ownedSkin.some((item) => item.uuid === skin.uuid) &&
+            skin.contentTierUuid
+        );
+        handleTotalCollectionCount(ownedSkin);
+        setFilteredSkins([
+          t("owned"),
+          ...ownedSkin,
+          t("not_owned"),
+          ...remainingSkin,
+        ]);
+      } else if (title === "Owned") {
+        handleTotalCollectionCount(data);
+        setFilteredSkins([t("owned"), ...data]);
+      } else {
+        const ownedSkin = data.filter((skin) =>
+          skin.displayName.includes(title)
+        );
+        const remainingSkin = skins.filter(
+          (skin) =>
+            skin.displayName.includes(title) &&
+            !ownedSkin.some((item) => item.uuid === skin.uuid)
+        );
+        handleTotalCollectionCount(ownedSkin);
+        setFilteredSkins([
+          t("owned"),
+          ...ownedSkin.sort(customSort()),
+          t("not_owned"),
+          ...remainingSkin.sort(customSort()),
+        ]);
+      }
     }
   };
 
   useEffect(() => {
-    handleTotalCollectionCount(ownedSkins);
-    setFilteredSkins([t("owned"), ...ownedSkins.sort(customSort())]);
-  }, [ownedSkins]);
+    handleTotalCollectionCount(data as ValorantSkin[]);
+    if (data) {
+      setFilteredSkins([t("owned"), ...data.sort(customSort())]);
+    }
+  }, [data]);
 
   const stickyHeaderIndices = filteredSkins
     .map((item, index) => {
@@ -184,22 +186,30 @@ export default function SkinsScreen() {
     .filter((item) => item !== null) as number[];
 
   const handleTotalCollectionCount = (arr: any[]) => {
-    const selectTier = arr.filter((item) => item.contentTier.rank === 0).length;
-    const deluxeTier = arr.filter((item) => item.contentTier.rank === 1).length;
-    const premiumTier = arr.filter(
-      (item) => item.contentTier.rank === 2
-    ).length;
-    const exclusiveTier = arr.filter(
-      (item) => item.contentTier.rank === 3
-    ).length;
-    const ultraTier = arr.filter((item) => item.contentTier.rank === 4).length;
-    setTotalCollectionCount({
-      select: selectTier,
-      deluxe: deluxeTier,
-      premium: premiumTier,
-      exclusive: exclusiveTier,
-      ultra: ultraTier,
-    });
+    if (arr) {
+      const selectTier = arr.filter(
+        (item) => item.contentTier.rank === 0
+      ).length;
+      const deluxeTier = arr.filter(
+        (item) => item.contentTier.rank === 1
+      ).length;
+      const premiumTier = arr.filter(
+        (item) => item.contentTier.rank === 2
+      ).length;
+      const exclusiveTier = arr.filter(
+        (item) => item.contentTier.rank === 3
+      ).length;
+      const ultraTier = arr.filter(
+        (item) => item.contentTier.rank === 4
+      ).length;
+      setTotalCollectionCount({
+        select: selectTier,
+        deluxe: deluxeTier,
+        premium: premiumTier,
+        exclusive: exclusiveTier,
+        ultra: ultraTier,
+      });
+    }
   };
 
   const snapPoints = useMemo(() => ["50%"], []);
@@ -245,7 +255,7 @@ export default function SkinsScreen() {
     });
   }, [navigation]);
 
-  if (loading) {
+  if (isLoading) {
     return <Loading />;
   }
 

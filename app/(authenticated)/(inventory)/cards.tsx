@@ -1,13 +1,7 @@
 import CardItem from "@/components/card/CardItem";
 import { getAssets } from "@/utils/valorant-assets";
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  Animated,
-  ActivityIndicator,
-  Text,
-} from "react-native";
+import React from "react";
+import { View, StyleSheet, Animated, Pressable } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { fetchPlayerOwnedItems } from "@/utils/valorant-api";
 import useUserStore from "@/hooks/useUserStore";
@@ -20,11 +14,11 @@ import {
   PagerViewOnPageScrollEventData,
   usePagerView,
 } from "react-native-pager-view";
-import { Pressable } from "react-native-gesture-handler";
 import { router } from "expo-router";
 import Pagination from "@/components/Pagination";
 import { FlashList } from "@shopify/flash-list";
 import i18n from "@/utils/localization";
+import { useQuery } from "@tanstack/react-query";
 
 export const SwitchTabArray = [
   { title: i18n.t("owned"), id: "owned" },
@@ -33,11 +27,6 @@ export const SwitchTabArray = [
 
 export default function CardsScreen() {
   const { cards } = getAssets();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [cardsData, setCardsData] = useState<ValorantCardAccessory[]>([]);
-  const [ownedCardsData, setOwnedCardsData] = useState<ValorantCardAccessory[]>(
-    []
-  );
   const { AnimatedPagerView, ref, setPage, activePage, ...rest } = usePagerView(
     {
       pagesAmount: 2,
@@ -45,32 +34,32 @@ export default function CardsScreen() {
   );
   const scrollOffsetAnimatedValue = React.useRef(new Animated.Value(0)).current;
   const positionAnimatedValue = React.useRef(new Animated.Value(0)).current;
-
   const user = useUserStore((state) => state.user);
-  useEffect(() => {
-    const fetchCards = async () => {
-      setLoading(true);
-      let accessToken = (await SecureStore.getItemAsync(
-        "access_token"
-      )) as string;
-      let entitlementsToken = (await SecureStore.getItemAsync(
-        "entitlements_token"
-      )) as string;
-      const ownedCards = await fetchPlayerOwnedItems(
-        accessToken,
-        entitlementsToken,
-        user.region,
-        user.id,
-        VOwnedItemType.Cards
-      );
 
-      const newCards = convertOwnedItemIDToItem(ownedCards);
-      setOwnedCardsData(newCards as ValorantCardAccessory[]);
-    };
-    fetchCards();
-    setCardsData(cards);
-    setLoading(false);
-  }, []);
+  const fetchCards = async () => {
+    let accessToken = (await SecureStore.getItemAsync(
+      "access_token"
+    )) as string;
+    let entitlementsToken = (await SecureStore.getItemAsync(
+      "entitlements_token"
+    )) as string;
+    const ownedCards = await fetchPlayerOwnedItems(
+      accessToken,
+      entitlementsToken,
+      user.region,
+      user.id,
+      VOwnedItemType.Cards
+    );
+
+    const newCards = convertOwnedItemIDToItem(ownedCards);
+    return newCards as ValorantCardAccessory[];
+  };
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["cards"],
+    queryFn: fetchCards,
+    staleTime: 60000,
+  });
 
   const renderItem = ({ item }: { item: ValorantCardAccessory }) => (
     <Pressable
@@ -133,7 +122,7 @@ export default function CardsScreen() {
                 }}
               ></View>
             )}
-            data={ownedCardsData}
+            data={data}
             renderItem={renderItem}
             estimatedItemSize={getDeviceWidth() / 5}
           />
@@ -148,7 +137,7 @@ export default function CardsScreen() {
                 }}
               ></View>
             )}
-            data={cardsData}
+            data={cards}
             renderItem={renderItem}
             estimatedItemSize={getDeviceWidth() / 5}
           />

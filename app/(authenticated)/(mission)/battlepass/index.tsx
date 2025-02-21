@@ -39,10 +39,8 @@ const BattlePass = () => {
   const scrollOffsetAnimatedValue = useRef(new Animated.Value(0)).current;
   const postitionAV = useSharedValue(0);
   const [daysLeft, setDaysLeft] = useState<number>();
-  const [activeIndex, setActiveIndex] = useState<number>(postitionAV.value);
   const positionAnimatedValue = useRef(new Animated.Value(0)).current;
-  const flatListRef = useRef<FlatList>(null);
-  const { AnimatedPagerView, ref, setPage, ...rest } = usePagerView({
+  const { AnimatedPagerView, ref, setPage } = usePagerView({
     pagesAmount: 11,
   });
 
