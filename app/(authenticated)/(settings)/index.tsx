@@ -5,7 +5,14 @@ import {
   Title,
   TouchableRipple,
 } from "react-native-paper";
-import { StyleSheet, View, ToastAndroid, Text } from "react-native";
+import {
+  StyleSheet,
+  View,
+  ToastAndroid,
+  Text,
+  ScrollView,
+  Linking,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useUserStore from "@/hooks/useUserStore";
 import { defaultUser } from "@/utils/valorant-api";
@@ -30,6 +37,7 @@ import { useRevenueCat } from "@/providers/RevenueCatProvider";
 import Purchases from "react-native-purchases";
 import { useEffect } from "react";
 import { useCacheStore } from "@/hooks/useCacheStore";
+import { getDeviceHeight } from "@/utils/misc";
 
 const adUnitId = __DEV__
   ? TestIds.BANNER
@@ -125,7 +133,7 @@ export default function SettingScreen() {
   }, [notificationEnabled]);
 
   return (
-    <View
+    <ScrollView
       style={{
         flex: 1,
       }}
@@ -236,7 +244,45 @@ export default function SettingScreen() {
               )}
             />
           </View>
+          <List.Subheader>
+            {t("settings.terms_and_privacy.name")}
+          </List.Subheader>
+          <View
+            style={{
+              backgroundColor: "#2E2E2E",
+              borderRadius: 10,
+            }}
+          >
+            <TouchableRipple
+              onPress={() => {
+                Linking.openURL(
+                  "https://www.privacypolicies.com/live/f6dcc4f5-015e-403f-b951-1cb4943ca6ac"
+                );
+              }}
+            >
+              <List.Item
+                title={t("settings.terms_and_privacy.privacy_policy")}
+                left={() => (
+                  <View
+                    style={{
+                      marginLeft: 32,
+                    }}
+                  ></View>
+                )}
+                right={() => (
+                  <List.Icon color={colors.tint} icon="chevron-right" />
+                )}
+              />
+            </TouchableRipple>
+          </View>
         </List.Section>
+      </View>
+      <View
+        style={{
+          paddingHorizontal: 8,
+          marginTop: 100,
+        }}
+      >
         <Button
           onPress={handleLogout}
           style={{
@@ -264,7 +310,6 @@ export default function SettingScreen() {
           registered trademarks of Riot Games, Inc.
         </Text>
       </View>
-
       <BannerAd
         unitId={adUnitId}
         size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
@@ -275,7 +320,7 @@ export default function SettingScreen() {
           },
         }}
       />
-    </View>
+    </ScrollView>
   );
 }
 

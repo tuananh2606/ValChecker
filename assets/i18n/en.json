@@ -108,6 +108,10 @@
     "notification": {
       "name": "Notification",
       "store_reset_notification": "Store Reset Notification"
+    },
+    "terms_and_privacy": {
+      "name": "Terms and privacy",
+      "privacy_policy": "Privacy policy"
     }
   },
   "shop": "Shop",
@@ -194,5 +198,6 @@
   },
   "missions_completed": "You have completed all the missions.",
   "night_market": "Night Market",
-  "equipment_skins": "Equipment Skins"
+  "equipment_skins": "Equipment Skins",
+  "search": "Search"
 }

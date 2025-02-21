@@ -1,9 +1,9 @@
 import SkinItem from "@/components/card/SkinItem";
 import { useWishlistStore } from "@/hooks/useWishlistStore";
-import { getDeviceWidth } from "@/utils/misc";
 import { getAssets } from "@/utils/valorant-assets";
 import { FlashList } from "@shopify/flash-list";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Searchbar } from "react-native-paper";
 import { useDebounce } from "use-debounce";
@@ -11,7 +11,8 @@ import { useDebounce } from "use-debounce";
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [value] = useDebounce(searchQuery, 500);
-  const { skinIds, toggleSkin } = useWishlistStore();
+  const { t } = useTranslation();
+  const { skinIds } = useWishlistStore();
   const { skins } = getAssets();
   const [searchSkins, setSearchSkins] = useState<ValorantSkin[]>([]);
 
@@ -52,6 +53,7 @@ const Search = () => {
         inputStyle={{
           minHeight: 0,
         }}
+        placeholder={t("search")}
         onChangeText={setSearchQuery}
         value={searchQuery}
       />

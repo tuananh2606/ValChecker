@@ -100,6 +100,10 @@
     "notification": {
       "name": "Thông báo",
       "store_reset_notification": "Thông báo cửa hàng làm mới"
+    },
+    "terms_and_privacy": {
+      "name": "Điều khoản và quyền riêng tư",
+      "privacy_policy": "Chính sách bảo mật"
     }
   },
   "shop": "Cửa hàng",
@@ -183,5 +187,6 @@
   },
   "missions_completed": "Bạn đã hoàn thành tất cả nhiệm vụ.",
   "night_market": "Chợ Đêm",
-  "equipment_skins": "Skins trang bị"
+  "equipment_skins": "Skins trang bị",
+  "search": "Tìm kiếm"
 }
