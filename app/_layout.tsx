@@ -17,6 +17,8 @@ import merge from "deepmerge";
 import { useTranslation } from "react-i18next";
 import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Purchases, { LOG_LEVEL } from "react-native-purchases";
+import { Platform } from "react-native";
 
 export const unstable_settings = {
   initialRouteName: "loading",
@@ -52,8 +54,18 @@ export default function RootLayout() {
     async function prepare() {
       try {
         // Pre-load fonts, make any API calls you need to do here
+        Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
+        if (Platform.OS === "android") {
+          if (process.env.EXPO_PUBLIC_RC_ANDROID)
+            Purchases.configure({
+              apiKey: process.env.EXPO_PUBLIC_RC_ANDROID,
+            });
+            await Purchases.setProxyURL("https://api.rc-backup.com/");
+        }
+        const test = await Purchases.getOfferings();
+        console.log(test);
       } catch (e) {
-        console.warn(e);
+        console.warn(JSON.stringify(e));
       } finally {
         // Tell the application to render
         setAppIsReady(true);

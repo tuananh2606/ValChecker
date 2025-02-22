@@ -3,11 +3,6 @@ import { Platform } from "react-native";
 import Purchases, { LOG_LEVEL, PurchasesPackage } from "react-native-purchases";
 import { CustomerInfo } from "react-native-purchases";
 
-// Use keys from you RevenueCat API Keys
-const APIKeys = {
-  google: "goog_XDuQQTwpojPvXBQeYNrCbtAazHs",
-};
-
 interface RevenueCatProps {
   purchasePackage?: (pack: PurchasesPackage) => Promise<void>;
   restorePermissions?: () => Promise<CustomerInfo>;
@@ -35,8 +30,8 @@ export const RevenueCatProvider = ({ children }: any) => {
 
   useEffect(() => {
     const init = async () => {
-      if (Platform.OS === "android") {
-        Purchases.configure({ apiKey: APIKeys.google });
+      if (Platform.OS === "android" && process.env.EXPO_PUBLIC_RC_ANDROID) {
+        Purchases.configure({ apiKey: process.env.EXPO_PUBLIC_RC_ANDROID });
       }
       setIsReady(true);
 
@@ -81,7 +76,7 @@ export const RevenueCatProvider = ({ children }: any) => {
       await Purchases.purchasePackage(pack);
 
       // Directly add our consumable product
-      if (pack.product.identifier === "remove_ads_forever:raf") {
+      if (pack.product.identifier === "remove_ads_lt") {
         setUser({ ...user, cookies: (user.cookies += 5) });
       }
     } catch (e: any) {

@@ -3,15 +3,16 @@ import {
   List,
   Switch,
   Title,
+  Text,
   TouchableRipple,
 } from "react-native-paper";
 import {
   StyleSheet,
   View,
   ToastAndroid,
-  Text,
   ScrollView,
   Linking,
+  TouchableOpacity,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useUserStore from "@/hooks/useUserStore";
@@ -33,11 +34,10 @@ import {
   BannerAdSize,
   TestIds,
 } from "react-native-google-mobile-ads";
-import { useRevenueCat } from "@/providers/RevenueCatProvider";
-import Purchases from "react-native-purchases";
 import { useEffect } from "react";
 import { useCacheStore } from "@/hooks/useCacheStore";
-import { getDeviceHeight } from "@/utils/misc";
+import { LinearGradient } from "expo-linear-gradient";
+import RevenueCatUI, { PAYWALL_RESULT } from "react-native-purchases-ui";
 
 const adUnitId = __DEV__
   ? TestIds.BANNER
@@ -69,10 +69,28 @@ export default function SettingScreen() {
     router.replace("/(login)");
   };
 
-  const loadOfferings = async () => {
-    const offerings = await Purchases.getOfferings();
-    if (offerings.current) {
-      console.log(offerings.current);
+  const isSubscribed = async () => {
+    const paywallResult: PAYWALL_RESULT =
+      await RevenueCatUI.presentPaywallIfNeeded({
+        requiredEntitlementIdentifier: "Pro Access",
+      });
+
+    switch (paywallResult) {
+      case PAYWALL_RESULT.NOT_PRESENTED:
+        return true;
+      case PAYWALL_RESULT.ERROR:
+      case PAYWALL_RESULT.CANCELLED:
+        return false;
+      case PAYWALL_RESULT.PURCHASED:
+      case PAYWALL_RESULT.RESTORED:
+        return true;
+      default:
+        return false;
+    }
+  };
+
+  const removeAdsAction = async () => {
+    if (await isSubscribed()) {
     }
   };
 
@@ -148,6 +166,25 @@ export default function SettingScreen() {
         >
           {t("settings.name")}
         </Title>
+        <TouchableOpacity
+          onPress={removeAdsAction}
+          style={{ width: "100%", height: 80, marginTop: 16 }}
+        >
+          <LinearGradient
+            start={{ x: 1, y: 0 }}
+            end={{ x: 0, y: 0 }}
+            colors={["#7b4397", "#dc2430"]}
+            style={[
+              styles.gradient,
+              {
+                height: "100%",
+              },
+            ]}
+          >
+            <Text variant="titleLarge">ValChecker Premium</Text>
+            <Text variant="labelMedium">Remove ads & Support developer</Text>
+          </LinearGradient>
+        </TouchableOpacity>
         <List.Section style={{ flex: 1 }}>
           <List.Subheader> {t("settings.faq.name")}</List.Subheader>
           <List.Item
@@ -328,5 +365,49 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 8,
+  },
+  gradient: {
+    padding: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 5,
+  },
+  centeredView: {
+    flex: 1,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: "#F194FF",
+  },
+  buttonClose: {
+    backgroundColor: "#2196F3",
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
   },
 });
