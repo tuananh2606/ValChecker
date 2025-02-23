@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { Platform } from "react-native";
+import { Platform, ToastAndroid } from "react-native";
 import Purchases, { LOG_LEVEL, PurchasesPackage } from "react-native-purchases";
 import { CustomerInfo } from "react-native-purchases";
 
@@ -7,13 +7,12 @@ interface RevenueCatProps {
   purchasePackage?: (pack: PurchasesPackage) => Promise<void>;
   restorePermissions?: () => Promise<CustomerInfo>;
   user: UserState;
+  setUserRC: (user: UserState) => void;
   packages: PurchasesPackage[];
 }
 
 export interface UserState {
-  cookies: number;
-  items: string[];
-  pro: boolean;
+  isPro: boolean;
 }
 
 const RevenueCatContext = createContext<RevenueCatProps | null>(null);
@@ -21,9 +20,7 @@ const RevenueCatContext = createContext<RevenueCatProps | null>(null);
 // Provide RevenueCat functions to our app
 export const RevenueCatProvider = ({ children }: any) => {
   const [user, setUser] = useState<UserState>({
-    cookies: 0,
-    items: [],
-    pro: false,
+    isPro: false,
   });
   const [packages, setPackages] = useState<PurchasesPackage[]>([]);
   const [isReady, setIsReady] = useState(false);
@@ -33,6 +30,7 @@ export const RevenueCatProvider = ({ children }: any) => {
       if (Platform.OS === "android" && process.env.EXPO_PUBLIC_RC_ANDROID) {
         Purchases.configure({ apiKey: process.env.EXPO_PUBLIC_RC_ANDROID });
       }
+      await Purchases.setProxyURL("https://api.rc-backup.com/");
       setIsReady(true);
 
       // Use more logging during debug if want!
@@ -42,9 +40,6 @@ export const RevenueCatProvider = ({ children }: any) => {
       Purchases.addCustomerInfoUpdateListener(async (info) => {
         updateCustomerInformation(info);
       });
-
-      // Load all offerings and the user object with entitlements
-      await loadOfferings();
     };
     init();
   }, []);
@@ -59,12 +54,10 @@ export const RevenueCatProvider = ({ children }: any) => {
 
   // Update user state based on previous purchases
   const updateCustomerInformation = async (customerInfo: CustomerInfo) => {
-    const newUser: UserState = { cookies: user.cookies, items: [], pro: false };
+    const newUser: UserState = { isPro: false };
 
     if (customerInfo?.entitlements.active["Pro Access"] !== undefined) {
-      newUser.items.push(
-        customerInfo?.entitlements.active["Pro Access"].identifier
-      );
+      newUser.isPro = true;
     }
 
     setUser(newUser);
@@ -77,7 +70,7 @@ export const RevenueCatProvider = ({ children }: any) => {
 
       // Directly add our consumable product
       if (pack.product.identifier === "remove_ads_lt") {
-        setUser({ ...user, cookies: (user.cookies += 5) });
+        setUser({ ...user });
       }
     } catch (e: any) {
       if (!e.userCancelled) {
@@ -88,13 +81,22 @@ export const RevenueCatProvider = ({ children }: any) => {
 
   // // Restore previous purchases
   const restorePermissions = async () => {
-    const customer = await Purchases.restorePurchases();
-    return customer;
+    const customerInfo = await Purchases.restorePurchases();
+    if (!customerInfo.entitlements.active.isActive) {
+      ToastAndroid.show("Khôi phục mua hàng thành công!", ToastAndroid.SHORT);
+    }
+
+    return customerInfo;
+  };
+
+  const setUserRC = (user: UserState) => {
+    setUser({ ...user });
   };
 
   const value = {
     restorePermissions,
     user,
+    setUserRC,
     packages,
     purchasePackage,
   };

@@ -1,16 +1,61 @@
-import { Tabs } from "expo-router";
-import { Platform, useColorScheme } from "react-native";
+import { Tabs, usePathname } from "expo-router";
+import { AppState, Platform, useColorScheme } from "react-native";
 import { HapticTab } from "@/components/HapticTab";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useTranslation } from "react-i18next";
 import UpdatePopup from "@/components/popup/UpdatePopup";
-import { Fragment } from "react";
+import { Fragment, useEffect, useRef } from "react";
+import { AppOpenAd, TestIds } from "react-native-google-mobile-ads";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const AD_INTERVAL = 15 * 60 * 1000;
+
+const adUnitId = __DEV__
+  ? TestIds.APP_OPEN
+  : "ca-app-pub-4096764929331535/9658950902";
+
+const appOpenAd = AppOpenAd.createForAdRequest(adUnitId, {
+  requestNonPersonalizedAdsOnly: true,
+});
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { t } = useTranslation();
+  const appState = useRef(AppState.currentState);
+  const pathname = usePathname();
+
+  const showAdIfAvailable = async () => {
+    if (appOpenAd.loaded) {
+      const now = new Date();
+      await AsyncStorage.setItem("lastOpenAds", now.getTime().toString());
+      appOpenAd.show();
+    }
+  };
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", async (state) => {
+      const now = Date.now();
+      const lastAds = Number.parseInt(
+        (await AsyncStorage.getItem("lastOpenAds")) || "0"
+      );
+
+      if (now - lastAds < AD_INTERVAL) return;
+      appOpenAd.load();
+      if (
+        appState.current.match(/inactive|background/) &&
+        state === "active" &&
+        pathname !== "/battlepass"
+      ) {
+        showAdIfAvailable();
+      }
+      appState.current = state;
+    });
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   return (
     <Fragment>

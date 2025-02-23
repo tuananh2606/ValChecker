@@ -13,6 +13,7 @@ import {
   ScrollView,
   Linking,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useUserStore from "@/hooks/useUserStore";
@@ -38,10 +39,12 @@ import { useEffect } from "react";
 import { useCacheStore } from "@/hooks/useCacheStore";
 import { LinearGradient } from "expo-linear-gradient";
 import RevenueCatUI, { PAYWALL_RESULT } from "react-native-purchases-ui";
+import { useRevenueCat } from "@/providers/RevenueCatProvider";
+import Purchases from "react-native-purchases";
 
 const adUnitId = __DEV__
   ? TestIds.BANNER
-  : "ca-app-pub-8908355189535475/5108310300";
+  : "ca-app-pub-4096764929331535/6318234013";
 
 export default function SettingScreen() {
   const { t } = useTranslation();
@@ -54,7 +57,11 @@ export default function SettingScreen() {
   const setNotificationEnabled = useWishlistStore(
     (state) => state.setNotificationEnabled
   );
-
+  const {
+    user: userRevenueCat,
+    setUserRC,
+    restorePermissions,
+  } = useRevenueCat();
   const darkModeEnabled = useDarkMode((state) => state.darkModeEnabled);
   const setDarkModeEnabled = useDarkMode((state) => state.setDarkMode);
   const handleLogout = async () => {
@@ -77,13 +84,17 @@ export default function SettingScreen() {
 
     switch (paywallResult) {
       case PAYWALL_RESULT.NOT_PRESENTED:
-        return true;
       case PAYWALL_RESULT.ERROR:
+        return false;
       case PAYWALL_RESULT.CANCELLED:
         return false;
       case PAYWALL_RESULT.PURCHASED:
-      case PAYWALL_RESULT.RESTORED:
+        Alert.alert("You're all set", "Your purchase was successful.", [
+          { text: "OK", onPress: () => {} },
+        ]);
         return true;
+      case PAYWALL_RESULT.RESTORED:
+        return false;
       default:
         return false;
     }
@@ -91,6 +102,7 @@ export default function SettingScreen() {
 
   const removeAdsAction = async () => {
     if (await isSubscribed()) {
+      setUserRC({ isPro: true });
     }
   };
 
@@ -151,63 +163,117 @@ export default function SettingScreen() {
   }, [notificationEnabled]);
 
   return (
-    <ScrollView
-      style={{
-        flex: 1,
-      }}
-    >
-      <View style={styles.container}>
-        <Title
-          style={{
-            textAlign: "center",
-            fontWeight: 700,
-            color: colors.text,
-          }}
-        >
-          {t("settings.name")}
-        </Title>
-        <TouchableOpacity
-          onPress={removeAdsAction}
-          style={{ width: "100%", height: 80, marginTop: 16 }}
-        >
-          <LinearGradient
-            start={{ x: 1, y: 0 }}
-            end={{ x: 0, y: 0 }}
-            colors={["#7b4397", "#dc2430"]}
-            style={[
-              styles.gradient,
-              {
-                height: "100%",
-              },
-            ]}
-          >
-            <Text variant="titleLarge">ValChecker Premium</Text>
-            <Text variant="labelMedium">Remove ads & Support developer</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-        <List.Section style={{ flex: 1 }}>
-          <List.Subheader> {t("settings.faq.name")}</List.Subheader>
-          <List.Item
+    <>
+      <ScrollView
+        style={{
+          flex: 1,
+        }}
+      >
+        <View style={styles.container}>
+          <Title
             style={{
-              padding: 10,
-              borderRadius: 10,
-              backgroundColor: "#2E2E2E",
-            }}
-            onPress={() => router.push("/faq")}
-            title={t("settings.faq.details")}
-            left={() => (
-              <AntDesign name="questioncircle" size={24} color={colors.tint} />
-            )}
-            right={() => <List.Icon color={colors.tint} icon="chevron-right" />}
-          />
-          <List.Subheader> {t("general")}</List.Subheader>
-          <View
-            style={{
-              backgroundColor: "#2E2E2E",
-              borderRadius: 10,
+              textAlign: "center",
+              fontWeight: 700,
+              color: colors.text,
             }}
           >
-            {/* <List.Item
+            {t("settings.name")}
+          </Title>
+
+          {userRevenueCat.isPro ? (
+            <View
+              style={{
+                width: "100%",
+                height: 80,
+                marginTop: 16,
+              }}
+            >
+              <LinearGradient
+                start={{ x: 1, y: 0 }}
+                end={{ x: 0, y: 0 }}
+                colors={["#7b4397", "#dc2430"]}
+                style={[
+                  {
+                    padding: 15,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderTopLeftRadius: 8,
+                    borderTopRightRadius: 8,
+                    width: "100%",
+                    height: "100%",
+                  },
+                ]}
+              >
+                <Text variant="titleLarge">Premium plan</Text>
+              </LinearGradient>
+              <TouchableRipple
+                style={{
+                  backgroundColor: "#2E2E2E",
+                  paddingHorizontal: 10,
+                  paddingVertical: 8,
+                  justifyContent: "center",
+                  borderBottomLeftRadius: 8,
+                  borderBottomRightRadius: 8,
+                }}
+                onPress={restorePermissions}
+              >
+                <Text style={{}} variant="labelLarge">
+                  Restore purchase
+                </Text>
+              </TouchableRipple>
+            </View>
+          ) : (
+            <TouchableOpacity
+              onPress={removeAdsAction}
+              style={{ width: "100%", height: 80, marginTop: 16 }}
+            >
+              <LinearGradient
+                start={{ x: 1, y: 0 }}
+                end={{ x: 0, y: 0 }}
+                colors={["#7b4397", "#dc2430"]}
+                style={[
+                  styles.gradient,
+                  {
+                    height: "100%",
+                  },
+                ]}
+              >
+                <Text variant="titleLarge">ValChecker Premium</Text>
+                <Text variant="labelMedium">
+                  Remove ads & Support developer
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          )}
+          <List.Section style={{ flex: 1, marginTop: 40 }}>
+            <List.Subheader> {t("settings.faq.name")}</List.Subheader>
+            <List.Item
+              style={{
+                padding: 10,
+                borderRadius: 10,
+                backgroundColor: "#2E2E2E",
+              }}
+              onPress={() => router.push("/faq")}
+              title={t("settings.faq.details")}
+              left={() => (
+                <AntDesign
+                  name="questioncircle"
+                  size={24}
+                  color={colors.tint}
+                />
+              )}
+              right={() => (
+                <List.Icon color={colors.tint} icon="chevron-right" />
+              )}
+            />
+            <List.Subheader> {t("general")}</List.Subheader>
+            <View
+              style={{
+                backgroundColor: "#2E2E2E",
+                borderRadius: 10,
+              }}
+            >
+              {/* <List.Item
             left={() => (
               <View
                 style={{
@@ -231,133 +297,140 @@ export default function SettingScreen() {
             )}
           />
           <Divider /> */}
-            <TouchableRipple
-              onPress={() => {
-                startActivityAsync(ActivityAction.LOCALE_SETTINGS);
+              <TouchableRipple
+                onPress={() => {
+                  startActivityAsync(ActivityAction.LOCALE_SETTINGS);
+                }}
+              >
+                <List.Item
+                  left={() => (
+                    <View
+                      style={{
+                        marginLeft: 8,
+                      }}
+                    >
+                      <AntDesign name="earth" size={24} color={colors.tint} />
+                    </View>
+                  )}
+                  title={t("settings.general.change_time_language")}
+                  right={() => (
+                    <List.Icon color={colors.tint} icon="chevron-right" />
+                  )}
+                />
+              </TouchableRipple>
+            </View>
+
+            <List.Subheader>{t("settings.notification.name")}</List.Subheader>
+            <View
+              style={{
+                backgroundColor: "#2E2E2E",
+                borderRadius: 10,
               }}
             >
               <List.Item
+                title={t("settings.notification.store_reset_notification")}
                 left={() => (
                   <View
                     style={{
                       marginLeft: 8,
                     }}
                   >
-                    <AntDesign name="earth" size={24} color={colors.tint} />
+                    <SimpleLineIcons
+                      name="bell"
+                      size={24}
+                      color={colors.tint}
+                    />
                   </View>
                 )}
-                title={t("settings.general.change_time_language")}
                 right={() => (
-                  <List.Icon color={colors.tint} icon="chevron-right" />
+                  <Switch
+                    color="green"
+                    value={notificationEnabled}
+                    onValueChange={toggleNotificationEnabled}
+                  />
                 )}
               />
-            </TouchableRipple>
-          </View>
-
-          <List.Subheader>{t("settings.notification.name")}</List.Subheader>
-          <View
-            style={{
-              backgroundColor: "#2E2E2E",
-              borderRadius: 10,
-            }}
-          >
-            <List.Item
-              title={t("settings.notification.store_reset_notification")}
-              left={() => (
-                <View
-                  style={{
-                    marginLeft: 8,
-                  }}
-                >
-                  <SimpleLineIcons name="bell" size={24} color={colors.tint} />
-                </View>
-              )}
-              right={() => (
-                <Switch
-                  color="green"
-                  value={notificationEnabled}
-                  onValueChange={toggleNotificationEnabled}
-                />
-              )}
-            />
-          </View>
-          <List.Subheader>
-            {t("settings.terms_and_privacy.name")}
-          </List.Subheader>
-          <View
-            style={{
-              backgroundColor: "#2E2E2E",
-              borderRadius: 10,
-            }}
-          >
-            <TouchableRipple
-              onPress={() => {
-                Linking.openURL(
-                  "https://www.privacypolicies.com/live/f6dcc4f5-015e-403f-b951-1cb4943ca6ac"
-                );
+            </View>
+            <List.Subheader>
+              {t("settings.terms_and_privacy.name")}
+            </List.Subheader>
+            <View
+              style={{
+                backgroundColor: "#2E2E2E",
+                borderRadius: 10,
               }}
             >
-              <List.Item
-                title={t("settings.terms_and_privacy.privacy_policy")}
-                left={() => (
-                  <View
-                    style={{
-                      marginLeft: 32,
-                    }}
-                  ></View>
-                )}
-                right={() => (
-                  <List.Icon color={colors.tint} icon="chevron-right" />
-                )}
-              />
-            </TouchableRipple>
-          </View>
-        </List.Section>
-      </View>
-      <View
-        style={{
-          paddingHorizontal: 8,
-          marginTop: 100,
-        }}
-      >
-        <Button
-          onPress={handleLogout}
+              <TouchableRipple
+                onPress={() => {
+                  Linking.openURL(
+                    "https://www.privacypolicies.com/live/f6dcc4f5-015e-403f-b951-1cb4943ca6ac"
+                  );
+                }}
+              >
+                <List.Item
+                  title={t("settings.terms_and_privacy.privacy_policy")}
+                  left={() => (
+                    <View
+                      style={{
+                        marginLeft: 32,
+                      }}
+                    ></View>
+                  )}
+                  right={() => (
+                    <List.Icon color={colors.tint} icon="chevron-right" />
+                  )}
+                />
+              </TouchableRipple>
+            </View>
+          </List.Section>
+        </View>
+        <View
           style={{
-            borderRadius: 8,
-          }}
-          buttonColor="#ff4654"
-          dark
-          mode="contained"
-        >
-          {t("logout")}
-        </Button>
-        <Text
-          style={{
-            textAlign: "center",
-            fontSize: 12,
-            color: "gray",
-            marginTop: 10,
-            paddingHorizontal: 15,
-            marginBottom: 12,
+            paddingHorizontal: 8,
+            marginTop: 100,
           }}
         >
-          ValChecker is not endorsed by Riot Games in any way.
-          {"\n"}
-          Riot Games, Valorant, and all associated properties are trademarks or
-          registered trademarks of Riot Games, Inc.
-        </Text>
-      </View>
-      <BannerAd
-        unitId={adUnitId}
-        size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-        requestOptions={{
-          requestNonPersonalizedAdsOnly: true,
-          networkExtras: {
-            collapsible: "bottom",
-          },
-        }}
-      />
-    </ScrollView>
+          <Button
+            onPress={handleLogout}
+            style={{
+              borderRadius: 8,
+            }}
+            buttonColor="#ff4654"
+            dark
+            mode="contained"
+          >
+            {t("logout")}
+          </Button>
+          <Text
+            style={{
+              textAlign: "center",
+              fontSize: 12,
+              color: "gray",
+              marginTop: 10,
+              paddingHorizontal: 15,
+              marginBottom: 12,
+            }}
+          >
+            ValChecker is not endorsed by Riot Games in any way.
+            {"\n"}
+            Riot Games, Valorant, and all associated properties are trademarks
+            or registered trademarks of Riot Games, Inc.
+          </Text>
+        </View>
+      </ScrollView>
+      {userRevenueCat.isPro && (
+        <BannerAd
+          unitId={adUnitId}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: true,
+            networkExtras: {
+              collapsible: "bottom",
+            },
+          }}
+        />
+      )}
+    </>
   );
 }
 
@@ -370,7 +443,7 @@ const styles = StyleSheet.create({
     padding: 15,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 5,
+    borderRadius: 8,
   },
   centeredView: {
     flex: 1,

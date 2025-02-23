@@ -38,11 +38,11 @@ const AD_INTERVAL = 15 * 60 * 1000;
 
 const adUnitId = __DEV__
   ? TestIds.BANNER
-  : "ca-app-pub-8908355189535475/8525036473";
+  : "ca-app-pub-4096764929331535/7631315681";
 
 const interstitialAdUnitId = __DEV__
   ? TestIds.INTERSTITIAL
-  : "ca-app-pub-8908355189535475/1173375666";
+  : "ca-app-pub-4096764929331535/8840693258";
 
 const interstitial = InterstitialAd.createForAdRequest(interstitialAdUnitId, {
   requestNonPersonalizedAdsOnly: true,
