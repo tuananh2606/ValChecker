@@ -77,10 +77,7 @@ export default function SettingScreen() {
   };
 
   const isSubscribed = async () => {
-    const paywallResult: PAYWALL_RESULT =
-      await RevenueCatUI.presentPaywallIfNeeded({
-        requiredEntitlementIdentifier: "Pro Access",
-      });
+    const paywallResult: PAYWALL_RESULT = await RevenueCatUI.presentPaywall();
 
     switch (paywallResult) {
       case PAYWALL_RESULT.NOT_PRESENTED:
@@ -94,6 +91,11 @@ export default function SettingScreen() {
         ]);
         return true;
       case PAYWALL_RESULT.RESTORED:
+        Alert.alert(
+          "You're all set",
+          "Your purchase has been successfully restored.",
+          [{ text: "OK", onPress: () => {} }]
+        );
         return false;
       default:
         return false;
@@ -103,6 +105,8 @@ export default function SettingScreen() {
   const removeAdsAction = async () => {
     if (await isSubscribed()) {
       setUserRC({ isPro: true });
+    } else {
+      setUserRC({ isPro: false });
     }
   };
 
@@ -186,6 +190,7 @@ export default function SettingScreen() {
                 width: "100%",
                 height: 80,
                 marginTop: 16,
+                marginBottom: 30,
               }}
             >
               <LinearGradient
@@ -245,7 +250,7 @@ export default function SettingScreen() {
               </LinearGradient>
             </TouchableOpacity>
           )}
-          <List.Section style={{ flex: 1, marginTop: 40 }}>
+          <List.Section style={{ flex: 1 }}>
             <List.Subheader> {t("settings.faq.name")}</List.Subheader>
             <List.Item
               style={{
@@ -418,7 +423,7 @@ export default function SettingScreen() {
           </Text>
         </View>
       </ScrollView>
-      {userRevenueCat.isPro && (
+      {!userRevenueCat.isPro && (
         <BannerAd
           unitId={adUnitId}
           size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}

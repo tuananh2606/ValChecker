@@ -29,6 +29,7 @@ import {
   TestIds,
 } from "react-native-google-mobile-ads";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRevenueCat } from "@/providers/RevenueCatProvider";
 
 interface WeeklyMission extends ValorantMission {
   progress: number;
@@ -57,7 +58,7 @@ export default function MissionScreen() {
   const [missions, setMissions] = useState<WeeklyMission[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { colors } = useAppTheme();
-
+  const { user: userRevenueCat } = useRevenueCat();
   const user = useUserStore((state) => state.user);
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(async () => {
@@ -120,15 +121,17 @@ export default function MissionScreen() {
   }, []);
 
   const handlePress = async () => {
-    if (interstitial.loaded) {
-      const now = new Date();
-      await AsyncStorage.setItem(
-        "lastInterstitialAd",
-        now.getTime().toString()
-      );
-      setTimeout(() => {
-        interstitial.show();
-      }, 3000);
+    if (!userRevenueCat.isPro) {
+      if (interstitial.loaded) {
+        const now = new Date();
+        await AsyncStorage.setItem(
+          "lastInterstitialAd",
+          now.getTime().toString()
+        );
+        setTimeout(() => {
+          interstitial.show();
+        }, 3000);
+      }
     }
     router.push("/battlepass");
   };
@@ -193,14 +196,16 @@ export default function MissionScreen() {
       setExpirationTime(missionsMetadata.MissionMetadata.WeeklyRefillTime);
       setMissions(weeklyMissions);
       setLoading(false);
-      const now = Date.now();
-      const lastAds = Number.parseInt(
-        (await AsyncStorage.getItem("lastInterstitialAd")) || "0"
-      );
+      if (!userRevenueCat.isPro) {
+        const now = Date.now();
+        const lastAds = Number.parseInt(
+          (await AsyncStorage.getItem("lastInterstitialAd")) || "0"
+        );
 
-      // Start loading the interstitial straight away
-      if (now - lastAds < AD_INTERVAL) return;
-      interstitial.load();
+        // Start loading the interstitial straight away
+        if (now - lastAds < AD_INTERVAL) return;
+        interstitial.load();
+      }
     };
     fetchData();
 
@@ -466,23 +471,25 @@ export default function MissionScreen() {
           </View>
         </Button>
       </View>
-      <View
-        style={{
-          position: "absolute",
-          bottom: 0,
-        }}
-      >
-        <BannerAd
-          unitId={adUnitId}
-          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-          requestOptions={{
-            requestNonPersonalizedAdsOnly: true,
-            networkExtras: {
-              collapsible: "bottom",
-            },
+      {!userRevenueCat.isPro && (
+        <View
+          style={{
+            position: "absolute",
+            bottom: 0,
           }}
-        />
-      </View>
+        >
+          <BannerAd
+            unitId={adUnitId}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+              networkExtras: {
+                collapsible: "bottom",
+              },
+            }}
+          />
+        </View>
+      )}
     </ScrollView>
   );
 }

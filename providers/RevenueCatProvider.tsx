@@ -1,11 +1,11 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { Platform, ToastAndroid } from "react-native";
+import { Alert, Platform, ToastAndroid } from "react-native";
 import Purchases, { LOG_LEVEL, PurchasesPackage } from "react-native-purchases";
 import { CustomerInfo } from "react-native-purchases";
 
 interface RevenueCatProps {
   purchasePackage?: (pack: PurchasesPackage) => Promise<void>;
-  restorePermissions?: () => Promise<CustomerInfo>;
+  restorePermissions?: () => Promise<void>;
   user: UserState;
   setUserRC: (user: UserState) => void;
   packages: PurchasesPackage[];
@@ -31,7 +31,6 @@ export const RevenueCatProvider = ({ children }: any) => {
         Purchases.configure({ apiKey: process.env.EXPO_PUBLIC_RC_ANDROID });
       }
       await Purchases.setProxyURL("https://api.rc-backup.com/");
-      setIsReady(true);
 
       // Use more logging during debug if want!
       Purchases.setLogLevel(LOG_LEVEL.DEBUG);
@@ -63,30 +62,13 @@ export const RevenueCatProvider = ({ children }: any) => {
     setUser(newUser);
   };
 
-  // Purchase a package
-  const purchasePackage = async (pack: PurchasesPackage) => {
-    try {
-      await Purchases.purchasePackage(pack);
-
-      // Directly add our consumable product
-      if (pack.product.identifier === "remove_ads_lt") {
-        setUser({ ...user });
-      }
-    } catch (e: any) {
-      if (!e.userCancelled) {
-        alert(e);
-      }
-    }
-  };
-
   // // Restore previous purchases
   const restorePermissions = async () => {
-    const customerInfo = await Purchases.restorePurchases();
-    if (!customerInfo.entitlements.active.isActive) {
-      ToastAndroid.show("Khôi phục mua hàng thành công!", ToastAndroid.SHORT);
+    try {
+      await Purchases.restorePurchases();
+    } catch (e: any) {
+      Alert.alert("Error restoring purchases", e.message);
     }
-
-    return customerInfo;
   };
 
   const setUserRC = (user: UserState) => {
@@ -98,11 +80,9 @@ export const RevenueCatProvider = ({ children }: any) => {
     user,
     setUserRC,
     packages,
-    purchasePackage,
   };
 
   // Return empty fragment if provider is not ready (Purchase not yet initialised)
-  if (!isReady) return <></>;
 
   return (
     <RevenueCatContext.Provider value={value}>

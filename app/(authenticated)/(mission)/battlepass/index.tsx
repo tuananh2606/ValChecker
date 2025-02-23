@@ -1,13 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Animated,
-  FlatList,
-} from "react-native";
-
+import { View, Text, StyleSheet, ScrollView, Animated } from "react-native";
 import { fetchContracts, fetchSeasonByID } from "@/utils/valorant-assets";
 import { fetchContractsByPID, parseBattlePass } from "@/utils/valorant-api";
 import { usePagerView } from "react-native-pager-view";
