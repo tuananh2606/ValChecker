@@ -1,6 +1,4 @@
 import { router } from "expo-router";
-import { ActivityIndicator, View } from "react-native";
-import { Image } from "expo-image";
 import { useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import { jwtDecode } from "jwt-decode";
@@ -17,9 +15,9 @@ import {
 } from "@/utils/valorant-api";
 import { loadAssets } from "@/utils/valorant-assets";
 import useUserStore from "@/hooks/useUserStore";
+import LoadingScreen from "@/components/screens/career/LoadingScreen";
 
 export default function Loading() {
-  const [loading, setLoading] = useState(true);
   const { setUser } = useUserStore();
 
   useEffect(() => {
@@ -81,7 +79,6 @@ export default function Loading() {
                   progress,
                   balances,
                 });
-                setLoading(false);
               })
               .catch((error) => {
                 console.log(error);
@@ -101,32 +98,5 @@ export default function Loading() {
     prepare();
   }, []);
 
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "flex-end",
-        alignItems: "center",
-      }}
-    >
-      <View
-        style={{
-          height: "50%",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 50,
-        }}
-      >
-        <Image
-          style={{
-            width: 100,
-            height: 100,
-          }}
-          contentFit="contain"
-          source={require("@/assets/images/icon.png")}
-        />
-        {loading && <ActivityIndicator size="large" color="red" />}
-      </View>
-    </View>
-  );
+  return <LoadingScreen />;
 }

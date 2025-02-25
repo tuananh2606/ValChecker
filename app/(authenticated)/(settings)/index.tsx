@@ -193,24 +193,29 @@ export default function SettingScreen() {
                 marginBottom: 30,
               }}
             >
-              <LinearGradient
-                start={{ x: 1, y: 0 }}
-                end={{ x: 0, y: 0 }}
-                colors={["#7b4397", "#dc2430"]}
-                style={[
-                  {
-                    padding: 15,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderTopLeftRadius: 8,
-                    borderTopRightRadius: 8,
-                    width: "100%",
-                    height: "100%",
-                  },
-                ]}
+              <TouchableOpacity
+                onPress={removeAdsAction}
+                style={{ width: "100%", height: 80, marginTop: 16 }}
               >
-                <Text variant="titleLarge">Premium plan</Text>
-              </LinearGradient>
+                <LinearGradient
+                  start={{ x: 1, y: 0 }}
+                  end={{ x: 0, y: 0 }}
+                  colors={["#7b4397", "#dc2430"]}
+                  style={[
+                    {
+                      padding: 15,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderTopLeftRadius: 8,
+                      borderTopRightRadius: 8,
+                      width: "100%",
+                      height: "100%",
+                    },
+                  ]}
+                >
+                  <Text variant="titleLarge">Premium plan</Text>
+                </LinearGradient>
+              </TouchableOpacity>
               <TouchableRipple
                 style={{
                   backgroundColor: "#2E2E2E",

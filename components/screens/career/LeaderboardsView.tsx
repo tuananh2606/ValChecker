@@ -1,12 +1,15 @@
 import { View, StyleSheet, Text, ActivityIndicator } from "react-native";
 import useUserStore from "@/hooks/useUserStore";
 import { Dropdown } from "react-native-element-dropdown";
-import { Fragment, memo, useEffect, useRef, useState } from "react";
 import {
-  fetchCompetitiveTier,
-  fetchSeasons,
-  getAssets,
-} from "@/utils/valorant-assets";
+  Fragment,
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { fetchSeasons, getAssets } from "@/utils/valorant-assets";
 import { Divider } from "react-native-paper";
 import { fetchLeaderBoard, parseSeason } from "@/utils/valorant-api";
 import * as SecureStore from "expo-secure-store";
@@ -50,6 +53,51 @@ const LeaderboardsView = () => {
   );
   const [leaderboard, setLeaderboard] = useState<IPlayer[]>([]);
   const [page, setPage] = useState<number>(0);
+  const [
+    onEndReachedCalledDuringMomentum,
+    SetOnEndReachedCalledDuringMomentum,
+  ] = useState(true);
+
+  const fetchLeaderboardData = useCallback(
+    async (pageNumber: number = 0) => {
+      setLoading(true);
+      try {
+        const accessToken = (await SecureStore.getItemAsync(
+          "access_token"
+        )) as string;
+        const entitlementsToken = (await SecureStore.getItemAsync(
+          "entitlements_token"
+        )) as string;
+        if (season) {
+          const leaderboard = await fetchLeaderBoard(
+            accessToken,
+            entitlementsToken,
+            value,
+            "476b0893-4c2e-abd6-c5fe-708facff0772",
+            pageNumber * 50
+          );
+
+          const updatedPlayers = leaderboard.Players.map((player: IPlayer) => ({
+            ...player,
+            rankTier: competitiveTiers.find(
+              (item) => item.tier === player.competitiveTier
+            ),
+          }));
+
+          if (pageNumber === 0) {
+            setLeaderboard(updatedPlayers);
+          } else {
+            setLeaderboard((prev) => [...prev, ...updatedPlayers]);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch leaderboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [value, season, competitiveTiers]
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,73 +108,31 @@ const LeaderboardsView = () => {
     };
     fetchData();
   }, []);
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      setLoading(true);
-      let accessToken = (await SecureStore.getItemAsync(
-        "access_token"
-      )) as string;
-      let entitlementsToken = (await SecureStore.getItemAsync(
-        "entitlements_token"
-      )) as string;
-
-      let leaderboard = await fetchLeaderBoard(
-        accessToken,
-        entitlementsToken,
-        value,
-        season
-      );
-
-      for (let i = 0; i < leaderboard.Players.length; i++) {
-        const competitiveTier = competitiveTiers.find(
-          (item) => item.tier === leaderboard.Players[i].competitiveTier
-        );
-
-        leaderboard.Players[i] = {
-          ...leaderboard.Players[i],
-          rankTier: competitiveTier,
-        };
-      }
-      setLeaderboard(leaderboard.Players);
-      setLoading(false);
-    };
-    fetchLeaderboard();
-  }, [value, season]);
 
   useEffect(() => {
-    const fetchLeaderboard = async () => {
-      let accessToken = (await SecureStore.getItemAsync(
-        "access_token"
-      )) as string;
-      let entitlementsToken = (await SecureStore.getItemAsync(
-        "entitlements_token"
-      )) as string;
-
-      let leaderboard = await fetchLeaderBoard(
-        accessToken,
-        entitlementsToken,
-        value,
-        season,
-        page * 50
-      );
-
-      for (let i = 0; i < leaderboard.Players.length; i++) {
-        const competitiveTier = competitiveTiers.find(
-          (item) => item.tier === leaderboard.Players[i].competitiveTier
-        );
-        leaderboard.Players[i] = {
-          ...leaderboard.Players[i],
-          rankTier: competitiveTier,
-        };
-      }
-      setLeaderboard((prev) => [...prev, ...leaderboard.Players]);
-    };
-    fetchLeaderboard();
-  }, [page]);
+    fetchLeaderboardData(page);
+  }, [fetchLeaderboardData, page]);
 
   const handleLoadMore = () => {
-    setPage((prev) => prev + 1);
+    if (!onEndReachedCalledDuringMomentum) {
+      setPage((prev) => prev + 1);
+      SetOnEndReachedCalledDuringMomentum(true);
+    }
   };
+
+  const handleRegionChange = useCallback((item: { value: string }) => {
+    setValue(item.value);
+    setIsFocus(false);
+    setPage(0);
+    flashListRef.current?.scrollToIndex({ animated: true, index: 0 });
+  }, []);
+
+  const handleSeasonChange = useCallback((item: { value: string }) => {
+    setSeason(item.value);
+    setIsSeasonFocus(false);
+    setPage(0);
+    flashListRef.current?.scrollToIndex({ animated: true, index: 0 });
+  }, []);
 
   return (
     <View style={{ flex: 1, marginTop: 8 }}>
@@ -167,11 +173,7 @@ const LeaderboardsView = () => {
           value={value}
           onFocus={() => setIsFocus(true)}
           onBlur={() => setIsFocus(false)}
-          onChange={(item) => {
-            setValue(item.value);
-            setIsFocus(false);
-            flashListRef.current?.scrollToIndex({ animated: true, index: 0 });
-          }}
+          onChange={handleRegionChange}
         />
 
         <Dropdown
@@ -211,11 +213,7 @@ const LeaderboardsView = () => {
           value={season}
           onFocus={() => setIsSeasonFocus(true)}
           onBlur={() => setIsSeasonFocus(false)}
-          onChange={(item) => {
-            setSeason(item.value);
-            setIsSeasonFocus(false);
-            flashListRef.current?.scrollToIndex({ animated: true, index: 0 });
-          }}
+          onChange={handleSeasonChange}
         />
       </View>
       <View style={{ flex: 1, position: "relative" }}>
@@ -231,6 +229,9 @@ const LeaderboardsView = () => {
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           estimatedItemSize={60}
+          onMomentumScrollBegin={() => {
+            SetOnEndReachedCalledDuringMomentum(false);
+          }}
         />
       </View>
     </View>

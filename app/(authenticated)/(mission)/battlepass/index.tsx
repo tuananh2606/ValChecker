@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, Animated } from "react-native";
 import { fetchContracts, fetchSeasonByID } from "@/utils/valorant-assets";
 import { fetchContractsByPID, parseBattlePass } from "@/utils/valorant-api";
@@ -36,61 +36,75 @@ const BattlePass = () => {
     pagesAmount: 11,
   });
 
-  const filterCurrentBattlePass = (contracts: ValorantContract[]) => {
-    const battlePass = contracts
-      .reverse()
-      .find((contract) => contract.content.relationType === TypeBattlePass);
-    return battlePass as ValorantContract;
-  };
+  const filterCurrentBattlePass = useCallback(
+    (contracts: ValorantContract[]) => {
+      const battlePass = contracts
+        .reverse()
+        .find((contract) => contract.content.relationType === TypeBattlePass);
+      return battlePass as ValorantContract;
+    },
+    []
+  );
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      let accessToken = (await SecureStore.getItemAsync(
-        "access_token"
-      )) as string;
-      let entitlementsToken = (await SecureStore.getItemAsync(
-        "entitlements_token"
-      )) as string;
+      try {
+        const accessToken = (await SecureStore.getItemAsync(
+          "access_token"
+        )) as string;
+        const entitlementsToken = (await SecureStore.getItemAsync(
+          "entitlements_token"
+        )) as string;
 
-      let [contracts, contract] = await Promise.all([
-        fetchContracts(),
-        fetchContractsByPID(
-          accessToken,
-          entitlementsToken,
-          user.region,
-          user.id
-        ),
-      ]);
+        const [contracts, contract] = await Promise.all([
+          fetchContracts(),
+          fetchContractsByPID(
+            accessToken,
+            entitlementsToken,
+            user.region,
+            user.id
+          ),
+        ]);
 
-      const currentBP = filterCurrentBattlePass(contracts);
-      const currentSeason = await fetchSeasonByID(
-        currentBP.content.relationUuid
-      );
+        const currentBP = filterCurrentBattlePass(contracts);
+        const currentSeason = await fetchSeasonByID(
+          currentBP.content.relationUuid
+        );
 
-      const now = new Date();
-      const endTime = new Date(currentSeason.endTime);
-      const daysLeft = Math.round(
-        (endTime.getTime() - now.getTime()) / (1000 * 3600 * 24)
-      );
-      setDaysLeft(daysLeft);
-      const progressBP = contract.find(
-        (item) => item.ContractDefinitionID === currentBP.uuid
-      );
-      const battlePass = await parseBattlePass(currentBP);
-      positionAnimatedValue.setValue(
-        Math.ceil((progressBP as Contract).ProgressionLevelReached / 5) - 1
-      );
-      postitionAV.value =
-        Math.ceil((progressBP as Contract).ProgressionLevelReached / 5) - 1;
-      setContracts({
-        ProgressionLevelReached: (progressBP as Contract)
-          .ProgressionLevelReached,
-        ProgressionTowardsNextLevel: (progressBP as Contract)
-          .ProgressionTowardsNextLevel,
-        battlePass: battlePass,
-      });
-      setLoading(false);
+        const now = new Date();
+        const endTime = new Date(currentSeason.endTime);
+        const daysLeft = Math.round(
+          (endTime.getTime() - now.getTime()) / (1000 * 3600 * 24)
+        );
+        setDaysLeft(daysLeft);
+
+        const progressBP = contract.find(
+          (item) => item.ContractDefinitionID === currentBP.uuid
+        );
+        const battlePass = await parseBattlePass(currentBP);
+
+        positionAnimatedValue.setValue(
+          Math.ceil((progressBP as Contract).ProgressionLevelReached) % 10 === 0
+            ? Math.ceil((progressBP as Contract).ProgressionLevelReached / 5)
+            : Math.ceil((progressBP as Contract).ProgressionLevelReached / 5) -
+                1
+        );
+        postitionAV.value =
+          Math.ceil((progressBP as Contract).ProgressionLevelReached / 5) - 1;
+
+        setContracts({
+          ProgressionLevelReached: (progressBP as Contract)
+            .ProgressionLevelReached,
+          ProgressionTowardsNextLevel: (progressBP as Contract)
+            .ProgressionTowardsNextLevel,
+          battlePass: battlePass,
+        });
+      } catch (error) {
+        console.error("Failed to fetch battle pass data:", error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, []);
@@ -121,7 +135,11 @@ const BattlePass = () => {
       />
       {contracts && (
         <AnimatedPagerView
-          initialPage={Math.ceil(contracts.ProgressionLevelReached / 5) - 1}
+          initialPage={
+            Math.ceil(contracts.ProgressionLevelReached) % 10 === 0
+              ? Math.ceil(contracts.ProgressionLevelReached / 5)
+              : Math.ceil(contracts.ProgressionLevelReached / 5) - 1
+          }
           testID="pager-view"
           ref={ref}
           onPageScroll={Animated.event<PagerViewOnPageScrollEventData>(
