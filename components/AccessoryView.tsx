@@ -6,9 +6,12 @@ import { getShop, parseShop } from "@/utils/valorant-api";
 import AccessoryItem from "./card/AccessoryItem";
 import CurrencyFooter from "./CurrencyFooter";
 import useUserStore from "@/hooks/useUserStore";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useAppTheme } from "@/app/_layout";
 
 const AccessoryView = () => {
   const user = useUserStore((state) => state.user);
+  const { colors } = useAppTheme();
   const { setUser } = useUserStore();
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(async () => {
@@ -41,7 +44,21 @@ const AccessoryView = () => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         ListHeaderComponent={
-          <TimerAction remainingSecs={user.shops.remainingSecs.accessory} />
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <TimerAction remainingSecs={user.shops.remainingSecs.accessory} />
+            <MaterialIcons
+              name="refresh"
+              size={28}
+              color={colors.primary}
+              onPress={onRefresh}
+            />
+          </View>
         }
         ListFooterComponent={<CurrencyFooter balances={user.balances} />}
         data={user.shops.accessory}

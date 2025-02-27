@@ -8,9 +8,12 @@ import SkinItem from "./card/SkinItem";
 import React from "react";
 import TimerAction from "./TimerAction";
 import useUserStore from "@/hooks/useUserStore";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useAppTheme } from "@/app/_layout";
 
 const BundleView = () => {
   const user = useUserStore((state) => state.user);
+  const { colors } = useAppTheme();
   const { setUser } = useUserStore();
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(async () => {
@@ -45,9 +48,24 @@ const BundleView = () => {
       {user.shops.bundles.map((bundle, idx) => {
         return (
           <View key={idx} style={{ marginBottom: 8 }}>
-            <TimerAction
-              remainingSecs={user.shops.remainingSecs.bundles[idx]}
-            />
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <TimerAction
+                remainingSecs={user.shops.remainingSecs.bundles[idx]}
+              />
+              <MaterialIcons
+                name="refresh"
+                size={28}
+                color={colors.primary}
+                onPress={onRefresh}
+              />
+            </View>
+
             <BundleItem key={bundle.uuid} data={bundle} />
             {bundle.items.length > 0 &&
               bundle.items.map((item, idx) => (

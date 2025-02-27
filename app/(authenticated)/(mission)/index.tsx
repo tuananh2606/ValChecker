@@ -193,6 +193,7 @@ export default function MissionScreen() {
           });
         }
       }
+
       setExpirationTime(missionsMetadata.MissionMetadata.WeeklyRefillTime);
       setMissions(weeklyMissions);
       setLoading(false);
@@ -208,9 +209,8 @@ export default function MissionScreen() {
       }
     };
     fetchData();
-
-    // Unsubscribe from events on unmount
   }, []);
+  console.log(expirationTime);
 
   return (
     <ScrollView
@@ -302,10 +302,15 @@ export default function MissionScreen() {
         >
           {t("weekly_missions")}
         </Text>
-
-        {expirationTime && (
+        <MaterialIcons
+          name="refresh"
+          size={28}
+          color={colors.primary}
+          onPress={onRefresh}
+        />
+        {/* {expirationTime && (
           <TimerAction remainingSecs={convertDatetoSeconds(expirationTime)} />
-        )}
+        )} */}
       </View>
       {loading ? (
         <View>
