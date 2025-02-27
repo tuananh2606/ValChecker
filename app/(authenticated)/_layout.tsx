@@ -36,7 +36,7 @@ export default function TabLayout() {
       if (appOpenAd.loaded) {
         const now = new Date();
         await AsyncStorage.setItem("lastOpenAds", now.getTime().toString());
-        appOpenAd.show();
+        setTimeout(() => appOpenAd.show(), 1000);
       }
     };
     getAds();

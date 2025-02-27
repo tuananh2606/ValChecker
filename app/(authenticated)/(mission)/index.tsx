@@ -210,7 +210,6 @@ export default function MissionScreen() {
     };
     fetchData();
   }, []);
-  console.log(expirationTime);
 
   return (
     <ScrollView
