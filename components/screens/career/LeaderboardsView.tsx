@@ -219,6 +219,14 @@ const LeaderboardsView = () => {
       <View style={{ flex: 1, position: "relative" }}>
         {loading && (
           <View style={styles.loading}>
+            <View
+              style={{
+                position: "absolute",
+                inset: 0,
+                backgroundColor: "gray",
+                opacity: 0.1,
+              }}
+            />
             <ActivityIndicator size="large" color="red" />
           </View>
         )}
@@ -261,8 +269,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "gray",
-    opacity: 0.4,
     zIndex: 10,
   },
 });

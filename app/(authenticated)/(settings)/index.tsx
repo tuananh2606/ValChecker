@@ -13,6 +13,7 @@ import {
   ScrollView,
   Linking,
   TouchableOpacity,
+  ActivityIndicator,
   Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -35,16 +36,15 @@ import {
   BannerAdSize,
   TestIds,
 } from "react-native-google-mobile-ads";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useCacheStore } from "@/hooks/useCacheStore";
 import { LinearGradient } from "expo-linear-gradient";
 import RevenueCatUI, { PAYWALL_RESULT } from "react-native-purchases-ui";
 import { useRevenueCat } from "@/providers/RevenueCatProvider";
-import Purchases from "react-native-purchases";
 
 const adUnitId = __DEV__
   ? TestIds.BANNER
-  : "ca-app-pub-4096764929331535/6318234013";
+  : "ca-app-pub-6005386669059232/8032880173";
 
 export default function SettingScreen() {
   const { t } = useTranslation();
@@ -64,7 +64,9 @@ export default function SettingScreen() {
   } = useRevenueCat();
   const darkModeEnabled = useDarkMode((state) => state.darkModeEnabled);
   const setDarkModeEnabled = useDarkMode((state) => state.setDarkMode);
-  const handleLogout = async () => {
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const handleLogout = useCallback(async () => {
     await CookieManager.clearAll(true);
     await AsyncStorage.removeItem("region");
     await SecureStore.deleteItemAsync("access_token");
@@ -74,10 +76,13 @@ export default function SettingScreen() {
     setNotificationEnabled(false);
     clearAll();
     router.replace("/(login)");
-  };
+  }, []);
 
-  const isSubscribed = async () => {
-    const paywallResult: PAYWALL_RESULT = await RevenueCatUI.presentPaywall();
+  const isSubscribed = useCallback(async () => {
+    const paywallResult: PAYWALL_RESULT =
+      await RevenueCatUI.presentPaywallIfNeeded({
+        requiredEntitlementIdentifier: "Pro Access",
+      });
 
     switch (paywallResult) {
       case PAYWALL_RESULT.NOT_PRESENTED:
@@ -86,31 +91,30 @@ export default function SettingScreen() {
       case PAYWALL_RESULT.CANCELLED:
         return false;
       case PAYWALL_RESULT.PURCHASED:
-        Alert.alert("You're all set", "Your purchase was successful.", [
-          { text: "OK", onPress: () => {} },
-        ]);
         return true;
       case PAYWALL_RESULT.RESTORED:
-        Alert.alert(
-          "You're all set",
-          "Your purchase has been successfully restored.",
-          [{ text: "OK", onPress: () => {} }]
-        );
-        return false;
+        return true;
       default:
         return false;
     }
-  };
+  }, []);
 
-  const removeAdsAction = async () => {
+  const removeAdsAction = useCallback(async () => {
     if (await isSubscribed()) {
       setUserRC({ isPro: true });
     } else {
       setUserRC({ isPro: false });
     }
+  }, [isSubscribed]);
+
+  const restorePurchase = async () => {
+    setLoading(true);
+    const customerInfo = await restorePermissions!();
+    Alert.alert("Restore purchase", customerInfo.toString());
+    setLoading(false);
   };
 
-  const toggleNotificationEnabled = async () => {
+  const toggleNotificationEnabled = useCallback(async () => {
     if (!notificationEnabled) {
       setNotificationEnabled(true);
       const permission = await Notifications.requestPermissionsAsync();
@@ -132,7 +136,7 @@ export default function SettingScreen() {
       await stopBackgroundFetch();
       ToastAndroid.show(t("wishlist.notification.disabled"), ToastAndroid.LONG);
     }
-  };
+  }, []);
   useEffect(() => {
     const setupNotification = async () => {
       if (notificationEnabled) {
@@ -168,6 +172,19 @@ export default function SettingScreen() {
 
   return (
     <>
+      {loading && (
+        <View style={styles.loading}>
+          <View
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundColor: "gray",
+              opacity: 0.1,
+            }}
+          />
+          <ActivityIndicator size="large" color="red" />
+        </View>
+      )}
       <ScrollView
         style={{
           flex: 1,
@@ -184,15 +201,35 @@ export default function SettingScreen() {
             {t("settings.name")}
           </Title>
 
-          {userRevenueCat.isPro ? (
-            <View
-              style={{
-                width: "100%",
-                height: 80,
-                marginTop: 16,
-                marginBottom: 30,
-              }}
-            >
+          <View
+            style={{
+              width: "100%",
+              height: 80,
+              marginTop: 16,
+              marginBottom: 40,
+            }}
+          >
+            {userRevenueCat.isPro ? (
+              <LinearGradient
+                start={{ x: 1, y: 0 }}
+                end={{ x: 0, y: 0 }}
+                colors={["#7b4397", "#dc2430"]}
+                style={[
+                  {
+                    marginTop: 16,
+                    padding: 15,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderTopLeftRadius: 8,
+                    borderTopRightRadius: 8,
+                    width: "100%",
+                    height: "100%",
+                  },
+                ]}
+              >
+                <Text variant="titleLarge">Premium plan</Text>
+              </LinearGradient>
+            ) : (
               <TouchableOpacity
                 onPress={removeAdsAction}
                 style={{ width: "100%", height: 80, marginTop: 16 }}
@@ -201,60 +238,30 @@ export default function SettingScreen() {
                   start={{ x: 1, y: 0 }}
                   end={{ x: 0, y: 0 }}
                   colors={["#7b4397", "#dc2430"]}
-                  style={[
-                    {
-                      padding: 15,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderTopLeftRadius: 8,
-                      borderTopRightRadius: 8,
-                      width: "100%",
-                      height: "100%",
-                    },
-                  ]}
+                  style={[styles.gradient]}
                 >
-                  <Text variant="titleLarge">Premium plan</Text>
+                  <Text variant="titleLarge">ValChecker Premium</Text>
+                  <Text variant="labelMedium">
+                    Remove ads & Support developer
+                  </Text>
                 </LinearGradient>
               </TouchableOpacity>
-              <TouchableRipple
-                style={{
-                  backgroundColor: "#2E2E2E",
-                  paddingHorizontal: 10,
-                  paddingVertical: 8,
-                  justifyContent: "center",
-                  borderBottomLeftRadius: 8,
-                  borderBottomRightRadius: 8,
-                }}
-                onPress={restorePermissions}
-              >
-                <Text style={{}} variant="labelLarge">
-                  Restore purchase
-                </Text>
-              </TouchableRipple>
-            </View>
-          ) : (
-            <TouchableOpacity
-              onPress={removeAdsAction}
-              style={{ width: "100%", height: 80, marginTop: 16 }}
+            )}
+            <TouchableRipple
+              style={{
+                backgroundColor: "#2E2E2E",
+                paddingHorizontal: 10,
+                paddingVertical: 8,
+                justifyContent: "center",
+                borderBottomLeftRadius: 8,
+                borderBottomRightRadius: 8,
+              }}
+              onPress={restorePurchase}
             >
-              <LinearGradient
-                start={{ x: 1, y: 0 }}
-                end={{ x: 0, y: 0 }}
-                colors={["#7b4397", "#dc2430"]}
-                style={[
-                  styles.gradient,
-                  {
-                    height: "100%",
-                  },
-                ]}
-              >
-                <Text variant="titleLarge">ValChecker Premium</Text>
-                <Text variant="labelMedium">
-                  Remove ads & Support developer
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          )}
+              <Text variant="labelLarge">Restore purchase</Text>
+            </TouchableRipple>
+          </View>
+
           <List.Section style={{ flex: 1 }}>
             <List.Subheader> {t("settings.faq.name")}</List.Subheader>
             <List.Item
@@ -453,7 +460,10 @@ const styles = StyleSheet.create({
     padding: 15,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 8,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    width: "100%",
+    height: "100%",
   },
   centeredView: {
     flex: 1,
@@ -492,5 +502,13 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: "center",
+  },
+  loading: {
+    position: "absolute",
+    inset: 0,
+    alignItems: "center",
+    justifyContent: "center",
+
+    zIndex: 10,
   },
 });

@@ -5,7 +5,7 @@ import { CustomerInfo } from "react-native-purchases";
 
 interface RevenueCatProps {
   purchasePackage?: (pack: PurchasesPackage) => Promise<void>;
-  restorePermissions?: () => Promise<void>;
+  restorePermissions?: () => Promise<CustomerInfo>;
   user: UserState;
   setUserRC: (user: UserState) => void;
   packages: PurchasesPackage[];
@@ -64,11 +64,8 @@ export const RevenueCatProvider = ({ children }: any) => {
 
   // // Restore previous purchases
   const restorePermissions = async () => {
-    try {
-      await Purchases.restorePurchases();
-    } catch (e: any) {
-      Alert.alert("Error restoring purchases", e.message);
-    }
+    const customerInfo = await Purchases.restorePurchases();
+    return customerInfo;
   };
 
   const setUserRC = (user: UserState) => {

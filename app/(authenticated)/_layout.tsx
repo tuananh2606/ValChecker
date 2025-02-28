@@ -14,7 +14,7 @@ const AD_INTERVAL = 15 * 60 * 1000;
 
 const adUnitId = __DEV__
   ? TestIds.APP_OPEN
-  : "ca-app-pub-4096764929331535/9658950902";
+  : "ca-app-pub-6005386669059232/4926504569";
 
 const appOpenAd = AppOpenAd.createForAdRequest(adUnitId, {
   requestNonPersonalizedAdsOnly: true,
