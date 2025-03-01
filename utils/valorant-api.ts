@@ -745,7 +745,7 @@ export const reAuth = (version: string) =>
     //   honorCipherOrder: true,
     //   minVersion: "TLSv1.2",
     // }),
-    // withCredentials: true,
+    withCredentials: true,
   });
 
 function getUrl(

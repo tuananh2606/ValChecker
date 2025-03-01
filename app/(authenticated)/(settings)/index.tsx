@@ -107,9 +107,15 @@ export default function SettingScreen() {
   }, [isSubscribed]);
 
   const restorePurchase = async () => {
-    setLoading(true);
-    await restorePermissions!();
-    setLoading(false);
+    try {
+      setLoading(true);
+      await restorePermissions!();
+    } catch (err) {
+      console.log(err);
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const toggleNotificationEnabled = useCallback(async () => {
