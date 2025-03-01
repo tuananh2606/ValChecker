@@ -19,7 +19,6 @@ const DetailsScreen = () => {
   const { skins } = getAssets();
   const skin = skins.find((_skin) => _skin.uuid === id) as ValorantSkin;
   const [selectedTab, setSelectedTab] = useState<number>(0);
-  const [videoSrc, setVideoSrc] = useState<string>("");
   const [selectedChroma, setSelectedChromaTab] = useState(0);
 
   const levels: TabButtonType[] = Array.from(
@@ -32,12 +31,15 @@ const DetailsScreen = () => {
     return { title: t("level") + " " + (idx + 1), source: item.swatch };
   });
 
-  const imageSource = skin.chromas[selectedChroma].displayIcon
-    ? (skin.chromas[selectedChroma].displayIcon as string)
-    : (skin.chromas[selectedChroma].fullRender as string);
+  const imageSource =
+    skin.uuid === "4af88517-4949-9caa-9dda-1980f07202a4"
+      ? (skin.chromas[selectedChroma].fullRender as string)
+      : skin.chromas[selectedChroma].displayIcon
+      ? (skin.chromas[selectedChroma].displayIcon as string)
+      : (skin.chromas[selectedChroma].fullRender as string);
   const videoSource = skin.levels[selectedTab].streamedVideo;
   const videoChromaSource = skin.chromas[selectedChroma].streamedVideo ?? null;
-  const player = useVideoPlayer(videoSrc, (player) => {
+  const player = useVideoPlayer(videoSource, (player) => {
     player.loop = true;
     player.play();
   });
@@ -79,7 +81,7 @@ const DetailsScreen = () => {
           style={{ width: 24, height: 24, marginRight: 8 }}
           resizeMode="contain"
           source={{
-            uri: skin.contentTier.displayIcon,
+            uri: skin.contentTier!.displayIcon,
           }}
         />
         <Text

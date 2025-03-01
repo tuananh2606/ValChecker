@@ -5,10 +5,10 @@ import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useTranslation } from "react-i18next";
-import UpdatePopup from "@/components/popup/UpdatePopup";
 import { Fragment, useEffect, useRef } from "react";
 import { AppOpenAd, TestIds } from "react-native-google-mobile-ads";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRevenueCat } from "../../providers/RevenueCatProvider";
 
 const AD_INTERVAL = 15 * 60 * 1000;
 
@@ -24,6 +24,7 @@ appOpenAd.load();
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { t } = useTranslation();
+  const { user } = useRevenueCat();
 
   useEffect(() => {
     const getAds = async () => {
@@ -39,7 +40,9 @@ export default function TabLayout() {
         setTimeout(() => appOpenAd.show(), 1000);
       }
     };
-    getAds();
+    if (!user.isPro) {
+      getAds();
+    }
   }, []);
 
   return (

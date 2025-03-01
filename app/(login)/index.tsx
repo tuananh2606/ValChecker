@@ -25,7 +25,7 @@ export default function RegionScreen() {
         style={[
           styles.dropdown,
           isFocus && {
-            borderColor: "blue",
+            borderColor: colors.primary,
           },
         ]}
         placeholderStyle={styles.placeholderStyle}

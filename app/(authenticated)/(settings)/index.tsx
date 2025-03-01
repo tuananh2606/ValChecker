@@ -14,7 +14,6 @@ import {
   Linking,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useUserStore from "@/hooks/useUserStore";
@@ -109,8 +108,7 @@ export default function SettingScreen() {
 
   const restorePurchase = async () => {
     setLoading(true);
-    const customerInfo = await restorePermissions!();
-    Alert.alert("Restore purchase", customerInfo.toString());
+    await restorePermissions!();
     setLoading(false);
   };
 

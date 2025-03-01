@@ -121,17 +121,15 @@ export default function MissionScreen() {
   }, []);
 
   const handlePress = async () => {
-    if (!userRevenueCat.isPro) {
-      if (interstitial.loaded) {
-        const now = new Date();
-        await AsyncStorage.setItem(
-          "lastInterstitialAd",
-          now.getTime().toString()
-        );
-        setTimeout(() => {
-          interstitial.show();
-        }, 3000);
-      }
+    if (!userRevenueCat.isPro && interstitial.loaded) {
+      const now = new Date();
+      await AsyncStorage.setItem(
+        "lastInterstitialAd",
+        now.getTime().toString()
+      );
+      setTimeout(() => {
+        interstitial.show();
+      }, 3000);
     }
     router.push("/battlepass");
   };

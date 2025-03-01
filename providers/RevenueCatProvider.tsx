@@ -1,11 +1,11 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { Alert, Platform, ToastAndroid } from "react-native";
+import { Platform } from "react-native";
 import Purchases, { LOG_LEVEL, PurchasesPackage } from "react-native-purchases";
 import { CustomerInfo } from "react-native-purchases";
 
 interface RevenueCatProps {
   purchasePackage?: (pack: PurchasesPackage) => Promise<void>;
-  restorePermissions?: () => Promise<CustomerInfo>;
+  restorePermissions?: () => Promise<void>;
   user: UserState;
   setUserRC: (user: UserState) => void;
   packages: PurchasesPackage[];
@@ -64,8 +64,7 @@ export const RevenueCatProvider = ({ children }: any) => {
 
   // // Restore previous purchases
   const restorePermissions = async () => {
-    const customerInfo = await Purchases.restorePurchases();
-    return customerInfo;
+    await Purchases.restorePurchases();
   };
 
   const setUserRC = (user: UserState) => {
