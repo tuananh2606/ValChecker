@@ -112,13 +112,13 @@ export default function LoginScreen() {
           uri: LOGIN_URL,
         }}
         onNavigationStateChange={handleWebViewChange}
-        injectedJavaScriptBeforeContentLoaded={`(function() {
-            const deleteCookieBanner = () => {
-              if (document.getElementsByClassName('osano-cm-window').length > 0) document.getElementsByClassName('osano-cm-window')[0].style = "display:none;";
-              else setTimeout(deleteCookieBanner, 10)
-            }
-            deleteCookieBanner();
-          })();`}
+        // injectedJavaScriptBeforeContentLoaded={`(function() {
+        //     const deleteCookieBanner = () => {
+        //       if (document.getElementsByClassName('osano-cm-window').length > 0) document.getElementsByClassName('osano-cm-window')[0].style = "display:none;";
+        //       else setTimeout(deleteCookieBanner, 10)
+        //     }
+        //     deleteCookieBanner();
+        //   })();`}
       />
     </View>
   );

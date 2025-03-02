@@ -1,12 +1,12 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { getAccessTokenFromUri, VCurrencies, VItemTypes } from "./misc";
-//import https from "https-browserify";
 import { fetchBundle, fetchVersion, getAssets } from "./valorant-assets";
 import * as SecureStore from "expo-secure-store";
 import CookieManager from "@react-native-cookies/cookies";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
+import https from "https-browserify";
 
 axios.interceptors.request.use(
   function (config) {
@@ -735,16 +735,16 @@ export const reAuth = (version: string) =>
       response_mode: "query",
       scope: "account openid",
     },
-    // httpsAgent: new https.Agent({
-    //   ciphers: [
-    //     "TLS_CHACHA20_POLY1305_SHA256",
-    //     "TLS_AES_128_GCM_SHA256",
-    //     "TLS_AES_256_GCM_SHA384",
-    //     "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
-    //   ].join(":"),
-    //   honorCipherOrder: true,
-    //   minVersion: "TLSv1.2",
-    // }),
+    httpsAgent: new https.Agent({
+      ciphers: [
+        "TLS_CHACHA20_POLY1305_SHA256",
+        "TLS_AES_128_GCM_SHA256",
+        "TLS_AES_256_GCM_SHA384",
+        "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
+      ].join(":"),
+      honorCipherOrder: true,
+      minVersion: "TLSv1.2",
+    }),
     withCredentials: true,
   });
 
