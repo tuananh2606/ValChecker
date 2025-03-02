@@ -231,7 +231,7 @@ export default function SettingScreen() {
                   },
                 ]}
               >
-                <Text variant="titleLarge">Premium plan</Text>
+                <Text variant="titleLarge">{t("settings.premium_plan")}</Text>
               </LinearGradient>
             ) : (
               <TouchableOpacity
@@ -246,7 +246,7 @@ export default function SettingScreen() {
                 >
                   <Text variant="titleLarge">ValChecker Premium</Text>
                   <Text variant="labelMedium">
-                    Remove ads & Support developer
+                    {t("settings.remove_ads_info")}
                   </Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -262,7 +262,9 @@ export default function SettingScreen() {
               }}
               onPress={restorePurchase}
             >
-              <Text variant="labelLarge">Restore purchase</Text>
+              <Text variant="labelLarge">
+                {t("settings.restore_purchases")}
+              </Text>
             </TouchableRipple>
           </View>
 

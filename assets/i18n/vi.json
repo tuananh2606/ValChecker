@@ -79,6 +79,9 @@
   "separate": "tách rời",
   "settings": {
     "name": "Cài đặt",
+    "restore_purchases": "Khôi phục mua hàng",
+    "remove_ads_info": "Loại bỏ quảng cáo và ủng hộ nhà phát triển",
+    "premium_plan": "Gói Premium",
     "faq": {
       "name": "FAQ",
       "details": "Các câu hỏi thường gặp",

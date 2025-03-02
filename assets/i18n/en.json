@@ -87,6 +87,9 @@
   "separate": "separate",
   "settings": {
     "name": "Settings",
+    "restore_purchases": "Restore Purchases",
+    "remove_ads_info": "Remove ads & Support developer",
+    "premium_plan": "Premium Plan",
     "faq": {
       "name": "FAQ",
       "details": "Frequently Asked Questions",
