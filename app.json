@@ -23,7 +23,7 @@
       "blockedPermissions": [
         "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
       ],
-      "versionCode": 8,
+      "versionCode": 9,
       "package": "com.bjjitaccll01.ValChecker"
     },
     "web": {
