@@ -252,7 +252,7 @@ const CareerSummary = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["career-summary"],
     queryFn: fetchData,
-    staleTime: 60000,
+    staleTime: 15 * 60000,
   });
 
   if (isLoading) {

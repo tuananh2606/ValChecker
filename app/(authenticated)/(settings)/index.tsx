@@ -446,7 +446,26 @@ export default function SettingScreen() {
           unitId={adUnitId}
           size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
           requestOptions={{
-            requestNonPersonalizedAdsOnly: true,
+            keywords: [
+              "mobile games",
+              "action games",
+              "puzzle games",
+              "arcade games",
+              "crypto",
+              "bitcoin",
+              "simulation games",
+              "game strategies",
+              "racing game",
+              "android offline games",
+              "barrel shooter",
+              "dodge",
+              "defend",
+              "defeat zombies",
+              "unlock puzzles",
+              "casual games",
+              "crypto trading",
+              "crypto exchange",
+            ],
             networkExtras: {
               collapsible: "bottom",
             },

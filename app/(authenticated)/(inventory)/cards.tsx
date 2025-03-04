@@ -58,7 +58,7 @@ export default function CardsScreen() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["cards"],
     queryFn: fetchCards,
-    staleTime: 60000,
+    staleTime: 15 * 60000,
   });
 
   const renderItem = ({ item }: { item: ValorantCardAccessory }) => (

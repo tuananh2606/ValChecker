@@ -121,7 +121,7 @@ export default function SkinsScreen() {
   const { data, isLoading, error } = useQuery<ValorantSkin[], Error>({
     queryKey: ["skins"],
     queryFn: fetchSkins,
-    staleTime: 60000,
+    staleTime: 15 * 60000,
   });
 
   const handleChangeWeapon = (title: string) => {

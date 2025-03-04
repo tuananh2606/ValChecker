@@ -17,7 +17,26 @@ const adUnitId = __DEV__
   : "ca-app-pub-6005386669059232/4926504569";
 
 const appOpenAd = AppOpenAd.createForAdRequest(adUnitId, {
-  requestNonPersonalizedAdsOnly: true,
+  keywords: [
+    "mobile games",
+    "action games",
+    "puzzle games",
+    "arcade games",
+    "crypto",
+    "bitcoin",
+    "simulation games",
+    "game strategies",
+    "racing game",
+    "android offline games",
+    "barrel shooter",
+    "dodge",
+    "defend",
+    "defeat zombies",
+    "unlock puzzles",
+    "casual games",
+    "crypto trading",
+    "crypto exchange",
+  ],
 });
 appOpenAd.load();
 

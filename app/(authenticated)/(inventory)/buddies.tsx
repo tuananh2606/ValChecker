@@ -66,7 +66,7 @@ export default function BuddiesScreen() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["buddies"],
     queryFn: fetchBuddies,
-    staleTime: 60000,
+    staleTime: 15 * 60000,
   });
 
   const renderItem = useCallback(

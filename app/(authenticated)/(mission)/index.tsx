@@ -46,7 +46,26 @@ const interstitialAdUnitId = __DEV__
   : "ca-app-pub-6005386669059232/8416023557";
 
 const interstitial = InterstitialAd.createForAdRequest(interstitialAdUnitId, {
-  requestNonPersonalizedAdsOnly: true,
+  keywords: [
+    "mobile games",
+    "action games",
+    "puzzle games",
+    "arcade games",
+    "crypto",
+    "bitcoin",
+    "simulation games",
+    "game strategies",
+    "racing game",
+    "android offline games",
+    "barrel shooter",
+    "dodge",
+    "defend",
+    "defeat zombies",
+    "unlock puzzles",
+    "casual games",
+    "crypto trading",
+    "crypto exchange",
+  ],
 });
 
 export default function MissionScreen() {
@@ -484,7 +503,26 @@ export default function MissionScreen() {
             unitId={adUnitId}
             size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
             requestOptions={{
-              requestNonPersonalizedAdsOnly: true,
+              keywords: [
+                "mobile games",
+                "action games",
+                "puzzle games",
+                "arcade games",
+                "crypto",
+                "bitcoin",
+                "simulation games",
+                "game strategies",
+                "racing game",
+                "android offline games",
+                "barrel shooter",
+                "dodge",
+                "defend",
+                "defeat zombies",
+                "unlock puzzles",
+                "casual games",
+                "crypto trading",
+                "crypto exchange",
+              ],
               networkExtras: {
                 collapsible: "bottom",
               },

@@ -240,7 +240,7 @@ export default function EquipmentScreen() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["equipment"],
     queryFn: fetchEquipments,
-    staleTime: 60000,
+    staleTime: 15 * 60000,
   });
 
   return (

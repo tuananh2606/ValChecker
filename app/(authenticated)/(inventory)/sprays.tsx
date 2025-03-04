@@ -70,7 +70,7 @@ export default function SpraysScreen() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["sprays"],
     queryFn: fetchSprays,
-    staleTime: 60000,
+    staleTime: 15 * 60000,
   });
 
   const renderItem = ({

@@ -43,7 +43,7 @@ const MatchHistory = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["match-history"],
     queryFn: fetchData,
-    staleTime: 60000,
+    staleTime: 15 * 60000,
   });
 
   const renderItem = useCallback(
