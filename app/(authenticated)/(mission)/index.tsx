@@ -523,9 +523,6 @@ export default function MissionScreen() {
                 "crypto trading",
                 "crypto exchange",
               ],
-              networkExtras: {
-                collapsible: "bottom",
-              },
             }}
           />
         </View>

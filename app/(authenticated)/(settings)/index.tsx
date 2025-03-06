@@ -466,9 +466,6 @@ export default function SettingScreen() {
               "crypto trading",
               "crypto exchange",
             ],
-            networkExtras: {
-              collapsible: "bottom",
-            },
           }}
         />
       )}
