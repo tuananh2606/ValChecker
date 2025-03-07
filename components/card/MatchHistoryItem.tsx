@@ -1,6 +1,6 @@
 import { View, StyleSheet } from "react-native";
 import { Image } from "expo-image";
-import { memo } from "react";
+import { memo, useEffect, useState } from "react";
 import { Card, Text } from "react-native-paper";
 import { useAppTheme } from "@/app/_layout";
 import { getLocales } from "expo-localization";
@@ -9,6 +9,7 @@ import { useMatchHistory } from "@/context/MatchHistoryContext";
 import { router } from "expo-router";
 import { BlurView } from "expo-blur";
 import { useTranslation } from "react-i18next";
+import { Image as ImageCompressor } from "react-native-compressor";
 
 interface Props {
   data: MatchDetails;
@@ -18,6 +19,7 @@ const MatchHistoryItem = ({ data }: Props) => {
   const { t } = useTranslation();
   const { colors } = useAppTheme();
   const { setMatch } = useMatchHistory();
+  const [imageSplash, setImageSplash] = useState("_");
   const user = useUserStore((state) => state.user);
   const convertTimestampToDate = (timestamp: number) => {
     const lang = getLocales()[0].languageCode || "en-US";
@@ -62,6 +64,14 @@ const MatchHistoryItem = ({ data }: Props) => {
     );
   };
 
+  useEffect(() => {
+    const compressImage = async () => {
+      const result = await ImageCompressor.compress(data.map.splash);
+      setImageSplash(result);
+    };
+    compressImage();
+  }, []);
+
   const player = data.players.find((p) => p.subject === user.id);
 
   return (
@@ -83,7 +93,7 @@ const MatchHistoryItem = ({ data }: Props) => {
         }}
         borderBottomLeftRadius={0}
         borderBottomRightRadius={0}
-        source={{ uri: data.map.splash }}
+        source={{ uri: imageSplash }}
       />
       {data.teams ? (
         <BlurView tint="dark" intensity={140} style={styles.blurContainer}>

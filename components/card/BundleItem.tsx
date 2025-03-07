@@ -1,11 +1,21 @@
 import { StyleSheet, View, Text } from "react-native";
 import { Image } from "expo-image";
+import { useEffect, useState } from "react";
+import { Image as ImageCompressor } from "react-native-compressor";
 
 interface Props {
   data: BundleShopItem;
 }
 
 const BundleItem = ({ data }: Props) => {
+  const [image, setImage] = useState("");
+  useEffect(() => {
+    const compressImage = async () => {
+      const result = await ImageCompressor.compress(data.displayIcon);
+      setImage(result);
+    };
+    compressImage();
+  }, []);
   return (
     <View style={styles.container}>
       <View style={styles.priceContainer}>
@@ -43,7 +53,7 @@ const BundleItem = ({ data }: Props) => {
         placeholder={require("@/assets/images/image-placeholder.png")}
         contentFit="fill"
         source={{
-          uri: data.displayIcon,
+          uri: image,
         }}
       />
 

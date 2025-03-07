@@ -60,7 +60,8 @@
           "androidAppId": "ca-app-pub-6005386669059232~5144898935",
           "iosAppId": ""
         }
-      ]
+      ],
+      "react-native-compressor"
     ],
     "experiments": {
       "typedRoutes": true

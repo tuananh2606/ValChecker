@@ -34,16 +34,51 @@ jobs:
         run: npm install
 
       - name: 🚀 Build app
-        run: eas build --local --non-interactive --platform android --profile production
+        run: eas build --local --non-interactive --platform android --profile production-github
 
       - name: Upload Artifact GitHub Action
         uses: actions/upload-artifact@v4
         with:
           name: valchecker_apk
-          path: build-*.aab
+          path: build-*.apk
+  build-aab:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Checkout Repository
+        uses: actions/checkout@v4
 
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+
+      - name: 🏗 Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+          packager: npm
+
+      - name: 🏗 Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "17"
+
+      - name: 📦 Install dependencies
+        run: npm install
+
+      - name: 🚀 Build app
+        run: eas build --local --non-interactive --platform android --profile production
+
+      - name: Upload Artifact GitHub Action
+        uses: actions/upload-artifact@v4
+        with:
+          name: valchecker_aab
+          path: build-*.aab
   create-release:
-    needs: [build-apk]
+    needs: [build-apk, build-aab]
     permissions:
       contents: write
     runs-on: ubuntu-latest
@@ -57,10 +92,15 @@ jobs:
         with:
           name: valchecker_apk
           path: valchecker_apk
-
+      - name: ⏬ Download Artifact Outputs - Aab
+        uses: actions/download-artifact@v4
+        with:
+          name: valchecker_aab
+          path: valchecker_aab
       - name: 📃 Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
           files: |
             valchecker_apk/**
+            valchecker_aab/**

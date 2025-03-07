@@ -58,6 +58,7 @@
     "react-native": "0.76.7",
     "react-native-background-fetch": "^4.2.7",
     "react-native-blurhash": "^2.1.0",
+    "react-native-compressor": "^1.10.4",
     "react-native-element-dropdown": "^2.12.2",
     "react-native-gesture-handler": "~2.20.2",
     "react-native-google-mobile-ads": "^14.9.0",
