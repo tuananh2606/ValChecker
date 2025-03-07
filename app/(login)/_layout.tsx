@@ -4,15 +4,7 @@ export default function LoginLayout() {
   return (
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="login_webview"
-        options={{
-          title: "",
-          headerStyle: {
-            backgroundColor: "#000000",
-          },
-        }}
-      />
+      <Stack.Screen name="login_webview" options={{ headerShown: false }} />
     </Stack>
   );
 }
